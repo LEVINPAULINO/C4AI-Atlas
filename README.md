@@ -31,13 +31,6 @@ Repository: **https://github.com/LEVINPAULINO/C4AI-Atlas**
 
 The default view is the Fingerprint Ledger. The Hamming lattice, UMAP projection, 3D orbital, PCA, UpSet, and parallel coordinates are deeper views.
 
-## What this is not
-
-- Not a PDF mirror. Links go to arXiv or the publisher.
-- Not a causal uplift estimate. Baseline deltas are reported differences, not identified effects.
-- Not a consensus. 200 papers are double-coded; the rest are single-coded and flagged.
-- Not peer review. The labels are our judgments.
-
 ## Quickstart
 
 ```bash
