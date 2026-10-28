@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this dataset or site, cite the version you used."
+title: "C4AI Atlas: a coded map of causality for AI"
+type: software
+version: 0.1.0-provisional
+date-released: 2026-10-28
+license: MIT
+repository-code: "https://github.com/LEVINPAULINO/C4AI-Atlas"
+url: "https://levinpaulino.github.io/C4AI-Atlas/"
+abstract: "A coded, searchable map of 580 papers on causality for AI, with a 64-pattern fingerprint ledger and a 37-capability map."
+authors:
+  - name: "C4AI Atlas contributors"
+keywords:
+  - causality
+  - causal inference
+  - artificial intelligence
+  - literature database
+  - reproducible research

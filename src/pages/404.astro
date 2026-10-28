@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/urls';
+---
+<Base
+  lang="en"
+  title="Page not found · C4AI Atlas"
+  description="The page does not exist. Return to the atlas."
+  alternateHref="/"
+>
+  <div class="wrap" style="padding:6rem 0">
+    <p class="eyebrow">404</p>
+    <h1 style="font-family:var(--font-display);font-size:clamp(2.5rem,6vw,5rem);font-weight:500;line-height:1;letter-spacing:-0.03em;margin:1rem 0">
+      That page is not in the ledger.
+    </h1>
+    <p style="max-width:55ch;color:var(--muted)">The link may be old, or the record may have moved. Start from the home page or search the ledger.</p>
+    <p><a href={withBase('/')}>Home</a> · <a href={withBase('/explore/')}>Explore</a> · <a href={withBase('/methods/')}>Methods</a></p>
+  </div>
+</Base>

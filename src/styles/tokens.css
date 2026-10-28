@@ -1,0 +1,55 @@
+:root,
+:root[data-theme='day'] {
+  --ground: #f4f5f1;
+  --surface: #eaede6;
+  --ink: #1a1d1b;
+  --muted: #44514b;
+  --rule: #cdd2c9;
+  --accent: #b02a6b;
+  --blue: #244a63;
+  --moss: #5e6b4a;
+  --ochre: #b07a1e;
+  --l0: #b9beb5;
+  --l1: #8e9a8b;
+  --l2: #647c78;
+  --l3: #3f625f;
+  --l4: #244a63;
+  --shadow: 0 1px 0 rgb(26 29 27 / 8%);
+}
+
+:root[data-theme='night'] {
+  --ground: #14171a;
+  --surface: #1e2422;
+  --ink: #e7e9e4;
+  --muted: #9aa39c;
+  --rule: #35403c;
+  --accent: #ffb454;
+  --blue: #6fd3e8;
+  --moss: #7ce3b1;
+  --ochre: #ffb454;
+  --l0: #4a5551;
+  --l1: #6a7b74;
+  --l2: #8fb9a8;
+  --l3: #7ce3b1;
+  --l4: #6fd3e8;
+  --shadow: 0 1px 0 rgb(255 255 255 / 6%);
+}
+
+:root {
+  --font-display: 'Newsreader', 'Noto Serif SC', Georgia, serif;
+  --font-ui: 'Public Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --step-0: 0.95rem;
+  --step-1: 1.15rem;
+  --step-2: 1.5rem;
+  --step-3: 2.1rem;
+  --step-4: 3.2rem;
+  --step-5: 5rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 3rem;
+  --space-5: 6rem;
+  --max: 1280px;
+  --radius: 2px;
+}

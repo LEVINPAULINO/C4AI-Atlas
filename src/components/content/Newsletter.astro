@@ -1,0 +1,225 @@
+---
+import ContentPage from '../ContentPage.astro';
+import { dataVersion, builtDate } from '../../lib/content';
+import { withBase } from '../../lib/urls';
+import { contactEmail } from '../../lib/site';
+
+interface Props {
+  lang?: 'en' | 'zh';
+}
+const { lang = 'en' } = Astro.props;
+
+const copy = {
+  en: {
+    title: 'Newsletter: release notes when the data changes',
+    description:
+      'A low-frequency release note for C4AI Atlas. The signup form is a placeholder; no provider is connected and no address is stored.',
+    eyebrow: '07 / Newsletter',
+    heading: 'One email when the data version changes.',
+    lede:
+      'Release notes, corrections, and P0 sign-offs. No launch hype, no weekly digest. The signup form is not connected yet: no email can be sent and no address is stored by this page.',
+    factsTitle: 'Status',
+    facts: [
+      ['Provider', 'not connected'],
+      ['Issues sent', '0'],
+      ['Archive', 'empty'],
+      ['Cadence', 'on version change'],
+      ['Data version', dataVersion],
+    ] as Array<[string, string]>,
+    sections: [
+      ['signup', 'Signup'],
+      ['archive', 'Archive'],
+      ['privacy', 'Privacy'],
+      ['maintainers', 'For maintainers'],
+    ] as Array<[string, string]>,
+    statusTitle: 'The form is a placeholder.',
+    statusBody:
+      'Buttondown or Substack is the planned provider. Neither is configured in v0.1. The email field and the submit button are disabled on purpose. Submitting is not possible, and this page has no script that would capture an address.',
+    signupLabel: 'Email address',
+    signupPlaceholder: 'name@example.org',
+    signupButton: 'Subscribe',
+    signupStatus: 'Not connected: no provider is configured. No address is sent or stored.',
+    providerNote:
+      'When a provider is connected, this paragraph will name it, link to its privacy policy, and state whether double opt-in is on.',
+    archiveTitle: 'No issues have been sent.',
+    archiveBody:
+      'The archive starts when the first release note ships. It will list the data version, the changes, and any correction that changed a public number. We will not backfill issues to make the archive look established.',
+    archiveCols: ['Issue', 'Date', 'Contents', 'Status'],
+    archiveRow: ['v0.2', 'not scheduled', 'release notes, corrections, P0 outcomes', 'pending'],
+    privacyTitle: 'What would be collected, and what would not.',
+    privacyList: [
+      'Collected if a provider is connected: an email address, the signup date, and the subscription state held by the provider.',
+      'Not collected: reading history, page-level analytics tied to an address, or advertising identifiers.',
+      'No tracking pixels in the email. No sale or rent of the list. No sponsor placement without a visible label.',
+      'Every issue would include an unsubscribe link. A deletion request would be handled by the provider and by the project contact.',
+      'The legal basis, retention period, and provider role would be stated here before the form is enabled.',
+    ],
+    privacyNote:
+      'This is a privacy notice for a form that is not yet active. It describes the intended minimum, not a current data flow. The provider’s own policy will govern once a provider is named.',
+    maintainersTitle: 'Before enabling the form.',
+    maintainersList: [
+      'Pick one provider. Do not load two scripts for one list.',
+      'Set the form action to the provider’s embed endpoint and remove the disabled attributes.',
+      'Turn on double opt-in. Test the confirmation and unsubscribe paths.',
+      'Name the provider and link its privacy policy in the Privacy section.',
+      `Keep the monitored contact address (${contactEmail}) and the retention period current.`,
+      'Update the facts plate: provider, issue count, and cadence.',
+    ],
+    maintainersNote:
+      'If no provider is configured by launch, keep the form disabled. A dead form is better than a form that quietly drops addresses.',
+  },
+  zh: {
+    title: '发布说明订阅',
+    description:
+      'C4AI Atlas 的发布说明订阅。订阅表单尚未接入服务商，当前页面不收集地址。',
+    eyebrow: '07 / 订阅',
+    heading: '发布说明订阅',
+    lede:
+      '数据版本更新时寄一封说明邮件，内容包括更正和 P0 核定结果。订阅表单尚未接入服务商。',
+    factsTitle: '状态',
+    facts: [
+      ['服务商', '未接入'],
+      ['已发期数', '0'],
+      ['存档', '空'],
+      ['频率', '版本变化时'],
+      ['数据版本', dataVersion],
+    ] as Array<[string, string]>,
+    sections: [
+      ['signup', '订阅'],
+      ['archive', '存档'],
+      ['privacy', '隐私'],
+      ['maintainers', '维护者'],
+    ] as Array<[string, string]>,
+    statusTitle: '订阅状态',
+    statusBody:
+      '计划使用 Buttondown 或 Substack，v0.1 尚未配置。邮箱输入框和提交按钮当前处于禁用状态。本页没有采集地址的脚本。',
+    signupLabel: '邮箱地址',
+    signupPlaceholder: 'name@example.org',
+    signupButton: '订阅',
+    signupStatus: '未接入：没有配置服务商。不会发送或存储任何地址。',
+    providerNote:
+      '接入服务商后，这一段会写明服务商名称、隐私政策链接，以及是否启用双重确认。',
+    archiveTitle: '存档状态',
+    archiveBody:
+      '第一期发布说明发出后，存档开始记录。存档列出数据版本、变更和影响公开数字的更正。',
+    archiveCols: ['期号', '日期', '内容', '状态'],
+    archiveRow: ['v0.2', '未排期', '发布说明、更正、P0 结果', '待定'],
+    privacyTitle: '收集范围',
+    privacyList: [
+      '接入服务商后，收集邮箱地址、订阅日期和服务商持有的订阅状态。',
+      '本站不收集阅读历史、与地址关联的页面级分析或广告标识符。',
+      '邮件中不放追踪像素。名单不出售、不出租。赞助内容会明确标注。',
+      '每期都会有退订链接。删除请求由服务商与项目联系人处理。',
+      '表单启用前，会在此写明法律依据、保留期限与服务商角色。',
+    ],
+    privacyNote:
+      '这是一份针对尚未启用的表单的隐私说明，描述计划执行的最低限度。当前页面没有数据流。指定服务商后，以其政策为准。',
+    maintainersTitle: '上线检查',
+    maintainersList: [
+      '只选一个服务商。不要为一个名单加载两套脚本。',
+      '把表单 action 指向服务商的嵌入地址，移除 disabled 属性。',
+      '开启双重确认，测试确认与退订路径。',
+      '在隐私部分写明服务商名称并链接其隐私政策。',
+      `公布并维护可监控的联系邮箱（${contactEmail}）与保留期限。`,
+      '更新右侧快照：服务商、期数、频率。',
+    ],
+    maintainersNote:
+      '上线时仍未接入服务商，表单保持禁用，避免地址被静默丢弃。',
+  },
+};
+
+const c = copy[lang];
+---
+
+<ContentPage
+  lang={lang}
+  slug="/newsletter/"
+  title={c.title}
+  description={c.description}
+  eyebrow={c.eyebrow}
+  heading={c.heading}
+  lede={c.lede}
+  factsTitle={c.factsTitle}
+  facts={c.facts}
+  sections={c.sections}
+>
+  <section id="signup">
+    <div class="sec-head">
+      <div><h2>{c.statusTitle}</h2></div>
+      <p>{c.statusBody}</p>
+    </div>
+
+    <form class="signup" action="" method="post" aria-describedby="signup-status">
+      <label for="newsletter-email">{c.signupLabel}</label>
+      <input
+        id="newsletter-email"
+        name="email"
+        type="email"
+        inputmode="email"
+        autocomplete="email"
+        placeholder={c.signupPlaceholder}
+        disabled
+        aria-describedby="signup-status"
+      />
+      <button type="submit" disabled>{c.signupButton}</button>
+    </form>
+    <p id="signup-status" class="mono-note" role="status">
+      {c.signupStatus}
+    </p>
+    <p class="note">{c.providerNote}</p>
+    <p class="mono-note" style="margin-top:0.8rem">
+      {dataVersion} · built {builtDate}
+    </p>
+  </section>
+
+  <section id="archive">
+    <div class="sec-head">
+      <div><h2>{c.archiveTitle}</h2></div>
+      <p>{c.archiveBody}</p>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>{c.archiveCols.map((col) => <th scope="col">{col}</th>)}</tr>
+        </thead>
+        <tbody>
+          <tr>{c.archiveRow.map((cell, i) => <td class={i === 0 ? 'mono' : ''}>{cell}</td>)}</tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note note--accent">
+      {lang === 'en'
+        ? 'This row is a placeholder, not a scheduled issue. No date is promised.'
+        : '这一行是占位记录，日期尚未安排。'}
+    </p>
+  </section>
+
+  <section id="privacy">
+    <div class="sec-head">
+      <div><h2>{c.privacyTitle}</h2></div>
+    </div>
+    <ul class="prose">
+      {c.privacyList.map((item) => <li>{item}</li>)}
+    </ul>
+    <p class="note">{c.privacyNote}</p>
+  </section>
+
+  <section id="maintainers">
+    <div class="sec-head">
+      <div><h2>{c.maintainersTitle}</h2></div>
+    </div>
+    <ol class="prose">
+      {c.maintainersList.map((item) => <li>{item}</li>)}
+    </ol>
+    <p class="note note--moss">{c.maintainersNote}</p>
+    <p class="small" style="margin-top:1rem">
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/responsibility/' : '/responsibility/')}>
+        {lang === 'en' ? 'Responsibility and contact' : '责任说明与联系'}
+      </a>
+      {' · '}
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/download/' : '/download/')}>
+        {lang === 'en' ? 'Data versions' : '数据版本'}
+      </a>
+    </p>
+  </section>
+</ContentPage>

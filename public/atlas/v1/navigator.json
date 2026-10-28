@@ -1,0 +1,1049 @@
+{
+ "meta": {
+  "version": "0.1.0-pilot",
+  "status": "author mapping; capability-level evidence",
+  "note": "Problem-level evidence has not been coded yet. Candidate methods are design hypotheses, not measured effects. P0 records under adjudication are excluded from evidence lists."
+ },
+ "problems": [
+  {
+   "id": "observational_confounding",
+   "name_en": "Observational confounding",
+   "name_zh": "观测数据中的混杂",
+   "desc_en": "Treatment and outcome are observed without randomization. Measured or unmeasured confounding can bias the estimate.",
+   "desc_zh": "处理变量和结局来自观测数据，缺少随机化。已测或未测混杂都会影响估计。"
+  },
+  {
+   "id": "distribution_shift",
+   "name_en": "Distribution shift and OOD",
+   "name_zh": "分布偏移与 OOD",
+   "desc_en": "The test distribution differs from training. The question is which relations stay stable and which mechanisms change.",
+   "desc_zh": "测试分布与训练分布不同。需要判断哪些关系保持稳定，哪些机制发生变化。"
+  },
+  {
+   "id": "counterfactual_evaluation",
+   "name_en": "Counterfactual evaluation",
+   "name_zh": "反事实评估",
+   "desc_en": "The decision needs an estimate of what would happen under an alternative action, prompt, model, or policy.",
+   "desc_zh": "决策需要估计另一个动作、提示、模型或策略下会发生什么。"
+  },
+  {
+   "id": "agent_intervention",
+   "name_en": "Agent intervention and exploration",
+   "name_zh": "Agent 干预与探索",
+   "desc_en": "An agent can act, query, or intervene. The task is to decide what to try and how to update its model.",
+   "desc_zh": "Agent 可以行动、查询或干预。任务是决定试什么，以及如何更新模型。"
+  },
+  {
+   "id": "causal_structure",
+   "name_en": "Causal structure discovery",
+   "name_zh": "因果结构发现",
+   "desc_en": "The graph is unknown. The task is to recover edges, orientations, or an equivalence class from data and constraints.",
+   "desc_zh": "因果图未知。任务是从数据和约束中恢复边、方向或等价类。"
+  },
+  {
+   "id": "time_series",
+   "name_en": "Time-series causal analysis",
+   "name_zh": "时间序列因果分析",
+   "desc_en": "Observations are ordered in time. The task involves lagged effects, nonstationarity, and changing mechanisms.",
+   "desc_zh": "观测按时间排列。任务涉及滞后效应、非平稳性和机制变化。"
+  },
+  {
+   "id": "llm_causal_reasoning",
+   "name_en": "LLM causal reasoning",
+   "name_zh": "LLM 因果推理",
+   "desc_en": "The model reads text or dialogue and must answer causal questions, use background knowledge, or audit a causal claim.",
+   "desc_zh": "模型读取文本或对话，回答因果问题、使用背景知识，或核查一条因果主张。"
+  }
+ ],
+ "attributes": {
+  "data": {
+   "label_en": "Data type",
+   "label_zh": "数据类型",
+   "values": [
+    [
+     "any",
+     "Any",
+     "任意"
+    ],
+    [
+     "text",
+     "Text",
+     "文本"
+    ],
+    [
+     "tabular",
+     "Tabular",
+     "表格"
+    ],
+    [
+     "time_series",
+     "Time series",
+     "时间序列"
+    ],
+    [
+     "agent_logs",
+     "Agent logs",
+     "Agent 日志"
+    ]
+   ]
+  },
+  "intervention": {
+   "label_en": "Intervention",
+   "label_zh": "干预条件",
+   "values": [
+    [
+     "any",
+     "Any",
+     "任意"
+    ],
+    [
+     "none",
+     "No intervention",
+     "无干预"
+    ],
+    [
+     "available",
+     "Intervention data available",
+     "有干预数据"
+    ],
+    [
+     "can_run",
+     "Can run experiments",
+     "可做实验"
+    ]
+   ]
+  },
+  "confounding": {
+   "label_en": "Confounding",
+   "label_zh": "混杂状态",
+   "values": [
+    [
+     "any",
+     "Any",
+     "任意"
+    ],
+    [
+     "measured",
+     "Measured",
+     "已测"
+    ],
+    [
+     "unmeasured",
+     "Unmeasured",
+     "未测"
+    ],
+    [
+     "unknown",
+     "Unknown",
+     "未知"
+    ]
+   ]
+  }
+ },
+ "capabilities": {
+  "F5": {
+   "id": "F5",
+   "name": "Independent mechanisms",
+   "name_zh": "独立机制",
+   "readiness": "R2 toy",
+   "assumptions_en": "Independent causal mechanisms; invariance across environments",
+   "assumptions_zh": "机制在环境间保持独立且稳定；有足够的环境或干预来估计不变性。",
+   "failure_en": "Mechanisms not independent; environments unavailable; IRM negative results",
+   "failure_zh": "机制发生变化或环境标签错误时，不变性约束会失效。",
+   "papers": [
+    {
+     "id": "2010.07167",
+     "title": "Learning Robust Models Using the Principle of Independent Causal Mechanisms"
+    },
+    {
+     "id": "2402.02636",
+     "title": "Can Large Language Models Learn Independent Causal Mechanisms?"
+    },
+    {
+     "id": "2206.04620",
+     "title": "On the Generalization and Adaption Performance of Causal Models"
+    },
+    {
+     "id": "2402.10877",
+     "title": "Robust agents learn causal world models"
+    },
+    {
+     "id": "2510.14049",
+     "title": "CausalVerse: Benchmarking Causal Representation Learning with Configurable High-Fidelity Simulations"
+    }
+   ]
+  },
+  "I1": {
+   "id": "I1",
+   "name": "Backdoor adjustment",
+   "name_zh": "后门调整",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "No unmeasured confounders; positivity; correct graph",
+   "assumptions_zh": "不存在未测混杂；正值性成立；调整集来自正确因果图。",
+   "failure_en": "Unmeasured confounding; bad adjustment sets; positivity violations",
+   "failure_zh": "调整集错误、未测混杂或重叠不足时，后门估计有偏。",
+   "papers": [
+    {
+     "id": "2506.05445",
+     "title": "Causal Policy Learning in Reinforcement Learning: Backdoor-Adjusted Soft Actor-Critic"
+    },
+    {
+     "id": "2607.17003",
+     "title": "Scalable Causal Imitation Learning"
+    },
+    {
+     "id": "2508.10581",
+     "title": "Technical Report: Facilitating the Adoption of Causal Inference Methods Through LLM-Empowered Co-Pilot"
+    },
+    {
+     "id": "2507.02928",
+     "title": "Mitigating Hidden Confounding by Progressive Confounder Imputation via Large Language Models"
+    },
+    {
+     "id": "2607.26309",
+     "title": "The Confounder Trap: Treatment-Encoding Representations in Causal Inference with Text"
+    }
+   ]
+  },
+  "I6": {
+   "id": "I6",
+   "name": "Consistency & SUTVA",
+   "name_zh": "一致性与 SUTVA",
+   "readiness": "R2 toy",
+   "assumptions_en": "Consistency; no interference; well-defined treatment versions",
+   "assumptions_zh": "处理版本一致；个体之间无干扰，或干扰可建模。",
+   "failure_en": "Prompt versions differ; agents interfere",
+   "failure_zh": "提示版本不同或 Agent 之间互相影响时，处理定义失效。",
+   "papers": [
+    {
+     "id": "2502.14200",
+     "title": "Causal Mean Field Multi-Agent Reinforcement Learning"
+    },
+    {
+     "id": "2312.09539",
+     "title": "Situation-Dependent Causal Influence-Based Cooperative Multi-agent Reinforcement Learning"
+    },
+    {
+     "id": "2610.28905",
+     "title": "Hidden Messages Between Diffusion Language Model Agents: Causal Evidence for Latent Communication"
+    },
+    {
+     "id": "2607.26773",
+     "title": "Do Latent Channels Actually Communicate? A Causal Audit of Latent Multi-Agent LLM Communication"
+    }
+   ]
+  },
+  "I12": {
+   "id": "I12",
+   "name": "Transportability",
+   "name_zh": "可迁移性",
+   "readiness": "R2 toy",
+   "assumptions_en": "Selection diagrams; transport formula",
+   "assumptions_zh": "有选择图；源域和目标域的机制可迁移。",
+   "failure_en": "Selection diagram misspecification; no target data",
+   "failure_zh": "选择图错误或目标域缺少支持时，迁移公式失效。",
+   "papers": [
+    {
+     "id": "2310.20697",
+     "title": "Text-Transport: Toward Learning Causal Effects of Natural Language"
+    },
+    {
+     "id": "2410.11385",
+     "title": "Do LLMs Have the Generalization Ability in Conducting Causal Inference?"
+    },
+    {
+     "id": "2404.15746",
+     "title": "Collaborative Heterogeneous Causal Inference Beyond Meta-analysis"
+    }
+   ]
+  },
+  "I13": {
+   "id": "I13",
+   "name": "Mediation / direct-indirect effects",
+   "name_zh": "中介效应",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "No mediator-outcome confounding; cross-world independence",
+   "assumptions_zh": "无中介与结局的混杂；跨世界假设成立。",
+   "failure_en": "Cross-world assumptions; mediator confounding",
+   "failure_zh": "中介与结局存在混杂或跨世界假设不成立时，效应分解失效。",
+   "papers": [
+    {
+     "id": "2010.15745",
+     "title": "Reinforcement Learning of Causal Variables Using Mediation Analysis"
+    },
+    {
+     "id": "2403.11841",
+     "title": "Pessimistic Causal Reinforcement Learning with Mediators for Confounded Offline Data"
+    },
+    {
+     "id": "2310.12611",
+     "title": "Identifying and Adapting Transformer-Components Responsible for Gender Bias in an English Language Model"
+    },
+    {
+     "id": "2505.13770",
+     "title": "Ice Cream Doesn't Cause Drowning: Benchmarking LLMs Against Statistical Pitfalls in Causal Inference"
+    }
+   ]
+  },
+  "I17": {
+   "id": "I17",
+   "name": "Sensitivity analysis",
+   "name_zh": "敏感性分析",
+   "readiness": "R2 toy",
+   "assumptions_en": "Sensitivity model for hidden bias",
+   "assumptions_zh": "敏感性模型可解释；未测混杂的范围可以设定。",
+   "failure_en": "Sensitivity parameter interpretation",
+   "failure_zh": "敏感性参数难以解释或范围过宽时，结论仍然脆弱。",
+   "papers": [
+    {
+     "id": "2311.16026",
+     "title": "A Neural Framework for Generalized Causal Sensitivity Analysis"
+    },
+    {
+     "id": "2305.16988",
+     "title": "Sharp Bounds for Generalized Causal Sensitivity Analysis"
+    },
+    {
+     "id": "2412.05783",
+     "title": "Two-way Deconfounder for Off-policy Evaluation in Causal Reinforcement Learning"
+    },
+    {
+     "id": "2603.14273",
+     "title": "Using large language models for sensitivity analysis in causal inference: case studies on Cornfield inequality and E-value"
+    },
+    {
+     "id": "2210.06964",
+     "title": "Causality-driven Hierarchical Structure Discovery for Reinforcement Learning"
+    }
+   ]
+  },
+  "E1": {
+   "id": "E1",
+   "name": "Matching / propensity scores",
+   "name_zh": "匹配与倾向得分",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "No unmeasured confounding; positivity",
+   "assumptions_zh": "无未测混杂；正值性；倾向模型正确。",
+   "failure_en": "Propensity misspecification; unmeasured confounding",
+   "failure_zh": "倾向模型错误或重叠不足时，匹配样本有偏。",
+   "papers": [
+    {
+     "id": "2602.02819",
+     "title": "Causal Evaluation of Membership Inference Attacks"
+    },
+    {
+     "id": "2511.00318",
+     "title": "A Technical Exploration of Causal Inference with Hybrid LLM Synthetic Data"
+    },
+    {
+     "id": "2404.15746",
+     "title": "Collaborative Heterogeneous Causal Inference Beyond Meta-analysis"
+    },
+    {
+     "id": "2607.26309",
+     "title": "The Confounder Trap: Treatment-Encoding Representations in Causal Inference with Text"
+    },
+    {
+     "id": "2410.21474",
+     "title": "Estimating Causal Effects of Text Interventions Leveraging LLMs"
+    }
+   ]
+  },
+  "E5": {
+   "id": "E5",
+   "name": "Doubly robust / AIPW / TMLE",
+   "name_zh": "双重稳健估计",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "One of treatment/outcome models correct; positivity",
+   "assumptions_zh": "处理模型或结局模型之一正确；正值性成立。",
+   "failure_en": "Nuisance-model error; finite-sample instability",
+   "failure_zh": "nuisance 模型误差或有限样本不稳定时，双重稳健性下降。",
+   "papers": [
+    {
+     "id": "2610.26923",
+     "title": "CaMeWM: A Causal Medical World Model for Generative Tumor Evolution and Treatment Planning"
+    },
+    {
+     "id": "2509.15798",
+     "title": "Deep learning based doubly robust test for Granger causality"
+    },
+    {
+     "id": "2604.04274",
+     "title": "InferenceEvolve: Towards Automated Causal Effect Estimators through Self-Evolving AI"
+    },
+    {
+     "id": "2402.14979",
+     "title": "Optimizing Language Models for Human Preferences is a Causal Inference Problem"
+    },
+    {
+     "id": "2105.13514",
+     "title": "Stochastic intervention for causal inference via reinforcement learning"
+    }
+   ]
+  },
+  "E6": {
+   "id": "E6",
+   "name": "Double machine learning",
+   "name_zh": "双重机器学习",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "Neyman orthogonality; cross-fitting; regularity",
+   "assumptions_zh": "Neyman 正交；交叉拟合；重叠足够。",
+   "failure_en": "Weak overlap; many nuisances; small N",
+   "failure_zh": "重叠不足、nuisance 维度过高或样本小时，估计不稳定。",
+   "papers": [
+    {
+     "id": "2410.00903",
+     "title": "Causal Inference with Generative Artificial Intelligence: Application to Texts as Treatments"
+    },
+    {
+     "id": "2607.01104",
+     "title": "CausalMix: Data Mixture as Causal Inference for Language Model Training"
+    },
+    {
+     "id": "2602.01711",
+     "title": "Optimizing Prompts for Large Language Models: A Causal Approach"
+    },
+    {
+     "id": "2507.03897",
+     "title": "Leveraging Generative Artificial Intelligence for Causal Inference with Unstructured Data"
+    }
+   ]
+  },
+  "E7": {
+   "id": "E7",
+   "name": "Heterogeneous effects",
+   "name_zh": "异质效应",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "Unconfoundedness; overlap; enough data per stratum",
+   "assumptions_zh": "无未测混杂；重叠足够；每个子组有足够样本。",
+   "failure_en": "CATE instability; confounding; subgroup sparsity",
+   "failure_zh": "CATE 不稳定或子组样本稀疏时，异质效应难以复核。",
+   "papers": [
+    {
+     "id": "2409.15503",
+     "title": "From Text to Treatment Effects: A Meta-Learning Approach to Handling Text-Based Confounding"
+    },
+    {
+     "id": "2411.00126",
+     "title": "Training and Evaluating Causal Forecasting Models for Time-Series"
+    },
+    {
+     "id": "2509.25535",
+     "title": "Meta-Router: Bridging Gold-standard and Preference-based Evaluations in Large Language Model Routing"
+    },
+    {
+     "id": "2507.02928",
+     "title": "Mitigating Hidden Confounding by Progressive Confounder Imputation via Large Language Models"
+    },
+    {
+     "id": "2505.17717",
+     "title": "A Distributionally Robust Framework for Nuisance in Causal Effect Estimation"
+    }
+   ]
+  },
+  "D1": {
+   "id": "D1",
+   "name": "Constraint-based discovery (PC/FCI)",
+   "name_zh": "约束式发现",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "Markov; faithfulness; causal sufficiency (PC) or latent confounders (FCI)",
+   "assumptions_zh": "马尔可夫与忠实性；PC 需要因果充分性，FCI 允许潜混杂。",
+   "failure_en": "CI-test errors; faithfulness; sample size",
+   "failure_zh": "CI 检验错误、忠实性违背或样本不足时，图结构错误。",
+   "papers": [
+    {
+     "id": "2406.07378",
+     "title": "Large Language Models for Constrained-Based Causal Discovery"
+    },
+    {
+     "id": "2602.16481",
+     "title": "Leveraging Large Language Models for Causal Discovery: a Constraint-based, Argumentation-driven Approach"
+    },
+    {
+     "id": "2606.03602",
+     "title": "CauTion: Knowing When to Trust LLMs for Ensemble Causal Discovery"
+    },
+    {
+     "id": "2402.01454",
+     "title": "Integrating Large Language Models in Causal Discovery: A Statistical Causal Approach"
+    },
+    {
+     "id": "2606.01789",
+     "title": "Consistency evaluation of benchmarks used for causal discovery"
+    }
+   ]
+  },
+  "D2": {
+   "id": "D2",
+   "name": "Score-based discovery (GES/NOTEARS)",
+   "name_zh": "评分式发现",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "Score equivalence; acyclicity; sufficient data",
+   "assumptions_zh": "分数等价；无环约束；样本量足够。",
+   "failure_en": "Local optima; scaling; acyclicity penalty",
+   "failure_zh": "局部最优、规模化困难或无环惩罚敏感时，结构不稳定。",
+   "papers": [
+    {
+     "id": "2411.17989",
+     "title": "Regularized Multi-LLMs Collaboration for Enhanced Score-based Causal Discovery"
+    },
+    {
+     "id": "2408.13448",
+     "title": "Reinforcement Learning for Causal Discovery without Acyclicity Constraints"
+    },
+    {
+     "id": "2410.21141",
+     "title": "LLM-initialized Differentiable Causal Discovery"
+    },
+    {
+     "id": "2311.11689",
+     "title": "Causal Structure Learning Supervised by Large Language Model"
+    },
+    {
+     "id": "2509.01621",
+     "title": "Effects of Distributional Biases on Gradient-Based Causal Discovery in the Bivariate Categorical Case"
+    }
+   ]
+  },
+  "D4": {
+   "id": "D4",
+   "name": "Interventional discovery",
+   "name_zh": "干预式发现",
+   "readiness": "R2 toy",
+   "assumptions_en": "Intervention targets; faithfulness; budget",
+   "assumptions_zh": "目标可干预；忠实性；干预预算有限。",
+   "failure_en": "Expensive interventions; limited targets",
+   "failure_zh": "干预昂贵或目标有限时，主动发现无法覆盖关键边。",
+   "papers": [
+    {
+     "id": "2405.16718",
+     "title": "Amortized Active Causal Induction with Deep Reinforcement Learning"
+    },
+    {
+     "id": "2010.03110",
+     "title": "Causal Curiosity: RL Agents Discovering Self-supervised Experiments for Causal Representation Learning"
+    },
+    {
+     "id": "2503.01139",
+     "title": "Can Large Language Models Help Experimental Design for Causal Discovery?"
+    },
+    {
+     "id": "2305.16183",
+     "title": "Passive learning of active causal strategies in agents and language models"
+    },
+    {
+     "id": "2505.08453",
+     "title": "Parameter Estimation using Reinforcement Learning Causal Curiosity: Limits and Challenges"
+    }
+   ]
+  },
+  "D5": {
+   "id": "D5",
+   "name": "Time-series discovery",
+   "name_zh": "时间序列发现",
+   "readiness": "R3 benchmark",
+   "assumptions_en": "Stationarity; causal sufficiency; lag order",
+   "assumptions_zh": "平稳性或可建模的非平稳；因果充分性；滞后阶正确。",
+   "failure_en": "Granger is predictive, not causal; nonstationarity",
+   "failure_zh": "Granger 关系表示预测关系；非平稳会破坏滞后检验。",
+   "papers": [
+    {
+     "id": "2409.15219",
+     "title": "MotifDisco: Motif Causal Discovery For Time Series Motifs"
+    },
+    {
+     "id": "2402.09305",
+     "title": "Embracing the black box: Heading towards foundation models for causal discovery from time series data"
+    },
+    {
+     "id": "2404.09871",
+     "title": "Explainable Online Unsupervised Anomaly Detection for Cyber-Physical Systems via Causal Discovery from Time Series"
+    },
+    {
+     "id": "2510.07858",
+     "title": "Augur: Modeling Covariate Causal Associations in Time Series via Large Language Models"
+    },
+    {
+     "id": "2602.07915",
+     "title": "CausalCompass: Evaluating the Robustness of Time-Series Causal Discovery in Misspecified Scenarios"
+    }
+   ]
+  },
+  "D6": {
+   "id": "D6",
+   "name": "Identifiable causal representation",
+   "name_zh": "可识别因果表示",
+   "readiness": "R2 toy",
+   "assumptions_en": "Identifiability conditions; auxiliary variables/interventions",
+   "assumptions_zh": "可识别性条件；辅助变量或干预；模型容量足够。",
+   "failure_en": "Strong assumptions; evaluation hard; scaling",
+   "failure_zh": "可识别性假设强、评测困难或规模扩大时，表示不稳定。",
+   "papers": [
+    {
+     "id": "2206.06169",
+     "title": "Causal Representation Learning for Instantaneous and Temporal Effects in Interactive Systems"
+    },
+    {
+     "id": "2406.13371",
+     "title": "Identifiable Causal Representation Learning: Unsupervised, Multi-View, and Multi-Environment"
+    },
+    {
+     "id": "2512.22150",
+     "title": "Towards Unsupervised Causal Representation Learning via Latent Additive Noise Model Causal Autoencoders"
+    },
+    {
+     "id": "2410.19923",
+     "title": "Language Agents Meet Causality -- Bridging LLMs and Causal World Models"
+    },
+    {
+     "id": "2502.20099",
+     "title": "Sanity Checking Causal Representation Learning on a Simple Real-World System"
+    }
+   ]
+  }
+ },
+ "rules": [
+  {
+   "id": "obs-i1",
+   "problem": "observational_confounding",
+   "when": {
+    "data": [
+     "text",
+     "tabular"
+    ],
+    "intervention": [
+     "none",
+     "available"
+    ],
+    "confounding": [
+     "measured",
+     "unknown"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "I1",
+     "status": "adjacent",
+     "why": "Adjust for measured confounders with an explicit graph and adjustment set.",
+     "minimal_test": "Hold out a negative-control outcome and check whether the adjusted estimate stays stable.",
+     "why_zh": "用显式因果图和调整集控制已测混杂。",
+     "minimal_test_zh": "留出一个负对照结局，检查调整后的估计是否稳定。"
+    },
+    {
+     "capability": "E1",
+     "status": "adjacent",
+     "why": "Match or weight treated and control units on observed covariates.",
+     "minimal_test": "Check covariate balance before and after matching on a held-out split.",
+     "why_zh": "在已测协变量上对处理组和对照组做匹配或加权。",
+     "minimal_test_zh": "在留出集上检查匹配前后的协变量平衡。"
+    },
+    {
+     "capability": "E5",
+     "status": "adjacent",
+     "why": "Combine an outcome model and a treatment model so that either one can be wrong.",
+     "minimal_test": "Compare AIPW or TMLE with IPW and g-computation on a held-out split.",
+     "why_zh": "同时建模结局和处理，允许其中一个模型设定错误。",
+     "minimal_test_zh": "在留出集上比较 AIPW 或 TMLE 与 IPW、g-computation。"
+    },
+    {
+     "capability": "E6",
+     "status": "adjacent",
+     "why": "Use orthogonal moments and cross-fitting when nuisance models are high-dimensional.",
+     "minimal_test": "Add a placebo treatment and verify that the estimated effect collapses.",
+     "why_zh": "nuisance 模型维度高时，使用正交矩和交叉拟合。",
+     "minimal_test_zh": "加入一个安慰剂处理，检查估计效应是否消失。"
+    }
+   ]
+  },
+  {
+   "id": "obs-i17",
+   "problem": "observational_confounding",
+   "when": {
+    "data": [
+     "text",
+     "tabular"
+    ],
+    "intervention": [
+     "none"
+    ],
+    "confounding": [
+     "unmeasured",
+     "unknown"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "I17",
+     "status": "adjacent",
+     "why": "Quantify how strong an unmeasured confounder would need to be to change the conclusion.",
+     "minimal_test": "Report an E-value or Rosenbaum bound alongside the point estimate.",
+     "why_zh": "估计未测混杂需要多强才会改变结论。",
+     "minimal_test_zh": "在点估计旁报告 E 值或 Rosenbaum 边界。"
+    },
+    {
+     "capability": "I1",
+     "status": "theoretical",
+     "why": "Backdoor adjustment is available when the unmeasured part can be bounded or proxied.",
+     "minimal_test": "Compare the adjusted estimate with and without the proxy variable.",
+     "why_zh": "未测部分可以被界定或代理时，后门调整仍然可用。",
+     "minimal_test_zh": "比较加入代理变量前后的调整估计。"
+    }
+   ]
+  },
+  {
+   "id": "shift-f5",
+   "problem": "distribution_shift",
+   "when": {},
+   "candidates": [
+    {
+     "capability": "F5",
+     "status": "adjacent",
+     "why": "Model stable mechanisms across environments and penalize relations that vary.",
+     "minimal_test": "Compare ERM and an invariance penalty on leave-one-domain-out splits.",
+     "why_zh": "建模跨环境稳定的机制，对随环境变化的关系施加惩罚。",
+     "minimal_test_zh": "在留一域划分上比较 ERM 与不变性惩罚。"
+    },
+    {
+     "capability": "I12",
+     "status": "adjacent",
+     "why": "State the source and target populations with a selection diagram before transferring.",
+     "minimal_test": "Run leave-one-site-out and check whether the transport formula beats pooled training.",
+     "why_zh": "迁移前用选择图说明源人群和目标人群。",
+     "minimal_test_zh": "做留一站点检验，比较迁移公式与合并训练。"
+    },
+    {
+     "capability": "D6",
+     "status": "adjacent",
+     "why": "Learn a representation whose stable factors are separable from domain-specific ones.",
+     "minimal_test": "Recover known latent factors on a synthetic SCM with a held-out domain.",
+     "why_zh": "学习一种表示，使稳定因子可以与领域特有因子分开。",
+     "minimal_test_zh": "在带留出域的合成 SCM 上恢复已知潜因子。"
+    }
+   ]
+  },
+  {
+   "id": "shift-e7",
+   "problem": "distribution_shift",
+   "when": {
+    "data": [
+     "text",
+     "tabular"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "E7",
+     "status": "adjacent",
+     "why": "Estimate whether the effect differs across groups or domains instead of reporting one pooled number.",
+     "minimal_test": "Check CATE stability across held-out domains and report subgroup overlap.",
+     "why_zh": "估计效应在群体或领域间是否有差异，而不是只报告一个合并数字。",
+     "minimal_test_zh": "检查 CATE 在留出域上的稳定性，并报告子组重叠。"
+    }
+   ]
+  },
+  {
+   "id": "cf-i13",
+   "problem": "counterfactual_evaluation",
+   "when": {
+    "data": [
+     "text",
+     "tabular"
+    ],
+    "confounding": [
+     "measured",
+     "unknown"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "I13",
+     "status": "adjacent",
+     "why": "Separate direct and mediated pathways when the intervention works through an intermediate variable.",
+     "minimal_test": "Vary the mediator model and check whether the NDE/NIE sign remains stable.",
+     "why_zh": "干预通过中间变量起作用时，区分直接路径和中介路径。",
+     "minimal_test_zh": "改变中介模型，检查 NDE/NIE 的符号是否稳定。"
+    },
+    {
+     "capability": "E7",
+     "status": "adjacent",
+     "why": "Estimate heterogeneous effects for the subpopulation that receives the alternative action.",
+     "minimal_test": "Calibrate CATE predictions against a held-out randomized subset.",
+     "why_zh": "为接受替代动作的子群体估计异质效应。",
+     "minimal_test_zh": "在留出的随机子集上校准 CATE 预测。"
+    },
+    {
+     "capability": "D6",
+     "status": "adjacent",
+     "why": "Represent the latent factors needed to answer a counterfactual query.",
+     "minimal_test": "Use a synthetic SCM with known counterfactuals and measure recovery error.",
+     "why_zh": "表示回答反事实查询所需的潜因子。",
+     "minimal_test_zh": "在反事实已知的合成 SCM 上测量恢复误差。"
+    }
+   ]
+  },
+  {
+   "id": "cf-i17",
+   "problem": "counterfactual_evaluation",
+   "when": {
+    "data": [
+     "text",
+     "tabular"
+    ],
+    "intervention": [
+     "none"
+    ],
+    "confounding": [
+     "unmeasured",
+     "unknown"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "I17",
+     "status": "adjacent",
+     "why": "Report how fragile the counterfactual conclusion is to hidden confounding.",
+     "minimal_test": "Repeat the conclusion under a range of sensitivity parameters.",
+     "why_zh": "报告反事实结论对隐藏混杂的敏感程度。",
+     "minimal_test_zh": "在一组敏感性参数下重复结论。"
+    }
+   ]
+  },
+  {
+   "id": "agent-d4",
+   "problem": "agent_intervention",
+   "when": {
+    "data": [
+     "agent_logs"
+    ],
+    "intervention": [
+     "available",
+     "can_run"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "D4",
+     "status": "adjacent",
+     "why": "Choose interventions or queries that discriminate between candidate causal structures.",
+     "minimal_test": "Randomize tool access in a sandbox and compare task success with and without the tool.",
+     "why_zh": "选择能区分候选因果结构的干预或查询。",
+     "minimal_test_zh": "在沙盒里随机开关工具权限，比较有无工具时的任务成功率。"
+    },
+    {
+     "capability": "I6",
+     "status": "adjacent",
+     "why": "Define treatment versions and interference before treating an agent action as a treatment.",
+     "minimal_test": "Run the same prompt under two versions and test whether the outcome changes.",
+     "why_zh": "把 Agent 动作当作处理之前，先定义处理版本和干扰。",
+     "minimal_test_zh": "用两个版本运行同一提示，检验结局是否变化。"
+    },
+    {
+     "capability": "E7",
+     "status": "adjacent",
+     "why": "Estimate effect heterogeneity across agent states or user groups.",
+     "minimal_test": "Hold out states and check whether the policy improves the targeted subgroup.",
+     "why_zh": "估计效应在 Agent 状态或用户群体间的差异。",
+     "minimal_test_zh": "留出部分状态，检查策略是否改善目标子组。"
+    }
+   ]
+  },
+  {
+   "id": "agent-f5",
+   "problem": "agent_intervention",
+   "when": {
+    "data": [
+     "agent_logs"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "F5",
+     "status": "adjacent",
+     "why": "Model the environment as stable mechanisms and test whether the agent transfers across shifts.",
+     "minimal_test": "Compare the agent on original and mechanism-shifted environments.",
+     "why_zh": "把环境建模为稳定机制，检验 Agent 能否跨分布偏移迁移。",
+     "minimal_test_zh": "在原始环境和机制偏移环境上比较 Agent 表现。"
+    }
+   ]
+  },
+  {
+   "id": "struct-d1",
+   "problem": "causal_structure",
+   "when": {
+    "data": [
+     "tabular",
+     "time_series",
+     "text"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "D1",
+     "status": "adjacent",
+     "why": "Use conditional-independence tests and edge orientation to recover a graph or equivalence class.",
+     "minimal_test": "Run PC/FCI on a known DAG and report SHD and orientation precision.",
+     "why_zh": "用条件独立检验和边定向恢复因果图或等价类。",
+     "minimal_test_zh": "在已知 DAG 上运行 PC/FCI，报告 SHD 和定向精度。"
+    },
+    {
+     "capability": "D2",
+     "status": "adjacent",
+     "why": "Optimize a score or a differentiable acyclicity constraint over graph structures.",
+     "minimal_test": "Compare GES/NOTEARS against a known DAG under equal sample sizes.",
+     "why_zh": "在图结构上优化评分或可微无环约束。",
+     "minimal_test_zh": "在相同样本量下，把 GES/NOTEARS 与已知 DAG 比较。"
+    },
+    {
+     "capability": "D4",
+     "status": "theoretical",
+     "why": "Interventional data can orient edges that observational data leaves equivalent.",
+     "minimal_test": "Add one intervention and measure how many edges become identifiable.",
+     "why_zh": "干预数据可以定向观测数据无法区分的边。",
+     "minimal_test_zh": "加入一次干预，测量有多少边变得可识别。"
+    }
+   ]
+  },
+  {
+   "id": "struct-d5",
+   "problem": "causal_structure",
+   "when": {
+    "data": [
+     "time_series"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "D5",
+     "status": "adjacent",
+     "why": "Use lagged conditional independence or Granger-style tests for time-ordered data.",
+     "minimal_test": "Evaluate on a known lagged SCM and report false-edge rate.",
+     "why_zh": "对按时间排列的数据使用滞后条件独立或 Granger 类检验。",
+     "minimal_test_zh": "在已知滞后 SCM 上评估，报告错误边比例。"
+    }
+   ]
+  },
+  {
+   "id": "time-d5",
+   "problem": "time_series",
+   "when": {
+    "data": [
+     "time_series"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "D5",
+     "status": "adjacent",
+     "why": "Model lag order and nonstationarity before testing causal links.",
+     "minimal_test": "Compare PCMCI with and without regime shifts in a synthetic series.",
+     "why_zh": "检验因果关联之前，先建模滞后阶数和非平稳性。",
+     "minimal_test_zh": "在合成序列上比较有、无机制突变的 PCMCI。"
+    },
+    {
+     "capability": "I12",
+     "status": "adjacent",
+     "why": "Transport a relationship learned in one period or site to another.",
+     "minimal_test": "Leave out the final period and test transport on it.",
+     "why_zh": "把一个时期或站点学到的关系迁移到另一个时期或站点。",
+     "minimal_test_zh": "留出最后一个时期，在它上面检验迁移。"
+    },
+    {
+     "capability": "I17",
+     "status": "adjacent",
+     "why": "Check how much hidden confounding would change the time-series conclusion.",
+     "minimal_test": "Report sensitivity bounds across candidate lag orders.",
+     "why_zh": "检查隐藏混杂会在多大程度上改变时间序列结论。",
+     "minimal_test_zh": "在若干候选滞后阶数下报告敏感性边界。"
+    }
+   ]
+  },
+  {
+   "id": "time-d6",
+   "problem": "time_series",
+   "when": {
+    "data": [
+     "time_series"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "D6",
+     "status": "adjacent",
+     "why": "Learn a latent causal representation with temporal structure and identifiable factors.",
+     "minimal_test": "Recover known latent factors from a synthetic temporal SCM.",
+     "why_zh": "学习带时间结构和可识别因子的潜因果表示。",
+     "minimal_test_zh": "在合成时序 SCM 上恢复已知潜因子。"
+    }
+   ]
+  },
+  {
+   "id": "llm-i1",
+   "problem": "llm_causal_reasoning",
+   "when": {
+    "data": [
+     "text"
+    ],
+    "confounding": [
+     "measured",
+     "unknown"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "I1",
+     "status": "adjacent",
+     "why": "State the adjustment set before asking an LLM to answer a causal question from text.",
+     "minimal_test": "Compare answers with and without the explicit adjustment set.",
+     "why_zh": "让 LLM 根据文本回答因果问题之前，先写明调整集。",
+     "minimal_test_zh": "比较给出和不给出显式调整集时的回答。"
+    },
+    {
+     "capability": "I12",
+     "status": "adjacent",
+     "why": "Check whether a causal answer transfers across corpora, domains, or prompt versions.",
+     "minimal_test": "Hold out a corpus and test the same causal question.",
+     "why_zh": "检查因果回答能否跨语料、领域或提示版本迁移。",
+     "minimal_test_zh": "留出一个语料，测试同一个因果问题。"
+    },
+    {
+     "capability": "D1",
+     "status": "adjacent",
+     "why": "Use text-derived conditional-independence evidence as input to a constraint-based search.",
+     "minimal_test": "Compare the graph with and without LLM-derived CI evidence.",
+     "why_zh": "把文本导出的条件独立证据作为约束式搜索的输入。",
+     "minimal_test_zh": "比较有、无 LLM 条件独立证据时的图。"
+    },
+    {
+     "capability": "D2",
+     "status": "adjacent",
+     "why": "Score candidate graphs produced from text and data.",
+     "minimal_test": "Measure graph score against a known DAG.",
+     "why_zh": "对文本和数据生成的候选图打分。",
+     "minimal_test_zh": "用已知 DAG 测量图评分。"
+    }
+   ]
+  },
+  {
+   "id": "llm-d4",
+   "problem": "llm_causal_reasoning",
+   "when": {
+    "data": [
+     "text"
+    ],
+    "intervention": [
+     "can_run"
+    ]
+   },
+   "candidates": [
+    {
+     "capability": "D4",
+     "status": "theoretical",
+     "why": "Ask the model to choose the next interventional test when a benchmark allows it.",
+     "minimal_test": "Measure regret against a random intervention policy.",
+     "why_zh": "基准允许时，让模型选择下一次干预检验。",
+     "minimal_test_zh": "相对随机干预策略测量 regret。"
+    }
+   ]
+  }
+ ]
+}

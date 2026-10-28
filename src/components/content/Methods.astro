@@ -1,0 +1,520 @@
+---
+import ContentPage from '../ContentPage.astro';
+import { atlas } from '../../lib/atlas';
+import { dataVersion, protocolVersion, builtDate, sha256, atlasKiB, pct } from '../../lib/content';
+import { withBase } from '../../lib/urls';
+
+interface Props {
+  lang?: 'en' | 'zh';
+}
+const { lang = 'en' } = Astro.props;
+const s = atlas.stats;
+
+const fields = [
+  {
+    code: 'E',
+    name: 'explicit_object',
+    en: 'An explicit causal object is present in the method: a DAG, SCM, counterfactual query, or structural equations.',
+    zh: '方法中存在显式因果对象：DAG、SCM、反事实查询或结构方程。',
+  },
+  {
+    code: 'C',
+    name: 'object_consumed',
+    en: 'A downstream component consumes that object. The graph is an input to planning, retrieval, or scheduling, not only an explanation for the reader.',
+    zh: '下游模块读取并使用该对象。图是规划、检索或调度的输入，同时承担解释作用。',
+  },
+  {
+    code: 'T',
+    name: 'training_signal',
+    en: 'The loss, data generation, or architecture encodes a causal constraint. Inference need not show a causal object afterwards.',
+    zh: '损失函数、数据生成或模型结构包含因果约束。推理期可以不再出现显式因果对象。',
+  },
+  {
+    code: 'A',
+    name: 'agent_loop',
+    en: 'Causal structure is used in a closed loop: choosing interventions, updating structure online, or planning with a causal world model.',
+    zh: '因果结构用于闭环：选择干预、在线更新结构，或用因果世界模型规划。',
+  },
+  {
+    code: 'X',
+    name: 'external_tool',
+    en: 'The model stays frozen. Causality enters through an external causal engine or a prompt that forces a causal reasoning step.',
+    zh: '模型保持冻结。因果性通过外部因果引擎或强制因果推理的 prompt 进入。',
+  },
+  {
+    code: 'B',
+    name: 'pos_before',
+    en: 'Data construction, representation learning, pretraining corpus, or augmentation.',
+    zh: '数据构造、表示学习、预训练语料或数据增强。',
+  },
+  {
+    code: 'I',
+    name: 'pos_inner',
+    en: 'Architecture, loss function, training objective, or alignment stage.',
+    zh: '架构、损失函数、训练目标或对齐阶段。',
+  },
+  {
+    code: 'F',
+    name: 'pos_after',
+    en: 'Inference-time reasoning, decision, verification, explanation, or tool call.',
+    zh: '推理期推理、决策、验证、解释或工具调用。',
+  },
+];
+
+const kappaRows = [
+  { name: 'explicit_object', value: s.kappa.explicit_object },
+  { name: 'object_consumed', value: s.kappa.object_consumed },
+  { name: 'training_signal', value: s.kappa.training_signal },
+  { name: 'agent_loop', value: s.kappa.agent_loop },
+  { name: 'external_tool', value: null },
+  { name: 'pos_before', value: s.kappa.pos_before },
+  { name: 'pos_inner', value: s.kappa.pos_inner },
+  { name: 'pos_after', value: s.kappa.pos_after },
+  { name: 'coupling_level', value: s.kappa.coupling },
+  { name: 'pipeline_position', value: s.kappa.pipeline },
+];
+
+const statusOf = (v: number | null) =>
+  v === null ? 'missing' : v >= 0.8 ? 'pass' : v >= 0.6 ? 'revise' : 'drop';
+const statusCounts = {
+  pass: kappaRows.filter((r) => statusOf(r.value) === 'pass').length,
+  revise: kappaRows.filter((r) => statusOf(r.value) === 'revise').length,
+  drop: kappaRows.filter((r) => statusOf(r.value) === 'drop').length,
+  missing: kappaRows.filter((r) => statusOf(r.value) === 'missing').length,
+};
+
+const copy = {
+  en: {
+    title: 'Methods: bits, derivation rules, reliability, and P0 policy',
+    description:
+      'The eight coding fields, the exact L and pipeline derivation rules, field reliability, the P0 policy, data version, and the static download.',
+    eyebrow: '05 / Methods',
+    heading: 'Eight bits. Two derived labels.',
+    lede:
+      'The codebook defines the fields. L and pipeline are rules over the bits, not separate ratings. This page states the rules, the reliability, and what the data cannot support.',
+    factsTitle: 'Method snapshot',
+    facts: [
+      ['Coding fields', '8 / 8'],
+      ['Fields κ ≥ 0.80', `${statusCounts.pass} / 9`],
+      ['Double-coded', `${s.double_coded} / ${s.papers}`],
+      ['P0 papers', `${s.p0} / ${s.papers}`],
+      ['Protocol', protocolVersion],
+    ] as Array<[string, string]>,
+    sections: [
+      ['fields', 'Fields'],
+      ['glossary', 'Glossary'],
+      ['derivation', 'Derivation'],
+      ['reliability', 'Reliability'],
+      ['p0', 'P0 policy'],
+      ['version', 'Version'],
+      ['limits', 'Limits'],
+    ] as Array<[string, string]>,
+    fieldsTitle: 'Five components, three positions, fixed order.',
+    fieldsBody:
+      'Every paper gets one bit per field. The first five describe what causality does in the system; the last three describe where it enters. Filled means 1. The order never changes: E C T A X · B I F.',
+    colCode: 'Bit',
+    colField: 'Field',
+    colDefinition: 'Definition',
+    colKind: 'Group',
+    component: 'component',
+    position: 'position',
+    glossaryTitle: 'Terms used on this site.',
+    glossaryBody: 'Plain-language definitions for the labels that appear in the tables and filters.',
+    glossary: [
+      ['Paper group (family)', 'A topic group for the corpus, such as CausalRL, OOD, or TimeSeries.'],
+      ['Coding bit', 'One of the eight binary fields. Five describe what causality does; three describe where it enters.'],
+      ['Causal involvement (L0–L4)', 'A level derived from the bits. L0 has no causal component; L4 uses a causal structure inside an agent loop.'],
+      ['Intervention stage', 'The stage where the causal component acts: data, training, inference, mixed, or none.'],
+      ['Comparison strength (A–D)', 'The tier of the comparison. A has a comparable non-causal control arm; D has no quantitative experiment.'],
+      ['P0 record', 'A paper row waiting for human verification. It is visible and excluded from headline totals.'],
+      ['P0 capability', 'A capability ready for a proper validation design. It is not a paper-level status.'],
+      ['Coding agreement (κ)', 'How closely two independent coders agree. 0.80 is the project acceptance line.'],
+      ['A-tier accuracy', 'The share of audited A-tier papers that keep the A label.'],
+      ['Scale sweep', 'The same experiment run across more than one model scale.'],
+      ['Evidence index', 'A list of representative papers for a capability. It is not a usage rate.'],
+      ['Locator', 'The section, paragraph, or page where a quotation appears.'],
+      ['Coded text', 'The full text used for coding. The site does not publish it.'],
+      ['JSON', 'A plain-text data format that programs can read directly.'],
+      ['manifest', 'A file list with the version, counts, and checksum.'],
+      ['DOI', 'A persistent identifier for a published paper.'],
+      ['arXiv', 'A preprint server for papers.'],
+      ['UMAP and PCA', 'Two dimensionality-reduction methods used to draw high-dimensional coding on a flat canvas.'],
+      ['Hamming graph', 'A graph that connects two patterns when they differ by exactly one bit.'],
+    ] as Array<[string, string]>,
+    fieldsNote:
+      'The bits are not a maturity score. A paper can be X=1 with no training signal, or T=1 with no explicit object consumed at inference. L is a precedence rule over these bits, not a latent continuous depth.',
+    derivationTitle: 'The L ladder is a precedence rule.',
+    derivationBody:
+      'Read the first matching line from the top. A=1 dominates every other component; an all-zero row is L0. This rule reproduces 64 of 64 observed patterns and 580 of 580 rows in the snapshot.',
+    ladderTitle: 'Coding level',
+    pipelineTitle: 'Pipeline position',
+    pipelineBody:
+      'Count the three position bits. Zero positions is n/a; two or more is mixed; one position takes that label. This reproduces the published pipeline counts exactly.',
+    checksTitle: 'Validation checks',
+    checks: [
+      ['Patterns reproduced', `64 / 64 (100%)`],
+      ['Rows reproduced', `580 / 580 (100%)`],
+      ['Pattern counts sum', `580 / 580 (100%)`],
+      ['object_consumed without explicit_object', `0 / 580`],
+      ['training_signal and pos_inner agree', `557 / 580 (96.0%)`],
+    ] as Array<[string, string]>,
+    derivationNote:
+      'training_signal and pos_inner are close but not identical: 8 papers are T=1, I=0, and 15 are I=1, T=0. object_consumed implies explicit_object in this snapshot, but that is an empirical regularity, not a logical law.',
+    reliabilityTitle: 'Four fields clear 0.80; the derived labels do not.',
+    reliabilityBody:
+      'Cohen’s κ on the 200-paper double-coded subsample, as carried in atlas.json for v0.1. The codebook accepts κ ≥ 0.80, asks for a field revision between 0.60 and 0.80, and treats anything below 0.60 as unusable. external_tool has no estimate.',
+    colKappa: 'κ',
+    colStatus: 'Decision',
+    statusPass: 'accept',
+    statusRevise: 'revise field',
+    statusDrop: 'unusable',
+    statusMissing: 'no estimate',
+    reliabilityNote:
+      'coupling_level and pipeline_position are derived from the bits, so their κ measures the derivation, not an independent judgment. The L and pipeline distributions on /audit/ are descriptive; they do not support a trend claim while these values sit below 0.80.',
+    p0Title: 'P0 is a hold, not a footnote.',
+    p0Body:
+      'Ten paper rows (10/580, 1.7%) are P0. They remain visible with an under-adjudication badge and are excluded from headline aggregates. The snapshot keeps them in the audit counts so the queue can be inspected. Two different P0 flags exist and should not be mixed.',
+    p0PaperTitle: 'Paper P0 · under adjudication',
+    p0PaperBody:
+      'A paper row waiting for a signature. It is excluded from headline totals. Eight of the ten are reclassifications out of A; two are scale-sweep reclassifications. A precision and the scale-sweep rate stay provisional until these close.',
+    p0CapTitle: 'Capability P0 · ready to test',
+    p0CapBody:
+      'A capability that can be operationalized with a proper design. It is not an adjudication state and not a quality rank. 15 of 37 capabilities carry this flag.',
+    versionTitle: 'Version, hash, and the no-API rule.',
+    versionBody:
+      'The public data is a versioned static file. There is no API, no endpoint contract, and no rate limit. manifest.json is the only mutable pointer; atlas.json is replaced as a whole when the version changes.',
+    versionRows: [
+      ['Data version', dataVersion],
+      ['Protocol version', protocolVersion],
+      ['Built at', builtDate],
+      ['Data status', 'provisional'],
+      ['P0 signed', 'no'],
+      ['SHA-256', sha256],
+      ['atlas.json size', `${atlasKiB} KiB`],
+    ] as Array<[string, string]>,
+    versionNote:
+      'To verify a download, compute sha256 over atlas.json and compare it with manifest.json. A mismatch means the file is not the published version.',
+    limitsTitle: 'What the coding cannot support.',
+    limits: [
+      'The corpus is a non-probability sample of 580 coded full texts. It is not the field, and the 64 observed patterns are not 64 populations.',
+      'L and pipeline are derived rules. Their reliability is internal consistency over the bits, not agreement between two coders on depth.',
+      'κ for coupling_level (0.792) and pipeline_position (0.592) is below the acceptance line. Do not read a trend or an inward shift from those distributions.',
+      'The 20-paper A audit gives 60.0% precision. That is a small audit of tier-A candidates, not a corpus-wide error rate.',
+      'No number on this site is a causal uplift estimate. Baseline deltas are reported differences, not identified effects.',
+    ],
+    links: 'Download the data',
+  },
+  zh: {
+    title: '编码方法：8 个编码位、派生规则与一致性',
+    description:
+      '8 个编码字段、耦合程度和介入阶段的派生规则、字段一致性、P0 处理、数据版本和静态下载。',
+    eyebrow: '05 / 方法',
+    heading: '编码位与派生标签',
+    lede:
+      '编码手册定义字段。耦合程度和介入阶段由编码位推出，属于派生标签。本页说明规则、一致性和数据边界。',
+    factsTitle: '方法快照',
+    facts: [
+      ['编码字段', '8 / 8'],
+      ['κ ≥ 0.80 字段', `${statusCounts.pass} / 9`],
+      ['双编码', `${s.double_coded} / ${s.papers}`],
+      ['P0 记录', `${s.p0} / ${s.papers}`],
+      ['协议', protocolVersion],
+    ] as Array<[string, string]>,
+    sections: [
+      ['fields', '字段'],
+      ['glossary', '术语表'],
+      ['derivation', '派生'],
+      ['reliability', '信度'],
+      ['p0', 'P0 处理'],
+      ['version', '版本'],
+      ['limits', '边界'],
+    ] as Array<[string, string]>,
+    fieldsTitle: '五个编码位与三个介入位置',
+    fieldsBody:
+      '每篇论文每个字段一个编码位。前 5 位描述因果结构在系统中做什么，后 3 位描述它从哪个阶段进入。有该特征记 1。顺序固定：E C T A X · B I F。',
+    colCode: '编码位',
+    colField: '字段',
+    colDefinition: '定义',
+    colKind: '组',
+    component: '组件',
+    position: '位置',
+    glossaryTitle: '本站使用的术语',
+    glossaryBody: '用常用中文解释表格和筛选器里的标签。',
+    glossary: [
+      ['论文分组（family）', '按主题把论文分成 8 组，例如 CausalRL、OOD、TimeSeries。'],
+      ['编码位', '8 个二值字段之一。前 5 位描述因果结构在系统里做什么，后 3 位描述它从哪个阶段进入。'],
+      ['耦合程度（L0–L4）', '由编码位推出的等级。L0 没有因果组件；L4 在 Agent 闭环里使用因果结构。'],
+      ['介入阶段', '因果组件实际作用的阶段：数据、训练、推理、混合，或没有。'],
+      ['对照强度（A–D）', '论文对照设计的等级。A 有可比的非因果对照组；D 没有定量实验。'],
+      ['P0 记录', '等待人工核定的论文行。记录照常显示，不计入首页汇总。'],
+      ['P0 能力', '已具备正式验证条件的能力。这个标记描述能力，不描述论文。'],
+      ['编码一致性（κ）', '两名编码员独立判断的吻合程度。0.80 是本项目的接受线。'],
+      ['A 档准确率', '抽查的 A 档论文里保留 A 标签的比例。'],
+      ['规模扫描', '同一实验在多个模型规模上重复比较。'],
+      ['证据索引', '某项能力的代表论文清单。它表示证据位置，不表示使用率。'],
+      ['原文位置', '引文所在的章节、段落或页码。'],
+      ['编码全文', '用于编码的论文全文。本站不发布全文。'],
+      ['JSON', '一种纯文本数据格式，程序可以直接读取。'],
+      ['manifest', '数据文件清单，记录版本、计数和哈希。'],
+      ['DOI', '论文的持久数字标识。'],
+      ['arXiv', '论文预印本平台。'],
+      ['UMAP 和 PCA', '两种降维展示方法，用于把高维编码画在平面上。'],
+      ['汉明图', '只连接相差一位编码的图。'],
+    ] as Array<[string, string]>,
+    fieldsNote:
+      '这些编码位描述方法结构，不评价研究质量。论文可以 X=1 但没有训练信号，也可以 T=1 但推理期不读取显式因果对象。耦合程度由这些编码位按优先级推出。',
+    derivationTitle: '耦合程度的推导规则',
+    derivationBody:
+      '从上往下读，第一条匹配即定级。A=1 优先于其他编码位；8 位全为 0 记为 L0。这个规则复现了快照中的 64 种实际组合和 580 行记录。',
+    ladderTitle: '编码等级',
+    pipelineTitle: '介入阶段',
+    pipelineBody:
+      '数三个介入位置编码位。0 个为 n/a；2 个及以上为 mixed；1 个取该位置标签。这个规则复现了已发布的介入阶段计数。',
+    checksTitle: '校验',
+    checks: [
+      ['组合复现', `64 / 64（100%）`],
+      ['行复现', `580 / 580（100%）`],
+      ['组合计数求和', `580 / 580（100%）`],
+      ['object_consumed 但无 explicit_object', `0 / 580`],
+      ['training_signal 与 pos_inner 一致', `557 / 580（96.0%）`],
+    ] as Array<[string, string]>,
+    derivationNote:
+      'training_signal 与 pos_inner 接近但不相同：8 篇为 T=1, I=0，15 篇为 I=1, T=0。本快照中 object_consumed 蕴含 explicit_object，这是一条经验规律。',
+    reliabilityTitle: '4 个字段达到 0.80',
+    reliabilityBody:
+      '200 篇双编码子样本上的 Cohen’s κ，取自 atlas.json 的 v0.1 值。编码手册接受 κ ≥ 0.80；0.60–0.80 要求修订字段定义；低于 0.60 视为不可用。external_tool 没有估计。',
+    colKappa: 'κ',
+    colStatus: '判定',
+    statusPass: '接受',
+    statusRevise: '修订字段',
+    statusDrop: '不可用',
+    statusMissing: '无估计',
+    reliabilityNote:
+      '耦合程度和介入阶段由编码位推出，它们的 κ 衡量推导规则的一致性。数据核查页上的等级和阶段分布只描述当前快照；这些值低于 0.80 时，不用于趋势判断。',
+    p0Title: 'P0 记录的暂缓规则',
+    p0Body:
+      '10 条记录（10/580，1.7%）为 P0，等待人工核定。记录照常显示，不计入首页汇总。本页计数保留它们，方便核对队列。论文记录和能力各有 P0 标记，两者分开使用。',
+    p0PaperTitle: 'P0 论文记录 · 待核定',
+    p0PaperBody:
+      '等待人工核定的论文记录，不计入首页汇总。10 条中 8 条涉及 A 档改判，2 条涉及规模扫描改判。核定完成前，A 档准确率和规模扫描比例保持暂定。',
+    p0CapTitle: 'P0 能力 · 可开始验证',
+    p0CapBody:
+      '已具备正式验证条件的能力。这个标记描述能力，和论文级 P0 记录分开，也不表示质量高低。37 条能力中 15 条带这个标记。',
+    versionTitle: '版本、哈希与静态文件规则',
+    versionBody:
+      '公开数据是带版本的静态文件。manifest.json 是唯一可变的指针；版本变化时 atlas.json 整体替换。',
+    versionRows: [
+      ['数据版本', dataVersion],
+      ['协议版本', protocolVersion],
+      ['生成时间', builtDate],
+      ['数据状态', '暂定版本'],
+      ['P0 已签', '否'],
+      ['SHA-256', sha256],
+      ['atlas.json 大小', `${atlasKiB} KiB`],
+    ] as Array<[string, string]>,
+    versionNote:
+      '校验下载：对 atlas.json 计算 sha256，与 manifest.json 比较。不一致时，请从版本化路径重新下载。',
+    limitsTitle: '数据边界',
+    limits: [
+      '这 580 篇是已编码全文的非概率样本。语料覆盖一个主题集合，64 种组合描述这个集合。',
+      '耦合程度和介入阶段由编码位推出。它们的信度反映编码位的一致性。',
+      '耦合程度（0.792）和介入阶段（0.592）的 κ 低于接受线。这些分布只描述当前快照。',
+      '20 篇 A 档核查给出 60.0% 的准确率。这个数字描述 A 档候选的小样本。',
+      '本站记录论文报告的性能差值，不估计因果效应。',
+    ],
+    links: '下载数据',
+  },
+};
+
+const c = copy[lang];
+---
+
+<ContentPage
+  lang={lang}
+  slug="/methods/"
+  title={c.title}
+  description={c.description}
+  eyebrow={c.eyebrow}
+  heading={c.heading}
+  lede={c.lede}
+  factsTitle={c.factsTitle}
+  facts={c.facts}
+  sections={c.sections}
+>
+  <section id="fields">
+    <div class="sec-head">
+      <div><h2>{c.fieldsTitle}</h2></div>
+      <p>{c.fieldsBody}</p>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{c.colCode}</th>
+            <th scope="col">{c.colField}</th>
+            <th scope="col">{c.colKind}</th>
+            <th scope="col">{c.colDefinition}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {fields.map((f) => (
+            <tr>
+              <td class="num"><code>{f.code}</code></td>
+              <td><code>{f.name}</code></td>
+              <td>{f.code === 'E' || f.code === 'C' || f.code === 'T' || f.code === 'A' || f.code === 'X' ? c.component : c.position}</td>
+              <td>{lang === 'zh' ? f.zh : f.en}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{c.fieldsNote}</p>
+  </section>
+
+  <section id="glossary">
+    <div class="sec-head">
+      <div><h2>{c.glossaryTitle}</h2></div>
+      <p>{c.glossaryBody}</p>
+    </div>
+    <dl class="glossary">
+      {c.glossary.map(([term, definition]) => (
+        <>
+          <dt>{term}</dt>
+          <dd>{definition}</dd>
+        </>
+      ))}
+    </dl>
+  </section>
+
+  <section id="derivation">
+    <div class="sec-head">
+      <div><h2>{c.derivationTitle}</h2></div>
+      <p>{c.derivationBody}</p>
+    </div>
+
+    <div class="formula">
+      <div style="font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem">{c.ladderTitle}</div>
+      <div><b>L4</b> if A = 1</div>
+      <div><b>L3</b> if A = 0 and T = 1</div>
+      <div><b>L2</b> if A = 0 and T = 0 and C = 1</div>
+      <div><b>L1</b> if A = 0 and T = 0 and C = 0 and (E = 1 or X = 1)</div>
+      <div><b>L0</b> otherwise</div>
+    </div>
+
+    <div class="formula">
+      <div style="font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem">{c.pipelineTitle}</div>
+      <div>B + I + F = 0 → <b>na</b></div>
+      <div>B + I + F ≥ 2 → <b>mixed</b></div>
+      <div>B = 1 → <b>before</b> · I = 1 → <b>inner</b> · F = 1 → <b>after</b></div>
+    </div>
+
+    <p class="small" style="margin-top:1rem">{c.pipelineBody}</p>
+
+    <h3>{c.checksTitle}</h3>
+    <div class="table-wrap">
+      <table class="data-table">
+        <tbody>
+          {c.checks.map(([label, value]) => (
+            <tr>
+              <td>{label}</td>
+              <td class="num">{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{c.derivationNote}</p>
+  </section>
+
+  <section id="reliability">
+    <div class="sec-head">
+      <div><h2>{c.reliabilityTitle}</h2></div>
+      <p>{c.reliabilityBody}</p>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{c.colField}</th>
+            <th class="num" scope="col">{c.colKappa}</th>
+            <th scope="col">{c.colStatus}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {kappaRows.map((row) => {
+            const status = statusOf(row.value);
+            const text =
+              status === 'pass' ? c.statusPass : status === 'revise' ? c.statusRevise : status === 'drop' ? c.statusDrop : c.statusMissing;
+            return (
+              <tr>
+                <td><code>{row.name}</code></td>
+                <td class="num">{row.value === null ? '—' : row.value.toFixed(3)}</td>
+                <td>{text}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{c.reliabilityNote}</p>
+  </section>
+
+  <section id="p0">
+    <div class="sec-head">
+      <div><h2>{c.p0Title}</h2></div>
+      <p>{c.p0Body}</p>
+    </div>
+    <div class="precision-grid">
+      <div>
+        <h3 style="margin-top:0">{c.p0PaperTitle}</h3>
+        <p class="small">{c.p0PaperBody}</p>
+        <p class="mono-note">{s.p0} / {s.papers} = {pct(s.p0, s.papers)}</p>
+      </div>
+      <div>
+        <h3 style="margin-top:0">{c.p0CapTitle}</h3>
+        <p class="small">{c.p0CapBody}</p>
+        <p class="mono-note">{atlas.capabilities.filter((cap) => cap.priority === 'P0').length} / {atlas.capabilities.length} = {pct(atlas.capabilities.filter((cap) => cap.priority === 'P0').length, atlas.capabilities.length)}</p>
+      </div>
+    </div>
+    <div class="status" style="margin-top:1.4rem">
+      <strong>{lang === 'en' ? 'Hold' : '暂停'}</strong>
+      <p>
+        {lang === 'en'
+          ? 'No P0 row enters a headline aggregate before signature. If a signature changes an A label or a scale-sweep label, the audit page will change with the next data version, not silently.'
+          : '人工核定前，任何 P0 记录都不进入首页汇总。核定结果改变 A 标签或规模扫描标签时，数据核查页会随下一个数据版本一起更新。'}
+      </p>
+    </div>
+  </section>
+
+  <section id="version">
+    <div class="sec-head">
+      <div><h2>{c.versionTitle}</h2></div>
+      <p>{c.versionBody}</p>
+    </div>
+    <dl class="contact-list">
+      {c.versionRows.map(([k, v]) => (
+        <>
+          <dt>{k}</dt>
+          <dd class="mono">{v}</dd>
+        </>
+      ))}
+    </dl>
+    <p class="note">{c.versionNote}</p>
+    <p class="small" style="margin-top:1rem">
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/download/' : '/download/')}>{c.links}</a>
+      {' · '}
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/responsibility/' : '/responsibility/')}>
+        {lang === 'en' ? 'Hosting, exclusion, and corrections' : '发布范围、排除与更正'}
+      </a>
+    </p>
+  </section>
+
+  <section id="limits">
+    <div class="sec-head">
+      <div><h2>{c.limitsTitle}</h2></div>
+    </div>
+    <ul class="prose">
+      {c.limits.map((item) => <li>{item}</li>)}
+    </ul>
+  </section>
+</ContentPage>

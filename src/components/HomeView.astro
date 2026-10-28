@@ -1,0 +1,123 @@
+---
+import { atlas } from '../lib/atlas';
+import { t, type Lang } from '../lib/i18n';
+import FingerprintWall from './FingerprintWall.astro';
+import PatternPreview from './PatternPreview.astro';
+import TimelineChart from './TimelineChart';
+import { withBase } from '../lib/urls';
+
+interface Props { lang?: Lang }
+const { lang = 'en' } = Astro.props;
+const c = t(lang);
+const prefix = lang === 'zh' ? '/zh-Hans' : '';
+const p0 = atlas.papers.filter((p) => p.p0);
+const p0Caps = atlas.capabilities.filter((cap) => cap.priority === 'P0');
+---
+<div class="wrap">
+  <section class="hero hero--solo">
+    <div class="hero__lead">
+      <h1 class={lang === 'zh' ? 'hero__title hero__title--zh' : 'hero__title'}>{c.hero.title}</h1>
+    </div>
+    <div class="hero__copy">
+      <p class="hero__body">{c.hero.body}</p>
+      <p class="hero__mission">{c.hero.mission}</p>
+      <div class="hero__meta">
+        {c.hero.meta.map((m) => <span>{m}</span>)}
+      </div>
+      <div class="hero__actions">
+        <a class="button" href={withBase(`${prefix}/explore/`)}>{c.hero.cta}</a>
+        <a class="text-link" href={withBase(`${prefix}/methods/`)}>{c.hero.methods}</a>
+      </div>
+      <p class="live-note hero__live"><span class="live-dot" aria-hidden="true"></span>{c.hero.updateNote}</p>
+    </div>
+  </section>
+
+  <section class="stats" aria-label={c.statsLabel}>
+    {c.stats.map(([value, label]) => (
+      <div class="stat">
+        <span class="stat__live" aria-hidden="true"></span>
+        <span class="stat__value" data-count={value} data-decimals={value.includes('.') ? 3 : 0}>{value}</span>
+        <span class="stat__label">{label}</span>
+      </div>
+    ))}
+  </section>
+
+  <section class="section">
+    <TimelineChart client:idle lang={lang} />
+  </section>
+
+  <section class="section">
+    <div class="panel-grid">
+      <div class="panel">
+        <h3>{c.what.inspectTitle}</h3>
+        <ul>{c.what.inspect.map((x) => <li>{x}</li>)}</ul>
+      </div>
+      <div class="panel">
+        <h3>{c.what.scopeTitle}</h3>
+        <ul>{c.what.scope.map((x) => <li>{x}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section__head">
+      <div>
+        <h2>{c.ledger.title}</h2>
+      </div>
+    </div>
+    <FingerprintWall note={c.ledger.wallNote} lang={lang} />
+    <div style="height:2rem"></div>
+    <PatternPreview href={withBase(`${prefix}/explore/`)} label={c.ledger.previewLink} lang={lang} />
+  </section>
+
+  <section class="section">
+    <div class="section__head">
+      <div>
+        <h2>{c.cap.title}</h2>
+      </div>
+      <p class="section__note">{c.cap.body}</p>
+    </div>
+    <div class="cap-strip">
+      {p0Caps.map((cap) => (
+        <a class="cap-cell" href={withBase(`${prefix}/capabilities/#${cap.id}`)}>
+          <span class="mono cap-cell__id">{cap.id}</span>
+          <span>{cap.name}</span>
+          <span class="mono cap-cell__ready">{cap.readiness}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section__head">
+      <div>
+        <h2>{c.p0.title}</h2>
+      </div>
+      <p class="section__note">{c.p0.body}</p>
+    </div>
+    <div class="p0-list">
+      {p0.map((p) => (
+        <a class="p0-item" href={withBase(`${prefix}/explore/?p0=1`)}>
+          <span class="mono">{p.id}</span>
+          <span>{p.title}</span>
+          <span class="mono">{p.family}</span>
+          <span class="p0">P0</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section__head">
+      <div>
+        <h2>{c.deep.title}</h2>
+      </div>
+      <p class="section__note">{c.deep.body}</p>
+    </div>
+    <div class="deep-links">
+      <a href={withBase(`${prefix}/deep/#lattice`)}>{c.deep.links[0][0]} <span>{c.deep.links[0][1]}</span></a>
+      <a href={withBase(`${prefix}/deep/#umap`)}>{c.deep.links[1][0]} <span>{c.deep.links[1][1]}</span></a>
+      <a href={withBase(`${prefix}/deep/#orbital`)}>{c.deep.links[2][0]} <span>{c.deep.links[2][1]}</span></a>
+    </div>
+  </section>
+</div>

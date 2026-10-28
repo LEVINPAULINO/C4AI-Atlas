@@ -1,0 +1,18 @@
+{
+ "name": "C4AI Atlas",
+ "version": "0.1.0-provisional",
+ "data_status": "provisional",
+ "built_at": "2026-10-28T12:33:51.177814+08:00",
+ "protocol_version": "v1.2-final",
+ "sha256": "b1072a6775a71631364413e0325cb884e62ccffcc16fbca36a6a9dff7a4168c4",
+ "files": [
+  "atlas.json",
+  "layouts.json",
+  "README.md"
+ ],
+ "counts": {
+  "papers": 580,
+  "patterns": 64,
+  "capabilities": 37
+ }
+}

@@ -1,0 +1,36 @@
+name: Accessibility
+description: Report a keyboard, screen reader, contrast, motion, or small-screen problem.
+title: "[a11y] "
+labels: ["accessibility"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page URL or path
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - keyboard
+        - screen reader
+        - contrast
+        - motion
+        - small screen
+        - zoom
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: detail
+    attributes:
+      label: What happens
+      description: Include the browser, assistive technology, and viewport if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen

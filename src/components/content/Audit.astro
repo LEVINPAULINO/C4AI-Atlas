@@ -1,0 +1,659 @@
+---
+import ContentPage from '../ContentPage.astro';
+import { atlas, arxivUrl } from '../../lib/atlas';
+import { labels } from '../../lib/labels';
+import { dataVersion, builtDate, pct, pctInterval, shaShort } from '../../lib/content';
+import { withBase } from '../../lib/urls';
+
+interface Props {
+  lang?: 'en' | 'zh';
+}
+const { lang = 'en' } = Astro.props;
+const L = labels[lang];
+const s = atlas.stats;
+const total = s.papers;
+
+const directionOrder = ['cd_for_ai', 'ai_for_cd', 'both', 'unclear'] as const;
+const directionColors: Record<string, string> = {
+  cd_for_ai: 'var(--blue)',
+  ai_for_cd: 'var(--moss)',
+  both: 'var(--ochre)',
+  unclear: 'var(--rule)',
+};
+const directionRows = directionOrder.map((key) => ({
+  key,
+  label: L.direction[key],
+  n: s.direction[key] ?? 0,
+  pct: pct(s.direction[key] ?? 0, total),
+}));
+
+const tierOrder = ['A', 'B', 'C', 'D', 'NA'] as const;
+const tierRows = tierOrder.map((key) => ({
+  label: L.tier[key],
+  n: s.tier[key] ?? 0,
+  pct: pct(s.tier[key] ?? 0, total),
+  bar: key === 'NA' ? 'var(--rule)' : 'var(--blue)',
+}));
+
+const levelOrder = ['L0', 'L1', 'L2', 'L3', 'L4'] as const;
+const levelRows = levelOrder.map((key) => ({
+  label: L.level[key],
+  n: s.level[key] ?? 0,
+  pct: pct(s.level[key] ?? 0, total),
+  bar: `var(--${key.toLowerCase()})`,
+}));
+
+const pipelineOrder = ['before', 'inner', 'after', 'mixed', 'na'] as const;
+const pipelineRows = pipelineOrder.map((key) => ({
+  label: L.pipeline[key],
+  n: s.pipeline[key] ?? 0,
+  pct: pct(s.pipeline[key] ?? 0, total),
+  bar: key === 'na' ? 'var(--rule)' : 'var(--blue)',
+}));
+
+const kappaFields = [
+  'explicit_object',
+  'object_consumed',
+  'training_signal',
+  'agent_loop',
+  'external_tool',
+  'pos_before',
+  'pos_inner',
+  'pos_after',
+  'coupling',
+  'pipeline',
+] as const;
+const kappaRows = kappaFields.map((key) => ({
+  key,
+  label: L.kappaField[key],
+  value: (s.kappa as Record<string, number>)[key],
+}));
+
+const kappaPass = kappaRows.filter((r) => typeof r.value === 'number' && r.value >= 0.8).length;
+const kappaMeasured = kappaRows.filter((r) => typeof r.value === 'number').length;
+
+const KL = 200;
+const KR = 740;
+const KX = (v: number) => KL + ((v - 0.5) / 0.4) * (KR - KL);
+const KTOP = 42;
+const KSTEP = 24;
+const kTicks = [0.5, 0.6, 0.7, 0.8, 0.9];
+const kThresholdX = KX(0.8);
+const kPct = (v: number) => ((v - 0.5) / 0.4) * 100;
+
+const precision = s.a_audit;
+const scale = s.scale_sweep;
+const p0Papers = atlas.papers.filter((p) => p.p0);
+const reclassified = p0Papers.filter((p) => p.p0_reason.includes('A audit'));
+
+const funnel = lang === 'zh'
+  ? [
+      { n: 1046, label: '筛选后纳入', denom: 1626, denomLabel: '占 1,626 条去重记录' },
+      { n: 596, label: '有 arXiv 全文', denom: 1046, denomLabel: '占 1,046 条纳入记录' },
+      { n: 580, label: '完成全文编码', denom: 596, denomLabel: '占 596 条有全文记录' },
+      { n: 200, label: '双编码样本', denom: 580, denomLabel: '占 580 条编码记录' },
+      { n: 20, label: 'A 档核查样本', denom: 200, denomLabel: '占 200 条双编码记录' },
+    ]
+  : [
+      { n: 1046, label: 'Included after screening', denom: 1626, denomLabel: 'of 1,626 deduplicated records' },
+      { n: 596, label: 'With arXiv full text', denom: 1046, denomLabel: 'of 1,046 included' },
+      { n: 580, label: 'Full text coded', denom: 596, denomLabel: 'of 596 with full text' },
+      { n: 200, label: 'Double-coded sample', denom: 580, denomLabel: 'of 580 coded' },
+      { n: 20, label: 'Tier-A audit sample', denom: 200, denomLabel: 'of 200 double-coded' },
+    ];
+const funnelTop = funnel[0].n;
+
+const copy = {
+  en: {
+    title: 'Audit: direction, reliability, precision, and coverage',
+    description:
+      'Direction split, tier and coupling counts, pipeline counts, κ dot plot, A-tier precision, scale-sweep rate, and the screening funnel for the 580-paper snapshot.',
+    eyebrow: '04 / Audit',
+    heading: 'Every number has a denominator.',
+    lede:
+      'This page reports aggregate checks on the coding snapshot. Reviewer names and the internal worksheet stay private. Ten P0 rows are marked and excluded from headline aggregates; the counts here include them so the queue can be checked.',
+    factsTitle: 'Audit snapshot',
+    facts: [
+      ['Papers', String(total)],
+      ['Double-coded', `${s.double_coded} / ${total}`],
+      ['P0 open', `${s.p0} / ${total}`],
+      ['κ ≥ 0.80', `${kappaPass} / ${kappaMeasured}`],
+      ['A precision', `${precision.justified} / ${precision.audited}`],
+    ] as Array<[string, string]>,
+    sections: [
+      ['status', 'Status'],
+      ['direction', 'Direction'],
+      ['tier', 'Tier'],
+      ['level', 'Coupling'],
+      ['pipeline', 'Pipeline'],
+      ['kappa', 'Reliability'],
+      ['precision', 'A precision'],
+      ['scale', 'Scale sweep'],
+      ['funnel', 'Funnel'],
+    ] as Array<[string, string]>,
+    provisionalBadge: 'Provisional',
+    statP0: 'P0 records',
+    statPrecision: 'A-tier accuracy',
+    statScale: 'scale sweep',
+    statDouble: 'double-coded',
+    statusTitle: 'Provisional, with the P0 rows still open.',
+    status:
+      '10 of 580 rows (1.7%) are P0. They are visible, marked, and excluded from headline aggregates. Eight of the ten are reclassifications out of A; two are scale-sweep reclassifications. The counts on this page are the full snapshot, not the adjudicated merge. A precision and scale-sweep are provisional until the P0 queue closes.',
+    directionTitle: 'Direction clears the bar.',
+    directionBody:
+      'Direction is a screening-level field with κ = 0.963 on 931 coded records in the screening audit. In the 580-paper split below, 510 papers (87.9%) carry a single primary direction; 34 are coded both ways and 36 are unclear.',
+    directionNote:
+      'Direction is a screening-level judgment, not a claim about causal identification. “Causality → AI” means the paper uses causal methods on an AI system; “AI → Causality” means it uses AI to do causal work.',
+    tierTitle: 'Only 31.6% of rows have a comparable non-causal arm.',
+    tierBody:
+      'Tier answers one question: is there a non-causal control arm that can be compared? It is not a quality score and not a coupling level. Tier A is 183 of 580 (31.6%); 203 rows (35.0%) are C or D and have no usable method-level comparison.',
+    tierNote:
+      'The 20-paper A audit found 12 justified (60.0%). That is why the A count is reported as a candidate count, not as verified evidence.',
+    levelTitle: 'L3 is the modal depth; L0 is a stratum, not a discovery.',
+    levelBody:
+      'The five levels are derived from the component bits, not rated independently. 240 of 580 papers (41.4%) are L3. 43 (7.4%) are all-zero L0 and are shown separately.',
+    levelNote:
+      'Coupling κ is 0.792 in this snapshot, below the 0.80 acceptance line. Do not read the level distribution as a validated trend.',
+    pipelineTitle: 'Mixed positions are the largest bucket.',
+    pipelineBody:
+      'Pipeline position is derived from the three position bits. 223 of 580 papers (38.4%) touch two or more positions; 45 (7.8%) have no position bit.',
+    pipelineNote:
+      'Pipeline κ is 0.592. The position field does not meet the acceptance threshold and is not used for a “causal work moved inward” claim.',
+    kappaTitle: 'Four of nine measured fields clear 0.80.',
+    kappaBody:
+      'Cohen’s κ on the double-coded sample. The threshold is 0.80, the codebook’s acceptance line. external_tool has no κ and is shown as a dash rather than imputed.',
+    kappaNote:
+      'coupling_level and pipeline_position are derived rules over the bits, so their κ is a diagnostic of the derivation, not an independent rating. Treat the dot plot as a status board, not a scoreboard.',
+    kappaThreshold: '0.80 acceptance',
+    kappaAxis: 'Cohen’s κ',
+    kappaMissing: 'not measured',
+    kappaScale: 'Track spans κ 0.50–0.90. Dashed rule = 0.80 acceptance.',
+    kappaTable: 'Field, κ, and status',
+    tableField: 'Field',
+    tableValue: 'κ',
+    tableStatus: 'Status',
+    statusPass: 'accepted',
+    statusFail: 'below threshold',
+    statusMissing: 'no estimate',
+    precisionTitle: 'A-tier precision is 12 of 20.',
+    precisionBody:
+      'Twenty tier-A papers were audited against the A definition. Twelve kept the label; eight were reclassified. The point estimate is 60.0%, with a Wilson 95% interval of 38.7–78.1%.',
+    precisionNote:
+      'The audit is 20 of 183 tier-A rows (10.9%). It is not a random sample of the corpus, so the interval describes these 20 rows, not a population parameter.',
+    justified: 'kept A',
+    reclassifiedLabel: 'reclassified',
+    reclassifiedTitle: 'The eight reclassified rows',
+    p0Flag: 'P0 · under adjudication',
+    reasonCol: 'Audit reason',
+    reasonA: 'A audit: not A',
+    reasonScale: 'scale sweep: not justified',
+    scaleTitle: 'Eight papers justify a scale sweep: 8 of 353.',
+    scaleBody:
+      'Among the 353 tier A+B papers, 8 (2.3%) report a scale sweep that survives review. The Wilson 95% interval is 1.2–4.4%. Every cell below is one A+B paper; filled cells are the eight.',
+    scaleNote:
+      'The claim is about testability, not about causal methods losing to scale. In the pilot’s 73 quantitative papers, 61 (83.6%) do not report parameter counts, so most rows cannot enter a scale analysis at all.',
+    scaleUnit: '1 cell = 1 tier A/B paper · 353 cells · 8 filled',
+    funnelTitle: 'From 1,626 records to 20 audited rows.',
+    funnelBody:
+      'Each step is measured against the step above it. The 1,046 included records are the screening denominator; 596 have usable arXiv full text; 16 PDF-only records are not codable. The double-coded and audit samples are subsets, not additional papers.',
+    funnelNote:
+      'The 1,046 figure counts records included after title/abstract screening, before the position-paper exclusion. Do not mix it with the 580 full-text denominator.',
+    colStep: 'Step',
+    colCount: 'n',
+    colDenom: 'Denominator',
+    colShare: 'Share',
+    dataTitle: 'Source and version',
+    dataBody:
+      'All counts are computed from atlas.json at build time. The manifest carries the file hash. The snapshot is provisional; the protocol version is separate from the data version.',
+    sourceLine: `data ${dataVersion} · built ${builtDate} · SHA-256 ${shaShort}`,
+    viewTable: 'View as table',
+  },
+  zh: {
+    title: '数据核查：方向、一致性、准确率与覆盖',
+    description:
+      '580 篇快照的方向分布、对照强度与耦合程度计数、介入阶段计数、一致性点图、A 档准确率、规模扫描比例和筛选流程。',
+    eyebrow: '04 / 数据核查',
+    heading: '数据核查结果',
+    lede:
+      '本页报告 580 篇快照的聚合核查结果。评审人姓名和内部工作表保留在项目内部。10 条 P0 已标注，不计入首页汇总；本页计数包含它们，方便核对队列。',
+    factsTitle: '核查快照',
+    facts: [
+      ['论文', String(total)],
+      ['双编码', `${s.double_coded} / ${total}`],
+      ['P0 待核定', `${s.p0} / ${total}`],
+      ['κ ≥ 0.80', `${kappaPass} / ${kappaMeasured}`],
+      ['A 档准确率', `${precision.justified} / ${precision.audited}`],
+    ] as Array<[string, string]>,
+    sections: [
+      ['status', '状态'],
+      ['direction', '方向'],
+      ['tier', '对照强度'],
+      ['level', '耦合程度'],
+      ['pipeline', '介入阶段'],
+      ['kappa', '一致性'],
+      ['precision', 'A 档准确率'],
+      ['scale', '规模扫描'],
+      ['funnel', '筛选流程'],
+    ] as Array<[string, string]>,
+    provisionalBadge: '暂定版本',
+    statP0: 'P0 记录',
+    statPrecision: 'A 档准确率',
+    statScale: '规模扫描',
+    statDouble: '双编码',
+    statusTitle: '暂定版本：P0 记录待核定',
+    status:
+      '580 条记录中有 10 条（1.7%）为 P0，等待人工核定。记录照常显示，不计入首页汇总。10 条中 8 条涉及 A 档改判，2 条涉及规模扫描改判。本页计数是完整快照，最终合并结果以核定后的数据版本为准。P0 队列关闭前，A 档准确率和规模扫描比例保持暂定。',
+    directionTitle: '方向分布',
+    directionBody:
+      '方向是筛选层字段，在 931 条已编码记录上的 κ = 0.963。580 篇中，510 篇（87.9%）有单一主方向；34 篇为双向，36 篇为不明确。',
+    directionNote:
+      '方向描述论文的工作方向。“因果 → AI”指论文把因果方法用于 AI 系统；“AI → 因果”指用 AI 做因果工作。',
+    tierTitle: '对照强度分布',
+    tierBody:
+      '对照强度描述论文的对照设计。A 档有可比的非因果对照组；C、D 档没有可用的方法层对照。A 档为 183 / 580（31.6%）；C 或 D 共 203 行（35.0%）。',
+    tierNote:
+      '20 篇 A 档核查中，12 篇保留 A 标签（60.0%）。A 档数字表示候选数量。',
+    levelTitle: '耦合程度分布',
+    levelBody:
+      '五个等级由编码位推出。580 篇中，240 篇（41.4%）为 L3；43 篇（7.4%）为全零 L0，单独展示。',
+    levelNote:
+      '本快照的耦合程度 κ 为 0.792，低于 0.80 接受线。等级分布只描述当前快照。',
+    pipelineTitle: '介入阶段分布',
+    pipelineBody:
+      '介入阶段由三个位置编码位推出。580 篇中，223 篇（38.4%）涉及两个及以上阶段；45 篇（7.8%）没有介入阶段。',
+    pipelineNote:
+      '介入阶段 κ 为 0.592，未达到接受线。本页不据此提出阶段变化的主张。',
+    kappaTitle: '编码一致性',
+    kappaBody:
+      '双编码样本上的 Cohen’s κ。0.80 是编码手册的接受线。external_tool 没有估计，显示为短横线。',
+    kappaNote:
+      '耦合程度和介入阶段由编码位推出，它们的 κ 反映推导规则的一致性。点图用于查看每条字段是否达到接受线。',
+    kappaThreshold: '0.80 接受线',
+    kappaAxis: 'Cohen’s κ',
+    kappaMissing: '未测量',
+    kappaScale: '轨道范围 κ 0.50–0.90。虚线为 0.80 接受线。',
+    kappaTable: '字段、κ 与状态',
+    tableField: '字段',
+    tableValue: 'κ',
+    tableStatus: '状态',
+    statusPass: '接受',
+    statusFail: '低于阈值',
+    statusMissing: '无估计',
+    precisionTitle: 'A 档准确率',
+    precisionBody:
+      '按 A 档定义核查 20 篇 A 档论文：12 篇保留标签，8 篇改判。点估计 60.0%，Wilson 95% 区间 38.7–78.1%。',
+    precisionNote:
+      '核查样本是 183 行 A 档中的 20 行（10.9%）。区间描述这 20 行。',
+    justified: '保留 A',
+    reclassifiedLabel: '改判',
+    reclassifiedTitle: '8 行改判记录',
+    p0Flag: 'P0 · 待核定',
+    reasonCol: '核查原因',
+    reasonA: 'A 档核查：不成立',
+    reasonScale: '规模扫描：不成立',
+    scaleTitle: '规模扫描结果',
+    scaleBody:
+      '353 篇 A+B 论文中，8 篇（2.3%）的规模扫描通过复核。Wilson 95% 区间为 1.2–4.4%。下图每格是一篇 A+B 论文，实心格是这 8 篇。',
+    scaleNote:
+      '这个结果描述可检验性。试点 73 篇定量论文中有 61 篇（83.6%）不报告参数量，多数行无法进入规模分析。',
+    scaleUnit: '1 格 = 1 篇 A/B 论文 · 353 格 · 8 格实心',
+    funnelTitle: '筛选流程',
+    funnelBody:
+      '每一步以上一步为分母。纳入的 1,046 条是筛选层分母；596 条有可用 arXiv 全文；16 条仅 PDF，不可编码。双编码与核查样本是子集。',
+    funnelNote:
+      '1,046 是标题/摘要筛选后纳入的记录数，尚未扣除 position 论文。580 是全文编码分母。',
+    colStep: '阶段',
+    colCount: 'n',
+    colDenom: '分母',
+    colShare: '占比',
+    dataTitle: '数据来源与版本',
+    dataBody:
+      '所有计数在构建时从 atlas.json 计算，manifest 携带文件哈希。当前快照为暂定版本；协议版本与数据版本分开。',
+    sourceLine: `data ${dataVersion} · built ${builtDate} · SHA-256 ${shaShort}`,
+    viewTable: '查看数据表',
+  },
+};
+
+const c = copy[lang];
+---
+
+<ContentPage
+  lang={lang}
+  slug="/audit/"
+  title={c.title}
+  description={c.description}
+  eyebrow={c.eyebrow}
+  heading={c.heading}
+  lede={c.lede}
+  factsTitle={c.factsTitle}
+  facts={c.facts}
+  sections={c.sections}
+>
+  <section id="status">
+    <div class="status">
+      <strong>{c.provisionalBadge}</strong>
+      <p>{c.status}</p>
+    </div>
+    <h2 style="margin-top:1.6rem">{c.statusTitle}</h2>
+    <div class="stat-strip">
+      <div><b>{s.p0}</b><span>{c.statP0} / {total}</span></div>
+      <div><b>{precision.justified}/{precision.audited}</b><span>{c.statPrecision}</span></div>
+      <div><b>{scale.justified}/{scale.denominator}</b><span>{c.statScale}</span></div>
+      <div><b>200 / 580</b><span>{c.statDouble}</span></div>
+    </div>
+  </section>
+
+  <section id="direction">
+    <div class="sec-head">
+      <div><h2>{c.directionTitle}</h2></div>
+      <p>{c.directionBody}</p>
+    </div>
+    <figure class="figure">
+      <div class="split-bar" role="img" aria-label={directionRows.map((r) => `${r.label}: ${r.n} of ${total} (${r.pct})`).join('. ')}>
+        {directionRows.map((r) => (
+          <span
+            style={`width:${(r.n / total) * 100}%;background:${directionColors[r.key]}`}
+            title={`${r.label}: ${r.n} / ${total}`}
+          ></span>
+        ))}
+      </div>
+      <ul class="legend">
+        {directionRows.map((r) => (
+          <li>
+            <i class="sw" style={`background:${directionColors[r.key]}`}></i>
+            {r.label} <b>{r.n}</b> · {r.pct} of {total}
+          </li>
+        ))}
+      </ul>
+      <figcaption>{c.directionNote}</figcaption>
+    </figure>
+  </section>
+
+  <section id="tier">
+    <div class="sec-head">
+      <div><h2>{c.tierTitle}</h2></div>
+      <p>{c.tierBody}</p>
+    </div>
+    <div class="bar-list">
+      {tierRows.map((row) => (
+        <div class="bar-row">
+          <span class="bar-row__label">{row.label}</span>
+          <span class="bar-row__track" aria-hidden="true">
+            <span class="bar-row__fill" style={`width:${(row.n / total) * 100}%;--bar:${row.bar}`}></span>
+          </span>
+          <span class="bar-row__count">{row.n} / {total}</span>
+          <span class="bar-row__pct">{row.pct}</span>
+        </div>
+      ))}
+    </div>
+    <p class="note">{c.tierNote}</p>
+  </section>
+
+  <section id="level">
+    <div class="sec-head">
+      <div><h2>{c.levelTitle}</h2></div>
+      <p>{c.levelBody}</p>
+    </div>
+    <div class="bar-list">
+      {levelRows.map((row) => (
+        <div class="bar-row">
+          <span class="bar-row__label">{row.label}</span>
+          <span class="bar-row__track" aria-hidden="true">
+            <span class="bar-row__fill" style={`width:${(row.n / total) * 100}%;--bar:${row.bar}`}></span>
+          </span>
+          <span class="bar-row__count">{row.n} / {total}</span>
+          <span class="bar-row__pct">{row.pct}</span>
+        </div>
+      ))}
+    </div>
+    <p class="note">{c.levelNote}</p>
+  </section>
+
+  <section id="pipeline">
+    <div class="sec-head">
+      <div><h2>{c.pipelineTitle}</h2></div>
+      <p>{c.pipelineBody}</p>
+    </div>
+    <div class="bar-list">
+      {pipelineRows.map((row) => (
+        <div class="bar-row">
+          <span class="bar-row__label">{row.label}</span>
+          <span class="bar-row__track" aria-hidden="true">
+            <span class="bar-row__fill" style={`width:${(row.n / total) * 100}%;--bar:${row.bar}`}></span>
+          </span>
+          <span class="bar-row__count">{row.n} / {total}</span>
+          <span class="bar-row__pct">{row.pct}</span>
+        </div>
+      ))}
+    </div>
+    <p class="note">{c.pipelineNote}</p>
+  </section>
+
+  <section id="kappa">
+    <div class="sec-head">
+      <div><h2>{c.kappaTitle}</h2></div>
+      <p>{c.kappaBody}</p>
+    </div>
+    <figure class="figure">
+      <div class="table-scroll kappa-wrap">
+        <svg
+          class="kappa"
+          viewBox="0 0 780 330"
+          role="img"
+          aria-label={`Dot plot of Cohen's kappa. ${kappaMeasured} measured fields, ${kappaPass} at or above 0.80.`}
+        >
+          <g>
+            <circle cx="20" cy="14" r="4" fill="var(--moss)"></circle>
+            <text x="30" y="18" class="kappa__label">≥ 0.80</text>
+            <circle cx="120" cy="14" r="4" fill="var(--ochre)"></circle>
+            <text x="130" y="18" class="kappa__label">&lt; 0.80</text>
+          </g>
+          {kTicks.map((t) => (
+            <g>
+              <line x1={KX(t)} y1={KTOP - 10} x2={KX(t)} y2={KTOP + (kappaRows.length - 1) * KSTEP + 8} stroke="var(--rule)" stroke-width="1"></line>
+              <text x={KX(t)} y={KTOP + kappaRows.length * KSTEP + 2} text-anchor="middle">{t.toFixed(1)}</text>
+            </g>
+          ))}
+          <line
+            x1={kThresholdX}
+            y1={KTOP - 14}
+            x2={kThresholdX}
+            y2={KTOP + (kappaRows.length - 1) * KSTEP + 8}
+            stroke="var(--accent)"
+            stroke-width="1.5"
+            stroke-dasharray="4 3"
+          ></line>
+          <text x={kThresholdX - 6} y={KTOP - 18} text-anchor="end" class="kappa__threshold">{c.kappaThreshold}</text>
+
+          {kappaRows.map((row, i) => {
+            const y = KTOP + i * KSTEP;
+            const has = typeof row.value === 'number';
+            return (
+              <g>
+                <text x={KL - 12} y={y + 3} text-anchor="end" class="kappa__label">{row.label}</text>
+                <line x1={KL} y1={y} x2={KR} y2={y} stroke="var(--rule)" stroke-width="0.5" opacity="0.5"></line>
+                {has ? (
+                  <>
+                    <circle cx={KX(row.value)} cy={y} r="4.5" fill={row.value >= 0.8 ? 'var(--moss)' : 'var(--ochre)'}></circle>
+                    <text x={KX(row.value) + 10} y={y + 3}>{row.value.toFixed(3)}</text>
+                  </>
+                ) : (
+                  <text x={KL + 6} y={y + 3} fill="var(--muted)">— {c.kappaMissing}</text>
+                )}
+              </g>
+            );
+          })}
+          <text x={(KL + KR) / 2} y={KTOP + kappaRows.length * KSTEP + 24} text-anchor="middle">{c.kappaAxis}</text>
+        </svg>
+      </div>
+      <div class="kappa-mobile" role="img" aria-label={`Dot list of Cohen's kappa. ${kappaMeasured} measured fields, ${kappaPass} at or above 0.80.`}>
+        <p class="mono-note" style="margin:0 0 0.5rem">{c.kappaScale}</p>
+        {kappaRows.map((row) => (
+          <div class="km-row">
+            <span class="km-label">{row.label}</span>
+            <span class="km-value">
+              {typeof row.value === 'number' ? row.value.toFixed(3) : `— ${c.kappaMissing}`}
+            </span>
+            {typeof row.value === 'number' && (
+              <span class="km-track" aria-hidden="true">
+                <i class={row.value >= 0.8 ? '' : 'is-fail'} style={`left:${kPct(row.value)}%`}></i>
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+      <figcaption>{c.kappaNote}</figcaption>
+    </figure>
+
+    <details class="table-fallback">
+      <summary>{c.viewTable} · {c.kappaTable}</summary>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th scope="col">{c.tableField}</th><th class="num" scope="col">{c.tableValue}</th><th scope="col">{c.tableStatus}</th></tr>
+          </thead>
+          <tbody>
+            {kappaRows.map((row) => (
+              <tr>
+                <td><code>{row.label}</code></td>
+                <td class="num">{typeof row.value === 'number' ? row.value.toFixed(3) : '—'}</td>
+                <td>
+                  {typeof row.value !== 'number'
+                    ? c.statusMissing
+                    : row.value >= 0.8
+                      ? c.statusPass
+                      : c.statusFail}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <section id="precision">
+    <div class="sec-head">
+      <div><h2>{c.precisionTitle}</h2></div>
+      <p>{c.precisionBody}</p>
+    </div>
+    <div class="precision-grid">
+      <div>
+        <div class="unit-grid" role="img" aria-label={`${precision.justified} of ${precision.audited} tier-A papers kept the label; ${precision.audited - precision.justified} were reclassified.`}>
+          {Array.from({ length: precision.audited }, (_, i) => (
+            <span class={`unit ${i < precision.justified ? 'unit--on' : 'unit--off'}`}></span>
+          ))}
+        </div>
+        <ul class="legend" style="margin-top:0.8rem">
+          <li><i class="sw" style="background:var(--moss);border-color:var(--moss)"></i>{c.justified} <b>{precision.justified}</b></li>
+          <li><i class="sw" style="background:transparent;border-color:var(--accent)"></i>{c.reclassifiedLabel} <b>{precision.audited - precision.justified}</b></li>
+        </ul>
+        <p class="mono-note" style="margin-top:0.5rem">
+          {precision.justified} / {precision.audited} = {pct(precision.justified, precision.audited)} · 95% CI {pctInterval(precision.justified, precision.audited)}
+        </p>
+      </div>
+      <div>
+        <h3 style="margin-top:0">{c.reclassifiedTitle}</h3>
+        <div class="table-wrap" style="margin-top:0.4rem">
+          <table class="data-table data-table--ledger">
+            <thead>
+              <tr>
+                <th scope="col">{lang === 'zh' ? '编号' : 'ID'}</th><th scope="col">{lang === 'zh' ? '论文分组' : 'Family'}</th><th scope="col">{lang === 'zh' ? '对照强度' : 'Tier'}</th><th scope="col">{lang === 'zh' ? '耦合程度' : 'Level'}</th><th scope="col">{c.reasonCol}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reclassified.map((p) => (
+                <tr>
+                  <td class="num" data-label={lang === 'zh' ? '编号' : 'ID'}>
+                    {arxivUrl(p.id) ? <a href={arxivUrl(p.id)!} rel="noopener noreferrer">{p.id}</a> : p.id}
+                  </td>
+                  <td data-label={lang === 'zh' ? '论文分组' : 'Family'}>{p.family}</td>
+                  <td class="num" data-label={lang === 'zh' ? '对照强度' : 'Tier'}>{p.tier}</td>
+                  <td class="num" data-label={lang === 'zh' ? '耦合程度' : 'Level'}>{p.level}</td>
+                  <td data-label={c.reasonCol} title={p.p0_reason}>{p.p0_reason.includes('A audit') ? c.reasonA : c.reasonScale}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <p class="note note--accent">{c.precisionNote}</p>
+  </section>
+
+  <section id="scale">
+    <div class="sec-head">
+      <div><h2>{c.scaleTitle}</h2></div>
+      <p>{c.scaleBody}</p>
+    </div>
+    <div class="unit-grid unit-grid--many" role="img" aria-label={`${scale.justified} of ${scale.denominator} tier A/B papers justify a scale sweep. Each cell is one paper.`}>
+      {Array.from({ length: scale.denominator }, (_, i) => (
+        <span class={`unit ${i < scale.justified ? 'unit--on' : ''}`}></span>
+      ))}
+    </div>
+    <p class="mono-note" style="margin-top:0.7rem">
+      {scale.justified} / {scale.denominator} = {pct(scale.justified, scale.denominator)} · 95% CI {pctInterval(scale.justified, scale.denominator)} · {c.scaleUnit}
+    </p>
+    <p class="note">{c.scaleNote}</p>
+  </section>
+
+  <section id="funnel">
+    <div class="sec-head">
+      <div><h2>{c.funnelTitle}</h2></div>
+      <p>{c.funnelBody}</p>
+    </div>
+    <figure class="figure">
+      <div class="funnel">
+        {funnel.map((step) => (
+          <div class="funnel__row">
+            <span class="funnel__label">
+              {step.label}
+              <span>{step.denomLabel} · {pct(step.n, step.denom)} {lang === 'zh' ? '占上一阶段' : 'of that denominator'}</span>
+            </span>
+            <span class="funnel__track" aria-hidden="true">
+              <span class={`funnel__fill ${step.n === 20 ? 'funnel__fill--accent' : ''}`} style={`width:${(step.n / funnelTop) * 100}%`}></span>
+            </span>
+            <span class="funnel__count">{step.n}</span>
+          </div>
+        ))}
+      </div>
+      <figcaption>{c.funnelNote}</figcaption>
+    </figure>
+
+    <details class="table-fallback">
+      <summary>{c.viewTable} · {c.colStep}</summary>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{c.colStep}</th><th class="num" scope="col">{c.colCount}</th><th class="num" scope="col">{c.colDenom}</th><th class="num" scope="col">{c.colShare}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {funnel.map((step) => (
+              <tr>
+                <td>{step.label}</td>
+                <td class="num">{step.n}</td>
+                <td class="num">{step.denom}</td>
+                <td class="num">{pct(step.n, step.denom)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <section id="source">
+    <div class="sec-head">
+      <div><h2>{c.dataTitle}</h2></div>
+      <p>{c.dataBody}</p>
+    </div>
+    <p class="mono-note">{c.sourceLine}</p>
+    <p class="small" style="margin-top:0.8rem">
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/download/' : '/download/')}>{lang === 'en' ? 'Download atlas.json and manifest.json' : '下载 atlas.json 与 manifest.json'}</a>
+      {' · '}
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/methods/' : '/methods/')}>{lang === 'en' ? 'Methods and derivation rules' : '方法与派生规则'}</a>
+    </p>
+  </section>
+</ContentPage>

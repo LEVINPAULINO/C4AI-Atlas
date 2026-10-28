@@ -1,0 +1,27 @@
+name: Bug
+description: Report a broken page, chart, link, or build.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page URL or path
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include browser, viewport, and whether the theme was day or night.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: textarea
+    id: console
+    attributes:
+      label: Console output
+      description: Paste only the relevant lines. Remove tokens and personal data.

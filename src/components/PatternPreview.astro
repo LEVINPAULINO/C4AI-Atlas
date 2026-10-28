@@ -1,0 +1,30 @@
+---
+import { atlas } from '../lib/atlas';
+import { bitLegend, describeBits } from '../lib/bits';
+interface Props { href?: string; label?: string; lang?: 'en' | 'zh' }
+const { href = '/explore/', label = 'Open the full 64-pattern ledger', lang = 'en' } = Astro.props;
+const headers = lang === 'zh' ? ['编码组合', '论文数', '耦合程度', '介入阶段'] : ['Pattern', 'Papers', 'Level', 'Pipeline'];
+const top = [...atlas.patterns].sort((a, b) => b.count - a.count).slice(0, 8);
+const max = Math.max(...top.map((p) => p.count), 1);
+---
+<div class="pattern-preview" aria-label="Top coding patterns">
+  <div class="pattern-preview__head mono">
+    <span>{headers[0]}</span><span>{headers[1]}</span><span>{headers[2]}</span><span>{headers[3]}</span>
+  </div>
+  {top.map((p) => (
+    <div class="pattern-preview__row">
+      <span class="pattern-preview__bits">
+        <span class="fp" aria-hidden="true">{p.bits.split('').map((b) => <i data-on={b}></i>)}</span>
+        <span class="pattern-preview__text"><span class="mono">{p.bits}</span><span class="pattern-preview__meaning">{describeBits(p.bits, lang)}</span></span>
+      </span>
+      <span class="mono" data-count={p.count}>{p.count}</span>
+      <span class="mono">{p.level}</span>
+      <span class="mono">{p.pipeline}</span>
+      <span class="pattern-preview__bar" aria-hidden="true"><i style={`width:${(p.count / max) * 100}%`}></i></span>
+    </div>
+  ))}
+</div>
+<div style="margin-top:1.2rem">
+  <a class="mono" href={href} style="font-size:0.72rem">{label} →</a>
+  <p class="bit-legend" style="margin-top:0.8rem">{bitLegend(lang)}</p>
+</div>

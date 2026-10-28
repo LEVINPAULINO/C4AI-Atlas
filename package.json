@@ -1,0 +1,27 @@
+{
+  "name": "c4ai-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "build:data": "python3 scripts/build_atlas.py",
+    "build:layouts": ".venv/bin/python scripts/build_layouts.py"
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.1.1",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.4.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.9.0"
+  }
+}

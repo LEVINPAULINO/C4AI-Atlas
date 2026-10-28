@@ -1,0 +1,37 @@
+---
+import type { Lang } from '../lib/i18n';
+import PaperTable from './PaperTable';
+import { atlas } from '../lib/atlas';
+import { withBase } from '../lib/urls';
+
+interface Props { lang?: Lang }
+const { lang = 'en' } = Astro.props;
+const copy = lang === 'en'
+  ? {
+      title: '580 papers, one table.',
+      body: 'Search by title, author, venue, or arXiv ID. Filter by family, year, tier, coupling level, pipeline position, P0 capability, or audit status. Every row opens a record page with the coding, the source, and a cite block.',
+      note: `${atlas.stats.authors} records have author lists. ${atlas.stats.doi} have a DOI. ${atlas.stats.capability_tagged} carry at least one P0 capability tag.`,
+      ledger: 'Prefer the pattern ledger?',
+      ledgerLink: 'Open the 64-pattern ledger',
+    }
+  : {
+      title: '论文目录',
+      body: '按标题、作者、期刊或 arXiv ID 搜索。可按论文分组、年份、对照强度、耦合程度、介入阶段、P0 能力和数据核查状态筛选。每行打开一条记录，含编码、来源和引用信息。',
+      note: `${atlas.stats.authors} 条记录有作者列表，${atlas.stats.doi} 条有 DOI，${atlas.stats.capability_tagged} 条至少有一个 P0 能力标签。P0 能力表示优先验证的能力，术语见编码方法页。`,
+      ledger: '编码总表',
+      ledgerLink: '打开 64 种编码组合',
+    };
+---
+<div class="wrap">
+  <section style="padding:3rem 0 1.5rem">
+    <h1 style="font-family:var(--font-display);font-weight:500;font-size:clamp(2.2rem,4.4vw,3.8rem);line-height:1.02;letter-spacing:-0.03em;max-width:16ch;margin:0 0 1rem">
+      {copy.title}
+    </h1>
+    <p style="max-width:64ch;color:var(--muted);font-size:1.05rem">{copy.body}</p>
+    <p class="mono" style="font-size:0.72rem;color:var(--muted);margin-top:1rem">{copy.note}</p>
+    <p style="margin-top:1.2rem"><a href={withBase(lang === 'zh' ? '/zh-Hans/explore/' : '/explore/')}>{copy.ledgerLink}</a></p>
+  </section>
+  <section style="padding-bottom:4rem">
+    <PaperTable client:load lang={lang} />
+  </section>
+</div>

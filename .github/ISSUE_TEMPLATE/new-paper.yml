@@ -1,0 +1,46 @@
+name: New paper
+description: Suggest a paper for the corpus.
+title: "[paper] "
+labels: ["new-paper"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Title
+    validations:
+      required: true
+  - type: input
+    id: id
+    attributes:
+      label: DOI or arXiv ID
+    validations:
+      required: true
+  - type: input
+    id: year
+    attributes:
+      label: Year
+    validations:
+      required: true
+  - type: dropdown
+    id: family
+    attributes:
+      label: Family
+      options:
+        - CausalRL
+        - OOD
+        - CausalRepLearn
+        - TimeSeries
+        - WorldModel
+        - CI_for_LLM
+        - CausalDiscovery
+        - Agent
+        - unsure
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it fits
+      description: Name the causal object, method, or evaluation claim. One paragraph is enough.
+    validations:
+      required: true

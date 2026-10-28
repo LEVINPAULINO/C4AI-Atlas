@@ -1,0 +1,26 @@
+---
+import { t, type Lang } from '../lib/i18n';
+import Ledger from './Ledger';
+interface Props { lang?: Lang }
+const { lang = 'en' } = Astro.props;
+const c = t(lang);
+const note = lang === 'zh'
+  ? 'v0.1 暂定版 · P0 记录照常显示，不计入首页汇总 · 编码组合按 8 位编码精确统计'
+  : 'v0.1 provisional · P0 rows are visible and excluded from headline totals · patterns are exact 8-bit combinations';
+---
+<div class="wrap">
+  <section style="padding:3rem 0 1.5rem">
+    <p class="eyebrow">{c.ledger.eyebrow}</p>
+    <h1 style="font-family:var(--font-display);font-weight:500;font-size:clamp(2.2rem,4.5vw,4rem);line-height:1;letter-spacing:-0.03em;max-width:16ch;margin:1rem 0">
+      {c.ledger.title}
+    </h1>
+    <p style="max-width:62ch;color:var(--muted);font-size:1.05rem">{c.ledger.body}</p>
+    <div class="callout mono" style="font-size:0.68rem;margin-top:1.5rem">
+      {note}
+    </div>
+  </section>
+  <section style="padding-bottom:4rem">
+    <Ledger client:load lang={lang} />
+  </section>
+</div>
+

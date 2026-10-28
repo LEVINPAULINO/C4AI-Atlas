@@ -1,0 +1,58 @@
+name: Data error
+description: Report a wrong label, locator, metadata field, or count.
+title: "[data] "
+labels: ["data-error"]
+body:
+  - type: input
+    id: paper_id
+    attributes:
+      label: Paper ID
+      description: Use the arXiv ID or the record ID shown on the site.
+    validations:
+      required: true
+  - type: dropdown
+    id: field
+    attributes:
+      label: Field
+      options:
+        - explicit_object
+        - object_consumed
+        - training_signal
+        - agent_loop
+        - external_tool
+        - pos_before
+        - pos_inner
+        - pos_after
+        - coupling_level
+        - pipeline_position
+        - tier
+        - pair_type
+        - capability mapping
+        - metadata
+        - other
+    validations:
+      required: true
+  - type: input
+    id: current
+    attributes:
+      label: Current value
+    validations:
+      required: true
+  - type: input
+    id: proposed
+    attributes:
+      label: Proposed value
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Quote, section, page, and DOI or arXiv link.
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: Anything else
+      description: Do not paste the full paper or a long excerpt.

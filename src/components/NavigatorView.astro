@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import Navigator from './Navigator';
+import type { Lang } from '../lib/i18n';
+interface Props { lang?: Lang }
+const { lang = 'en' } = Astro.props;
+const title = lang === 'zh' ? '问题—方法导航 · C4AI Atlas' : 'Problem-to-method navigator · C4AI Atlas';
+const desc = lang === 'zh'
+  ? '选择问题、数据类型、干预条件和混杂状态，查看候选因果方法、适用假设和证据边界。'
+  : 'Choose a problem, data type, intervention condition, and confounding status. See candidate causal methods, assumptions, and the evidence boundary.';
+---
+<Base lang={lang} title={title} description={desc} alternateHref={lang === 'zh' ? '/navigator/' : '/zh-Hans/navigator/'} switchHref={lang === 'zh' ? '/navigator/' : '/zh-Hans/navigator/'}>
+  <div class="wrap">
+    <Navigator client:load lang={lang} />
+  </div>
+</Base>

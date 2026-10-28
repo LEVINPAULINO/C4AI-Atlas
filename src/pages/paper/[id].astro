@@ -1,0 +1,10 @@
+---
+import PaperDetail from '../../components/PaperDetail.astro';
+import { atlas } from '../../lib/atlas';
+
+export function getStaticPaths() {
+  return atlas.papers.map((paper) => ({ params: { id: paper.id }, props: { paper } }));
+}
+const { paper } = Astro.props;
+---
+<PaperDetail paper={paper} lang="en" />

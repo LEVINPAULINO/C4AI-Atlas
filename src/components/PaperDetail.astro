@@ -1,0 +1,190 @@
+---
+import Base from '../layouts/Base.astro';
+import { atlas } from '../lib/atlas';
+import { withBase } from '../lib/urls';
+import { describeBits } from '../lib/bits';
+import type { Paper } from '../lib/types';
+
+interface Props { paper: Paper; lang?: 'en' | 'zh' }
+const { paper, lang = 'en' } = Astro.props;
+const prefix = lang === 'zh' ? '/zh-Hans' : '';
+const pipeLabel = lang === 'zh'
+  ? ({ before: '数据', inner: '训练', after: '推理', mixed: '混合', na: '无' } as Record<string, string>)[paper.pipeline] ?? paper.pipeline
+  : paper.pipeline;
+const venueLabel = lang === 'zh' && paper.venue === 'arXiv preprint' ? 'arXiv 预印本' : paper.venue;
+const confidenceLabel = lang === 'zh'
+  ? ({ high: '高', medium: '中', low: '低' } as Record<string, string>)[paper.confidence] ?? paper.confidence
+  : paper.confidence;
+const capName = new Map(atlas.capabilities.map((c) => [c.id, lang === 'zh' ? c.name_zh : c.name]));
+const pattern = atlas.patterns.find((p) => p.bits === paper.bits);
+const related = (pattern?.paper_ids ?? []).filter((id) => id !== paper.id).slice(0, 6)
+  .map((id) => atlas.papers.find((p) => p.id === id)).filter(Boolean) as Paper[];
+const doiUrl = paper.doi ? `https://doi.org/${paper.doi}` : '';
+const key = `c4ai${paper.id.replace(/[^a-zA-Z0-9]/g, '')}`;
+const authors = paper.authors.length ? paper.authors.join(' and ') : 'Unknown';
+const bib = `@misc{${key},
+  author = {${authors}},
+  title = {${paper.title}},
+  year = {${paper.year}},
+  eprint = {${paper.id}},
+  archivePrefix = {arXiv},
+  primaryClass = {${paper.primary_category || 'cs.AI'}},
+${paper.doi ? `  doi = {${paper.doi}},\n` : ''}}`;
+const c = lang === 'en'
+  ? {
+      back: 'Back to papers',
+      record: 'Paper record',
+      authors: 'Authors',
+      venue: 'Venue',
+      year: 'Year',
+      family: '论文分组',
+      doi: 'DOI',
+      arxiv: 'arXiv',
+      source: 'Source',
+      coding: 'Coding',
+      bits: '8-bit fingerprint',
+      bitsHelp: 'See the methods page for each bit.',
+      level: 'Coupling level',
+      pipeline: 'Pipeline position',
+      tier: 'Tier',
+      confidence: 'Coder confidence',
+      pattern: 'Pattern',
+      patternLink: 'Open this pattern in the ledger',
+      capabilities: 'P0 capabilities',
+      noCaps: 'No P0 capability tag. The paper can still be in a capability row as a non-exemplar.',
+      cited: 'Cite this record',
+      copy: 'Copy BibTeX',
+      copied: 'Copied',
+      related: 'Same pattern',
+      p0: 'P0 under adjudication',
+      p0note: 'This row is visible but excluded from headline aggregates until the P0 worksheet is signed.',
+      report: 'Report a data error',
+      sourceNote: 'Links go to arXiv or the publisher. The record does not host the paper.',
+    }
+  : {
+      back: '返回论文表',
+      record: '论文记录',
+      authors: '作者',
+      venue: 'Venue',
+      year: '年份',
+      family: '论文分组',
+      doi: 'DOI',
+      arxiv: 'arXiv',
+      source: '来源',
+      coding: '编码',
+      bits: '8 位编码',
+      bitsHelp: '每一位的含义见编码方法页。',
+      level: '耦合程度',
+      pipeline: '介入阶段',
+      tier: '对照强度',
+      confidence: '编码把握',
+      pattern: '编码组合',
+      patternLink: '在编码总表中查看这个组合',
+      capabilities: 'P0 能力（优先验证）',
+      noCaps: '这条论文没有 P0 能力标签。它可以在能力清单中作为背景案例出现。',
+      cited: '引用这条记录',
+      copy: '复制 BibTeX',
+      copied: '已复制',
+      related: '同组合论文',
+      p0: 'P0 待核定',
+      p0note: '人工核定完成前，这条记录不进入首页汇总。',
+      report: '报告数据错误',
+      sourceNote: '链接指向 arXiv 或出版社。本站不保存论文原文。',
+    };
+---
+<Base
+  lang={lang}
+  title={`${paper.title} · C4AI Atlas`}
+  description={`${paper.title}. ${paper.family}, ${paper.year}. ${paper.level}, ${paper.pipeline}.`}
+  alternateHref={lang === 'en' ? `/zh-Hans/paper/${paper.id}/` : `/paper/${paper.id}/`}
+  switchHref={lang === 'en' ? `/zh-Hans/paper/${paper.id}/` : `/paper/${paper.id}/`}
+>
+  <article class="wrap paper-page">
+    <p class="paper-page__back"><a href={withBase(`${prefix}/papers/`)}>← {c.back}</a></p>
+    <header class="paper-page__head">
+      <div>
+        <p class="mono paper-page__id">{paper.id}</p>
+        <h1>{paper.title}</h1>
+        <p class="paper-page__authors">{paper.authors.join(', ') || '—'}</p>
+        <p class="paper-page__venue">{venueLabel} · {paper.year}</p>
+        {paper.p0 && <p class="p0">{c.p0}</p>}
+      </div>
+      <aside class="paper-page__aside">
+        <dl>
+          <dt>{c.family}</dt><dd>{paper.family}</dd>
+          <dt>{c.level}</dt><dd class="mono">{paper.level}</dd>
+          <dt>{c.pipeline}</dt><dd class="mono">{pipeLabel}</dd>
+          <dt>{c.tier}</dt><dd class="mono">{paper.tier}</dd>
+          <dt>{c.confidence}</dt><dd class="mono">{confidenceLabel}</dd>
+        </dl>
+      </aside>
+    </header>
+    {paper.p0 && <p class="callout">{c.p0note}</p>}
+
+    <section class="paper-page__grid">
+      <div>
+        <h2>{c.coding}</h2>
+        <div class="paper-bits">
+          <span class="fp" aria-hidden="true">{paper.bits.split('').map((b) => <i data-on={b}></i>)}</span>
+          <span class="mono">{paper.bits}</span>
+        </div>
+        <p class="paper-page__note">
+          E C T A X · B I F. {c.bits}。{c.bitsHelp}
+        </p>
+        <p class="paper-page__meaning">{describeBits(paper.bits, lang)}</p>
+        {pattern && (
+          <p><a href={withBase(`${prefix}/explore/?q=${paper.bits}`)}>{c.patternLink}</a></p>
+        )}
+        <h2>{c.capabilities}</h2>
+        {paper.capabilities.length ? (
+          <p class="paper-page__caps">
+            {paper.capabilities.map((id) => (
+              <a class="cap-chip" href={withBase(`${prefix}/capabilities/#${id}`)}>{id} {capName.get(id)}</a>
+            ))}
+          </p>
+        ) : <p class="muted">{c.noCaps}</p>}
+      </div>
+
+      <div>
+        <h2>{c.source}</h2>
+        <p class="paper-page__note">{c.sourceNote}</p>
+        <p class="paper-page__links">
+          <a href={paper.arxiv_url}>arXiv ↗</a>
+          {doiUrl && <a href={doiUrl}>DOI ↗</a>}
+        </p>
+        <h2>{c.cited}</h2>
+        <pre class="bib" id="bibtex">{bib}</pre>
+        <button class="button" type="button" data-copy="#bibtex">{c.copy}</button>
+        <p class="mono" data-copy-status aria-live="polite"></p>
+        <p><a href={withBase(`${prefix}/responsibility/#contact`)}>{c.report}</a></p>
+      </div>
+    </section>
+
+    {related.length > 0 && (
+      <section class="paper-page__related">
+        <h2>{c.related}</h2>
+        <ul>
+          {related.map((p) => <li><a href={withBase(`${prefix}/paper/${p.id}/`)}>{p.title}</a> <span class="mono">{p.id}</span></li>)}
+        </ul>
+      </section>
+    )}
+  </article>
+
+  <script is:inline>
+    (() => {
+      const btn = document.querySelector('[data-copy]');
+      if (!btn) return;
+      const status = document.querySelector('[data-copy-status]');
+      btn.addEventListener('click', async () => {
+        const target = document.querySelector(btn.getAttribute('data-copy'));
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.textContent || '');
+          if (status) status.textContent = 'Copied';
+        } catch {
+          if (status) status.textContent = 'Select the block and copy manually.';
+        }
+      });
+    })();
+  </script>
+</Base>

@@ -1,0 +1,114 @@
+---
+import Base from '../layouts/Base.astro';
+import '../styles/content.css';
+import { withBase } from '../lib/urls';
+import { dataVersion, protocolVersion, builtDate, shaShort } from '../lib/content';
+
+interface Props {
+  lang?: 'en' | 'zh';
+  /** Language-neutral path, e.g. "/capabilities/". */
+  slug: string;
+  title: string;
+  description: string;
+  eyebrow: string;
+  heading: string;
+  lede: string;
+  factsTitle?: string;
+  facts?: Array<[string, string]>;
+  sections?: Array<[string, string]>;
+}
+
+const {
+  lang = 'en',
+  slug,
+  title,
+  description,
+  heading,
+  lede,
+  factsTitle,
+  facts,
+  sections,
+} = Astro.props;
+
+const altHref = lang === 'en' ? `/zh-Hans${slug}` : slug;
+const ui =
+  lang === 'en'
+    ? {
+        snapshot: 'Snapshot',
+        toc: 'On this page',
+        dataLabel: 'data',
+        protocolLabel: 'protocol',
+        builtLabel: 'built',
+        footNote:
+          'Provisional snapshot. P0 rows are marked and excluded from headline aggregates. Labels are our judgments, not peer review.',
+        download: 'Download the data',
+        responsibility: 'Responsibility',
+      }
+    : {
+        snapshot: '快照',
+        toc: '本页',
+        dataLabel: '数据',
+        protocolLabel: '协议',
+        builtLabel: '生成',
+        footNote:
+          '本页是暂定版本。P0 记录已标注，不计入首页汇总。所有标签都出自我们的判断。',
+        download: '下载数据',
+        responsibility: '责任说明',
+      };
+---
+
+<Base lang={lang} title={title} description={description} alternateHref={altHref} switchHref={altHref}>
+  <div class="wrap content">
+    <header class="page-head">
+      <div>
+        <h1>{heading}</h1>
+        <p class="page-lede">{lede}</p>
+        <p class="page-status mono">
+          {ui.dataLabel} {dataVersion} · {ui.protocolLabel} {protocolVersion} · {ui.builtLabel}{' '}
+          <span class="nowrap">{builtDate}</span>
+        </p>
+      </div>
+      {
+        facts && (
+          <aside class="page-facts" aria-label={factsTitle ?? ui.snapshot}>
+            <p class="aside-label">{factsTitle ?? ui.snapshot}</p>
+            <dl>
+              {facts.map(([key, value]) => (
+                <>
+                  <dt>{key}</dt>
+                  <dd>{value}</dd>
+                </>
+              ))}
+            </dl>
+          </aside>
+        )
+      }
+    </header>
+
+    {
+      sections && sections.length > 0 && (
+        <nav class="page-toc" aria-label={ui.toc}>
+          {sections.map(([id, label]) => (
+            <a href={`#${id}`}>{label}</a>
+          ))}
+        </nav>
+      )
+    }
+
+    <slot />
+
+    <footer class="page-foot">
+      <p>{ui.footNote}</p>
+      <p class="mono">
+        {ui.dataLabel} {dataVersion} · {ui.protocolLabel} {protocolVersion} · SHA-256 {shaShort}
+      </p>
+      <p>
+        <a href={withBase(lang === 'zh' ? '/zh-Hans/download/' : '/download/')}>{ui.download}</a>
+        {' · '}
+        <a href={withBase(lang === 'zh' ? '/zh-Hans/responsibility/' : '/responsibility/')}>
+          {ui.responsibility}
+        </a>
+      </p>
+    </footer>
+  </div>
+</Base>

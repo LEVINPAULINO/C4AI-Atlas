@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import DeepViews from '../components/DeepViews';
+import '../styles/deep.css';
+---
+<Base
+  lang="en"
+  title="Deep view: four readings of 64 coding patterns"
+  description="A Hamming lattice with exact one-bit adjacency, an exploratory UMAP projection, a presentation-only 3D orbital, and a deterministic PCA. Every chart has a table fallback."
+  alternateHref="/zh-Hans/deep/"
+  switchHref="/zh-Hans/deep/"
+>
+  <div class="wrap">
+    <DeepViews client:visible lang="en" />
+  </div>
+</Base>

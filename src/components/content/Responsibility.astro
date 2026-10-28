@@ -1,0 +1,369 @@
+---
+import ContentPage from '../ContentPage.astro';
+import { withBase } from '../../lib/urls';
+import { contactEmail, githubIssuesUrl, githubUrl } from '../../lib/site';
+
+interface Props {
+  lang?: 'en' | 'zh';
+}
+const { lang = 'en' } = Astro.props;
+const updated = '2026-10-27';
+
+const copy = {
+  en: {
+    title: 'Responsibility: hosting, exclusion, attribution, and takedown',
+    description:
+      'What C4AI Atlas hosts, what it excludes, how attribution works, how to report an error or a copyright concern, and which license applies.',
+    eyebrow: '06 / Responsibility',
+    heading: 'What we host, and what we leave out.',
+    lede:
+      'C4AI Atlas is a research and engineering project. It is not peer review, legal advice, medical advice, or an endorsement of any paper, author, venue, or method.',
+    factsTitle: 'Notice',
+    facts: [
+      ['Updated', updated],
+      ['Hosted', 'metadata · coding · quotes'],
+      ['Excluded', 'PDFs · abstracts · figures'],
+      ['Correction target', '7 days'],
+      ['Copyright target', '3 business days'],
+    ] as Array<[string, string]>,
+    sections: [
+      ['hosting', 'Hosting'],
+      ['exclusion', 'Exclusion'],
+      ['attribution', 'Attribution'],
+      ['accuracy', 'Accuracy'],
+      ['correction', 'Correction'],
+      ['endorsement', 'No endorsement'],
+      ['license', 'License'],
+      ['contact', 'Contact'],
+    ] as Array<[string, string]>,
+    disclaimer:
+      'This page summarizes the project’s responsibility notice. It is not legal advice. Copyright exceptions differ by jurisdiction, and a qualified lawyer should review any specific dispute.',
+    hostingTitle: 'What this site hosts.',
+    hostingBody:
+      'The site is a coded index, not a reading repository. It keeps enough of each record to make a label traceable without replacing the paper.',
+    hostingList: [
+      'Bibliographic metadata: title, authors, year, venue, DOI, arXiv ID.',
+      'Our coding labels and the codebook that defines them.',
+      'Short quotations with a section and page locator where available.',
+      'Our own summaries and redrawn charts built from our counts.',
+      'Links to the DOI or arXiv record for every paper.',
+    ],
+    exclusionTitle: 'What this site deliberately excludes.',
+    exclusionBody:
+      'The exclusion list is part of the method. If the site carried full texts, the coding would become a substitute for reading the source.',
+    exclusionList: [
+      'PDFs and full text.',
+      'Abstracts, in whole or in translation. Translating an abstract creates a derivative work.',
+      'Publisher figures and tables as images.',
+      'Bulk exports of verbatim quotations.',
+      'Reviewer names and internal review notes.',
+    ],
+    attributionTitle: 'Attribution sits next to the claim.',
+    attributionBody:
+      'A footer is not enough. Every paper record links to its DOI or arXiv landing page. Every quotation carries a locator and a link to the source. Every chart states the data version that produced it.',
+    quoteTitle: 'Quotation limits',
+    quoteList: [
+      'At most one quotation per paper in the public record.',
+      'At most 25 words per quotation, and at most 50 words of verbatim text per paper in total.',
+      'Never the abstract or a full conclusion.',
+      'A three-part locator: section, paragraph or table, and page where available.',
+      'A quotation is evidence for a label, not a reading substitute.',
+    ],
+    quoteNote:
+      'Quoted text remains the property of its authors and publishers and is excluded from this project’s license. Quotations are used for criticism, review, and explanation, at a length that does not replace the original. If a quotation is too long or misattributed, tell us and we will review it.',
+    accuracyTitle: 'Labels are our judgments.',
+    accuracyBody:
+      'The labels come from a documented coding protocol with automated validation and human review. They are not facts about author intent, and they are not peer review.',
+    p0Body:
+      'P0 rows carry an under-adjudication badge and are excluded from headline aggregates until signed. Every number on the site should state its data version. If a number does not, treat it as provisional.',
+    reportTitle: 'Reporting a data error',
+    reportBody:
+      'Open a data-error issue. Include the paper ID, the field, the current value, the proposed value, and a source. A label dispute is not a copyright dispute and goes through a different review path.',
+    correctionTitle: 'Correction and takedown.',
+    correctionBody:
+      'We aim to respond to correction requests within seven days and to copyright concerns within three business days. These are targets, not guarantees.',
+    copyrightTitle: 'For a copyright concern, include:',
+    copyrightList: [
+      'The paper and the exact quoted passage.',
+      'The location on this site.',
+      'The right you hold.',
+      'The action you request.',
+    ],
+    tombstone:
+      'When a record is removed, we keep a tombstone entry with the date and a reason category so the audit trail remains intact. We do not silently delete records.',
+    endorsementTitle: 'No endorsement.',
+    endorsementBody:
+      'arXiv, publishers, venues, and authors have not endorsed this project. Using a paper’s metadata or a short quotation does not imply endorsement, partnership, or approval. The project is not affiliated with any venue or publisher.',
+    licenseTitle: 'License, by layer.',
+    licenseRows: [
+      ['Code', 'MIT'],
+      ['Annotations, codebook, site prose', 'CC BY 4.0'],
+      ['Metadata from OpenAlex, Crossref, or arXiv', 'CC0'],
+      ['Quoted third-party text', 'Excluded from the site license'],
+    ] as Array<[string, string]>,
+    licenseNote:
+      'If you reuse the annotations, cite the data version and the project. If you reuse a quotation, clear it with the rights holder; the site license does not cover it.',
+    jurisdictionTitle: 'Jurisdictions considered.',
+    jurisdictionBody:
+      'This notice was written with the United States, the European Union, and China in mind. Copyright exceptions differ across jurisdictions. Nothing here is legal advice.',
+    contactTitle: 'Contact.',
+    contactRows: [
+      ['Data errors, label disputes', 'GitHub issue form.'],
+      ['Copyright, private concerns', contactEmail],
+      ['General feedback', 'GitHub issue form or email.'],
+      ['Repository', 'GitHub'],
+    ] as Array<[string, string]>,
+    contactNote:
+      'Do not send confidential material to a public issue. For a private copyright concern, email the project address. The address is monitored and may change; the version on this page is authoritative.',
+    issueUrl: githubIssuesUrl,
+    languageNote:
+      'This notice is published in English and Simplified Chinese. The Chinese version is a translation of the same policy; if the two differ, the English version governs until the difference is corrected.',
+  },
+  zh: {
+    title: '收录范围与责任说明',
+    description:
+      'C4AI Atlas 发布什么、排除什么、如何署名、如何报告错误或版权问题，以及各层许可。',
+    eyebrow: '06 / 责任说明',
+    heading: '收录范围',
+    lede:
+      'C4AI Atlas 是研究与工程项目。本站提供编码索引、来源链接和责任说明。',
+    factsTitle: '说明',
+    facts: [
+      ['更新', updated],
+      ['发布', '元数据 · 编码 · 引用'],
+      ['排除', 'PDF · 摘要 · 图表'],
+      ['更正目标', '7 天'],
+      ['版权目标', '3 个工作日'],
+    ] as Array<[string, string]>,
+    sections: [
+      ['hosting', '发布'],
+      ['exclusion', '排除'],
+      ['attribution', '署名'],
+      ['accuracy', '准确性'],
+      ['correction', '更正'],
+      ['endorsement', '无背书'],
+      ['license', '许可'],
+      ['contact', '联系'],
+    ] as Array<[string, string]>,
+    disclaimer:
+      '本页概述项目的责任说明。各国版权例外不同，具体争议应由合格律师审阅。',
+    hostingTitle: '发布内容',
+    hostingBody:
+      '本站提供编码索引。每条标签保留原文位置和来源链接，论文原文请到出版社或 arXiv 阅读。',
+    hostingList: [
+      '书目信息：标题、作者、年份、venue、DOI、arXiv ID。',
+      '我们的编码标签和定义它们的编码手册。',
+      '论文短引用，附章节、段落和页码（可得时）。',
+      '我们自己的摘要，以及基于自身计数重绘的图表。',
+      '每篇论文的 DOI 或 arXiv 原文链接。',
+    ],
+    exclusionTitle: '排除内容',
+    exclusionBody:
+      '排除清单是方法的一部分。本站只保留编码所需的信息，完整阅读请回到原文。',
+    exclusionList: [
+      'PDF 与全文。',
+      '摘要全文，也不发布摘要译文。翻译摘要会产生演绎作品。',
+      '出版社图表原图。',
+      '批量逐字引用导出。',
+      '评审人姓名与内部评审记录。',
+    ],
+    attributionTitle: '来源标注',
+    attributionBody:
+      '每篇论文记录链接到 DOI 或 arXiv 页面；每条引用都有原文位置和链接；每张图注明生成它的数据版本。',
+    quoteTitle: '引用上限',
+    quoteList: [
+      '公开记录中每篇论文最多一条引用。',
+      '每条引用最多 25 词；每篇论文的逐字引用合计最多 50 词。',
+      '绝不引用摘要或完整结论。',
+      '三段式原文位置：章节、段落或表格、可得时的页码。',
+      '引用用于支持标签，完整阅读请回到原文。',
+    ],
+    quoteNote:
+      '引用文字的权利归原作者与出版社，不包含在本项目许可中。引用用于评论、审查和解释，长度以不替代原文为限。如果引用过长或署名错误，请告诉我们，我们会复核。',
+    accuracyTitle: '标签性质',
+    accuracyBody:
+      '标签按公开的编码协议生成，经过自动校验与人工复核。标签表示我们的编码判断。',
+    p0Body:
+      'P0 记录带“待核定”标记，人工核定前不计入首页汇总。站点上的每个数字都标明数据版本。未标明的数字按暂定值处理。',
+    reportTitle: '报告数据错误',
+    reportBody:
+      '提交 data-error issue。请附论文 ID、字段、当前值、建议值和来源。标签争议和版权争议分别走不同审核路径。',
+    correctionTitle: '更正与下架',
+    correctionBody:
+      '更正请求的目标响应时间是 7 天，版权问题的目标是 3 个工作日。',
+    copyrightTitle: '版权问题请附：',
+    copyrightList: [
+      '论文和具体引用段落。',
+      '本站位置。',
+      '你持有的权利。',
+      '你要求的处理方式。',
+    ],
+    tombstone:
+      '记录下架时，我们保留一条下架记录，注明日期和原因类别，以保持记录链完整。记录不会被静默删除。',
+    endorsementTitle: '背书说明',
+    endorsementBody:
+      'arXiv、出版社、期刊和作者均未背书本项目。使用论文元数据或短引用不构成背书、合作或认可。本项目不隶属于任何期刊或出版社。',
+    licenseTitle: '许可分层',
+    licenseRows: [
+      ['代码', 'MIT'],
+      ['标注、编码手册、站点文字', 'CC BY 4.0'],
+      ['来自 OpenAlex、Crossref 或 arXiv 的元数据', 'CC0'],
+      ['第三方引用文字', '不包含在站点许可中'],
+    ] as Array<[string, string]>,
+    licenseNote:
+      '复用标注时，请引用数据版本与项目。复用引用文字时，请向权利持有人取得许可；站点许可不覆盖引用。',
+    jurisdictionTitle: '适用辖区',
+    jurisdictionBody:
+      '本说明参考美国、欧盟和中国。各国版权例外不同。具体问题请咨询合格律师。',
+    contactTitle: '联系方式',
+    contactRows: [
+      ['数据错误、标签争议', 'GitHub 问题表单。'],
+      ['版权、私人事务', contactEmail],
+      ['一般反馈', 'GitHub 问题表单或邮件。'],
+      ['代码仓库', 'GitHub'],
+    ] as Array<[string, string]>,
+    contactNote:
+      '机密材料请勿发到公开问题。私人版权问题请发邮件。邮箱有人查看，之后可能更换；以本页公布的地址为准。',
+    issueUrl: githubIssuesUrl,
+    languageNote:
+      '本说明以英文和简体中文发布。中文版是同一政策的译文；如两者不一致，在差异修正前以英文版为准。',
+  },
+};
+
+const c = copy[lang];
+---
+
+<ContentPage
+  lang={lang}
+  slug="/responsibility/"
+  title={c.title}
+  description={c.description}
+  eyebrow={c.eyebrow}
+  heading={c.heading}
+  lede={c.lede}
+  factsTitle={c.factsTitle}
+  facts={c.facts}
+  sections={c.sections}
+>
+  <section id="hosting">
+    <div class="status">
+      <strong>{lang === 'en' ? 'Not legal advice' : '一般说明'}</strong>
+      <p>{c.disclaimer}</p>
+    </div>
+    <div class="sec-head" style="margin-top:1.6rem">
+      <div><h2>{c.hostingTitle}</h2></div>
+      <p>{c.hostingBody}</p>
+    </div>
+    <ul class="prose">
+      {c.hostingList.map((item) => <li>{item}</li>)}
+    </ul>
+  </section>
+
+  <section id="exclusion">
+    <div class="sec-head">
+      <div><h2>{c.exclusionTitle}</h2></div>
+      <p>{c.exclusionBody}</p>
+    </div>
+    <ul class="prose">
+      {c.exclusionList.map((item) => <li>{item}</li>)}
+    </ul>
+  </section>
+
+  <section id="attribution">
+    <div class="sec-head">
+      <div><h2>{c.attributionTitle}</h2></div>
+      <p>{c.attributionBody}</p>
+    </div>
+    <h3>{c.quoteTitle}</h3>
+    <ul class="prose">
+      {c.quoteList.map((item) => <li>{item}</li>)}
+    </ul>
+    <p class="note">{c.quoteNote}</p>
+    <details class="table-fallback" style="margin-top:1.2rem">
+      <summary>{lang === 'en' ? 'Where the evidence sits' : '证据在哪里'}</summary>
+      <p class="small" style="margin-top:0.6rem">
+        {lang === 'en'
+          ? 'A capability exemplar links to the paper record. A paper record links to the DOI or arXiv. A chart states the snapshot version and the file hash is on the download page.'
+          : '能力代表工作链接到论文记录；论文记录链接到 DOI 或 arXiv；图表注明快照版本；文件哈希在下载页。'}
+      </p>
+    </details>
+  </section>
+
+  <section id="accuracy">
+    <div class="sec-head">
+      <div><h2>{c.accuracyTitle}</h2></div>
+      <p>{c.accuracyBody}</p>
+    </div>
+    <p class="note note--accent">{c.p0Body}</p>
+    <h3>{c.reportTitle}</h3>
+    <p class="prose">{c.reportBody}</p>
+  </section>
+
+  <section id="correction">
+    <div class="sec-head">
+      <div><h2>{c.correctionTitle}</h2></div>
+      <p>{c.correctionBody}</p>
+    </div>
+    <h3>{c.copyrightTitle}</h3>
+    <ul class="prose">
+      {c.copyrightList.map((item) => <li>{item}</li>)}
+    </ul>
+    <p class="note">{c.tombstone}</p>
+  </section>
+
+  <section id="endorsement">
+    <div class="sec-head">
+      <div><h2>{c.endorsementTitle}</h2></div>
+      <p>{c.endorsementBody}</p>
+    </div>
+  </section>
+
+  <section id="license">
+    <div class="sec-head">
+      <div><h2>{c.licenseTitle}</h2></div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <tbody>
+          {c.licenseRows.map(([layer, license]) => (
+            <tr>
+              <td>{layer}</td>
+              <td class="mono">{license}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{c.licenseNote}</p>
+    <h3>{c.jurisdictionTitle}</h3>
+    <p class="prose">{c.jurisdictionBody}</p>
+  </section>
+
+  <section id="contact">
+    <div class="sec-head">
+      <div><h2>{c.contactTitle}</h2></div>
+    </div>
+    <dl class="contact-list">
+      {c.contactRows.map(([k, v]) => (
+        <>
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </>
+      ))}
+    </dl>
+    <p class="note" style="margin-top:1rem">
+      <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+      {' · '}
+      <a href={githubUrl}>GitHub</a>
+      {' · '}
+      <a href={c.issueUrl}>Issues</a>
+    </p>
+    <p class="small">{c.contactNote}</p>
+    <p class="small" style="margin-top:0.8rem">{c.languageNote}</p>
+    <p class="small" style="margin-top:0.8rem">
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/download/' : '/download/')}>{lang === 'en' ? 'Data, license, and citation' : '数据、许可与引用'}</a>
+      {' · '}
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/methods/' : '/methods/')}>{lang === 'en' ? 'Methods' : '方法'}</a>
+    </p>
+  </section>
+</ContentPage>

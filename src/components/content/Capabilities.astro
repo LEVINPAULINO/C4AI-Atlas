@@ -1,0 +1,452 @@
+---
+import ContentPage from '../ContentPage.astro';
+import { atlas, arxivUrl } from '../../lib/atlas';
+import { labels } from '../../lib/labels';
+import { citationHref, clipQuote, pct } from '../../lib/content';
+import { withBase } from '../../lib/urls';
+import type { Capability, CapabilityEvidence } from '../../lib/types';
+
+interface Props {
+  lang?: 'en' | 'zh';
+}
+const { lang = 'en' } = Astro.props;
+const L = labels[lang] as any;
+
+const zhNames: Record<string, string> = {
+  F1: 'SCM 与 do-calculus',
+  F2: '潜在结果',
+  F3: '图模型 / d-分离',
+  F4: '反事实逻辑',
+  F5: '独立机制',
+  I1: '后门调整',
+  I2: '前门调整',
+  I3: '一般识别（ID）',
+  I4: '可交换性 / 无混杂',
+  I5: '正值性 / 重叠',
+  I6: '一致性与 SUTVA',
+  I7: '工具变量',
+  I8: '断点回归',
+  I9: '双重差分',
+  I10: '合成控制',
+  I11: '选择模型',
+  I12: '可迁移性',
+  I13: '中介 / 直接与间接效应',
+  I14: '近端因果 / 阴性对照',
+  I15: '主分层',
+  I16: '部分识别',
+  I17: '敏感性分析',
+  I18: '目标试验模拟',
+  E1: '匹配 / 倾向得分',
+  E2: 'IP 加权 / MSM',
+  E3: '标准化 / g-formula',
+  E4: 'G-estimation / SNMM',
+  E5: '双重稳健 / AIPW / TMLE',
+  E6: '双重机器学习',
+  E7: '异质效应',
+  E8: 'Super learner / 灵活估计',
+  D1: '约束式发现（PC/FCI）',
+  D2: '评分式发现（GES/NOTEARS）',
+  D3: '函数因果模型（LiNGAM/ANM）',
+  D4: '干预式发现',
+  D5: '时间序列发现',
+  D6: '可识别因果表示',
+};
+
+const capName = (c: Capability) => (lang === 'zh' ? (zhNames[c.id] ?? c.name) : c.name);
+
+const caps = atlas.capabilities;
+const total = caps.length;
+const p0 = caps.filter((c) => c.priority === 'P0');
+const evidenceCount = caps.filter((c) => c.evidence).length;
+const verified = caps.filter((c) => c.citation_status === 'verified').length;
+const exemplarTotal = caps.reduce((n, c) => n + (c.evidence?.exemplars.length ?? 0), 0);
+const evidencePapers = new Set<string>();
+for (const c of caps) {
+  if (!c.evidence) continue;
+  for (const e of c.evidence.exemplars) evidencePapers.add(e.paper_id);
+  evidencePapers.add(c.evidence.acl_llm_case.paper_id);
+  evidencePapers.add(c.evidence.negative_case.paper_id);
+}
+
+const layers = ['framework', 'identify', 'estimate', 'discover'] as const;
+const layerList = layers.map((key) => ({
+  key,
+  items: caps.filter((c) => c.layer === key),
+}));
+
+const lifecycle = ['Data / Representation', 'Training / Model', 'Inference / Agent'] as const;
+const cellMembers = (cell: string) =>
+  caps.filter((c) => c.cell.split(';').map((x) => x.trim()).includes(cell));
+
+const readinessOrder = ['R1 theory', 'R2 toy', 'R3 benchmark'];
+const readinessRows = [
+  ...readinessOrder.map((r) => ({ label: L.readiness[r as keyof typeof L.readiness], n: caps.filter((c) => c.readiness === r).length, max: total })),
+  { label: lang === 'zh' ? 'R4 · 真实规模' : 'R4 · real scale', n: 0, max: total },
+  { label: lang === 'zh' ? 'R5 · 已部署' : 'R5 · deployed', n: 0, max: total },
+];
+
+const copy = {
+  en: {
+    title: 'Capabilities: 37 causal methods mapped to AI systems',
+    description:
+      'The 37-capability canon, mapped to AI lifecycle cells. P0 rows carry exemplars, ACL/LLM cases, negative cases, and when-not-to-use notes.',
+    eyebrow: '03 / Capabilities',
+    heading: '37 capabilities, mapped to AI systems.',
+    lede:
+      'The canon supplies the list. The mapping to lifecycle cells, readiness, and priority is our judgment. Fifteen rows are P0: ready to operationalize with a proper design, not proven to improve AI.',
+    factsTitle: 'Capability snapshot',
+    facts: [
+      ['Capabilities', String(total)],
+      ['P0 ready', `${p0.length} / ${total}`],
+      ['P0 with evidence', `${evidenceCount} / ${p0.length}`],
+      ['Citation verified', `${verified} / ${total}`],
+      ['Exemplar works', String(exemplarTotal)],
+    ] as Array<[string, string]>,
+    sections: [
+      ['frame', '2 × 3 frame'],
+      ['readiness', 'Readiness'],
+      ['rows', 'All 37 rows'],
+      ['limits', 'Limits'],
+    ] as Array<[string, string]>,
+    frameTitle: 'A 2 × 3 frame.',
+    frameBody:
+      'Rows separate the two directions of work. Columns are lifecycle cells. The upper row places the 37 canon capabilities; the lower row is the mirror agenda, kept outside the count. Cell assignment is author judgment, not an extracted fact.',
+    directionHead: 'Direction',
+    mirrorTitle: 'AI → Causality (agenda, not counted)',
+    mirror: [
+      [
+        'Data / Representation',
+        'LLM priors over graphs; text and domain knowledge as constraints. D1, D2, D3, D5 are the receiving methods.',
+      ],
+      [
+        'Training / Model',
+        'Neural structure learning and hybrid identification. D4 is the receiving method.',
+      ],
+      [
+        'Inference / Agent',
+        'Agents that choose experiments, run closed-loop discovery, and verify their own causal claims.',
+      ],
+    ],
+    frameNote:
+      'The frame comes from the ACL survey plan. Fourteen capabilities are coded Evaluation and the matrix has no evaluation column; I1 is coded Data + Evaluation and appears twice. We do not force those rows into a column. All 37 appear in the ledger below.',
+    readinessTitle: 'No capability is rated R4 or R5.',
+    readinessBody:
+      'Readiness is C4AI readiness, not the general maturity of causal science. R1 is a formal result with no AI-scale test. R2 is a toy demonstration. R3 is a standard benchmark or multi-dataset evaluation. R4 real-scale and R5 deployed are empty in this snapshot.',
+    readinessNote:
+      'The empty rows are the finding: the capability list is better developed than its AI-scale evidence. 9 of 37 capabilities reach R3; 0 reach R4.',
+    rowsTitle: 'All 37 rows.',
+    rowsBody:
+      'P0 rows open to evidence. The badge means ready to operationalize with a proper design. It is not the paper-level P0 adjudication flag and it is not a quality ranking. Rows are grouped by canon layer, not by priority.',
+    fieldProblem: 'Problem',
+    fieldAssumptions: 'Assumptions',
+    fieldInterface: 'Interface',
+    fieldFailure: 'Failure mode',
+    fieldCitation: 'Citation',
+    fieldExemplars: 'Representative works',
+    evidence: 'Evidence',
+    exemplar: 'Exemplar',
+    aclCase: 'ACL / LLM case',
+    negativeCase: 'Negative / cautionary',
+    whenNot: 'When not to use',
+    notes: 'Notes',
+    evidenceSummary: (n: number) => `Evidence · ${n} exemplars · 1 ACL/LLM case · 1 negative case`,
+    sourceNote:
+      'Problem, assumptions, interface, and failure mode are the codebook strings. They stay in English in both language versions because the codebook is the authority; capability names and page copy are translated.',
+    limitsTitle: 'What this page does not claim.',
+    limits: [
+      `${evidencePapers.size} of ${atlas.stats.papers} papers (${pct(evidencePapers.size, atlas.stats.papers)}) appear as capability evidence. That is an evidence index, not a usage rate. A paper not cited here is not thereby shown to lack the capability.`,
+      `P0 is a readiness flag. ${p0.length} of ${total} capabilities are P0 and ${caps.filter((c) => c.priority === 'P2').length} are P2. Neither number measures importance.`,
+      'The lower row of the matrix is an agenda. It is not counted in the 37 and does not enter any percentage on this page.',
+      'Exemplar citations point to the canon and to papers in the corpus. They do not establish an effect size.',
+    ],
+  },
+  zh: {
+    title: '能力清单：37 条因果方法在 AI 系统中的位置',
+    description:
+      '37 条因果方法及其在 AI 系统中的应用位置。P0 行附代表论文、ACL/LLM 案例、反例和适用前提。',
+    eyebrow: '03 / 能力地图',
+    heading: '37 条因果方法在 AI 系统中的位置',
+    lede:
+      '清单来自因果科学经典。生命周期位置、准备度和优先级由我们判断。15 条标为 P0，表示已具备做正式实验的条件。',
+    factsTitle: '能力快照',
+    facts: [
+      ['能力条目', String(total)],
+      ['P0 可验证', `${p0.length} / ${total}`],
+      ['P0 有证据', `${evidenceCount} / ${p0.length}`],
+      ['引用已核验', `${verified} / ${total}`],
+      ['代表工作', String(exemplarTotal)],
+    ] as Array<[string, string]>,
+    sections: [
+      ['frame', '2 × 3 框架'],
+      ['readiness', '准备度'],
+      ['rows', '全部 37 行'],
+      ['limits', '边界'],
+    ] as Array<[string, string]>,
+    frameTitle: '2 × 3 框架',
+    frameBody:
+      '行区分两个工作方向，列是应用阶段。上排放 37 条能力，下排放 AI 服务因果的方向，不计入总数。位置分配由我们判断。',
+    directionHead: '方向',
+    mirrorTitle: 'AI → 因果（辅助方向，不计入）',
+    mirror: [
+      [
+        '数据 / 表示',
+        'LLM 的图先验；文本与领域知识作为约束。D1、D2、D3、D5 是对应方法。',
+      ],
+      ['训练 / 模型', '神经结构学习与混合识别。D4 是对应方法。'],
+      ['推理 / Agent', '由 agent 选择实验、执行闭环发现，并校验自己的因果主张。'],
+    ],
+    frameNote:
+      '框架来自 ACL survey 计划。14 条能力属于评测，矩阵没有评测列；I1 同时属于数据与评测，因此出现两次。全部 37 行都在下面的表格中。',
+    readinessTitle: '准备度分布',
+    readinessBody:
+      '准备度描述 C4AI 的验证程度。R1 是理论结果，R2 是小规模实验，R3 是标准基准或多数据集评测。当前快照最高到 R3。',
+    readinessNote:
+      '37 条中 9 条为 R3，0 条为 R4 或 R5。能力清单的应用证据集中在早期阶段。',
+    rowsTitle: '全部 37 条能力',
+    rowsBody:
+      'P0 行可以展开证据。P0 在这里表示已具备正式验证条件，与论文级待核定记录分开使用，也不表示质量高低。行按能力层级分组。',
+    fieldProblem: '问题',
+    fieldAssumptions: '假设',
+    fieldInterface: '接口',
+    fieldFailure: '失效模式',
+    fieldCitation: '引用',
+    fieldExemplars: '代表工作',
+    evidence: '证据',
+    exemplar: '代表工作',
+    aclCase: 'ACL / LLM 案例',
+    negativeCase: '反例 / 警示',
+    whenNot: '何时不应使用',
+    notes: '备注',
+    evidenceSummary: (n: number) => `证据 · ${n} 条代表工作 · 1 条 ACL/LLM 案例 · 1 条反例`,
+    sourceNote:
+      '问题、假设、接口与失效模式保留编码手册的英文原文。能力名称与页面说明已翻译。',
+    limitsTitle: '使用边界',
+    limits: [
+      `${atlas.stats.papers} 篇论文中有 ${evidencePapers.size} 篇（${pct(evidencePapers.size, atlas.stats.papers)}）作为能力证据出现。这个数字表示证据索引的覆盖范围，不表示使用率。`,
+      `37 条中 ${p0.length} 条为 P0，${caps.filter((c) => c.priority === 'P2').length} 条为 P2。两个标记分别表示验证优先级和能力层级。`,
+      '矩阵下排是辅助方向，不计入 37 条，也不进入本页百分比。',
+      '代表工作指向经典文献和语料论文，不构成效应量证据。',
+    ],
+  },
+};
+
+const c = copy[lang];
+
+const evidenceEntries = (ev: CapabilityEvidence) => [
+  ...ev.exemplars.map((e) => ({ ...e, role: c.exemplar })),
+  { ...ev.acl_llm_case, role: c.aclCase },
+  { ...ev.negative_case, role: c.negativeCase },
+];
+---
+
+<ContentPage
+  lang={lang}
+  slug="/capabilities/"
+  title={c.title}
+  description={c.description}
+  eyebrow={c.eyebrow}
+  heading={c.heading}
+  lede={c.lede}
+  factsTitle={c.factsTitle}
+  facts={c.facts}
+  sections={c.sections}
+>
+  <section id="frame">
+    <div class="sec-head">
+      <div>
+        <h2>{c.frameTitle}</h2>
+      </div>
+      <p>{c.frameBody}</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th scope="col">{c.directionHead}</th>
+            {lifecycle.map((cell) => (
+              <th scope="col">
+                {L.cell[cell]}
+                <span class="matrix__count">
+                  {' '}
+                  · {cellMembers(cell).length}
+                </span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">{L.direction.cd_for_ai}</th>
+            {lifecycle.map((cell) => {
+              const items = cellMembers(cell);
+              return (
+                <td data-label={`${L.cell[cell]} · ${items.length}`}>
+                  <span class="matrix__ids">
+                    {items.map((cap) => (
+                      <a href={`#${cap.id}`} title={capName(cap)} aria-label={`${cap.id} ${capName(cap)}`}>{cap.id}</a>
+                    ))}
+                  </span>
+                  {cell === 'Data / Representation' && (
+                    <p class="matrix__note">+ I1 (Data + Evaluation)</p>
+                  )}
+                </td>
+              );
+            })}
+          </tr>
+          <tr>
+            <th scope="row">{L.direction.ai_for_cd}</th>
+            {c.mirror.map(([cell, text]) => (
+              <td data-label={L.cell[cell]}>
+                <p class="matrix__note" style="margin-top:0">{text}</p>
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{c.frameNote}</p>
+  </section>
+
+  <section id="readiness">
+    <div class="sec-head">
+      <div>
+        <h2>{c.readinessTitle}</h2>
+      </div>
+      <p>{c.readinessBody}</p>
+    </div>
+    <div class="bar-list">
+      {readinessRows.map((row) => (
+        <div class="bar-row">
+          <span class="bar-row__label">{row.label}</span>
+          <span class="bar-row__track" aria-hidden="true">
+            <span class="bar-row__fill" style={`width:${(row.n / row.max) * 100}%`}></span>
+          </span>
+          <span class="bar-row__count">{row.n} / {row.max}</span>
+          <span class="bar-row__pct">{pct(row.n, row.max)}</span>
+        </div>
+      ))}
+    </div>
+    <p class="note">{c.readinessNote}</p>
+  </section>
+
+  <section id="rows">
+    <div class="sec-head">
+      <div>
+        <h2>{c.rowsTitle}</h2>
+      </div>
+      <p>{c.rowsBody}</p>
+    </div>
+    <p class="mono-note" style="margin:0 0 0.4rem">{c.sourceNote}</p>
+
+    {layerList.map(({ key, items }) => (
+      <>
+        <h3 class="layer-head">
+          {L.layer[key]}
+          <span>{items.length} / {total}</span>
+        </h3>
+        {items.map((cap) => (
+          <article class="cap" id={cap.id}>
+            <div class="cap__head">
+              <span class="cap__id">{cap.id}</span>
+              <h4 class="cap__name">{capName(cap)}</h4>
+              <span class="cap__tags">
+                <span class="tag">{L.layer[cap.layer]}</span>
+                <span class={`tag ${cap.priority === 'P0' ? 'tag--p0' : ''}`}>{cap.priority}</span>
+                <span class="tag">{L.readiness[cap.readiness]}</span>
+                <span class="tag">{L.citation[cap.citation_status]}</span>
+              </span>
+            </div>
+            <dl class="cap__fields">
+              <div class="cfield">
+                <dt>{c.fieldProblem}</dt>
+                <dd>{cap.problem}</dd>
+              </div>
+              <div class="cfield">
+                <dt>{c.fieldAssumptions}</dt>
+                <dd>{cap.assumptions}</dd>
+              </div>
+              <div class="cfield">
+                <dt>{c.fieldInterface}</dt>
+                <dd>{cap.interface}</dd>
+              </div>
+              <div class="cfield">
+                <dt>{c.fieldFailure}</dt>
+                <dd>{cap.failure_mode}</dd>
+              </div>
+            </dl>
+            <p class="cap__cite">
+              {c.fieldCitation}:{' '}
+              <a href={citationHref(cap.citation_id)} rel="noopener noreferrer">
+                {cap.citation_id}
+              </a>
+              <br />
+              {c.fieldExemplars}: {cap.exemplars}
+            </p>
+
+            {cap.evidence && (
+              <details class="evidence">
+                <summary>
+                  {c.evidenceSummary(cap.evidence.exemplars.length)}
+                </summary>
+                <div class="evidence__body">
+                  {evidenceEntries(cap.evidence).map((e) => {
+                    const href = arxivUrl(e.paper_id);
+                    return (
+                      <div class="ev-item">
+                        <div class="ev-item__role">{e.role}</div>
+                        <div>
+                          <p class="ev-item__title">
+                            {href ? (
+                              <a href={href} rel="noopener noreferrer">{e.title}</a>
+                            ) : (
+                              e.title
+                            )}
+                          </p>
+                          <p class="ev-item__meta">
+                            {e.paper_id} · {e.family} · {e.year} · tier {e.tier} · {e.coupling_level}
+                          </p>
+                          <p class="ev-item__why">{e.why}</p>
+                          <blockquote class="quote">
+                            “{clipQuote(e.quote)}”
+                            <cite>locator: {e.locator}</cite>
+                          </blockquote>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <p class="note note--accent" style="margin-top:0.9rem">
+                    <strong>{c.whenNot}.</strong> {cap.evidence.when_not_to_use}
+                  </p>
+                  {cap.evidence.notes && (
+                    <p class="small" style="margin-top:0.6rem">
+                      <strong>{c.notes}.</strong> {cap.evidence.notes}
+                    </p>
+                  )}
+                </div>
+              </details>
+            )}
+          </article>
+        ))}
+      </>
+    ))}
+  </section>
+
+  <section id="limits">
+    <div class="sec-head">
+      <div>
+        <h2>{c.limitsTitle}</h2>
+      </div>
+    </div>
+    <ul class="prose">
+      {c.limits.map((item) => <li>{item}</li>)}
+    </ul>
+    <p class="small" style="margin-top:1rem">
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/methods/' : '/methods/')}>{lang === 'zh' ? '编码与派生规则' : 'Coding and derivation rules'}</a>
+      {' · '}
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/audit/' : '/audit/')}>{lang === 'zh' ? '数据核查' : 'Audit numbers'}</a>
+      {' · '}
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/download/' : '/download/')}>{lang === 'zh' ? '下载 atlas.json' : 'Download atlas.json'}</a>
+    </p>
+  </section>
+</ContentPage>

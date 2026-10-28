@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://levinpaulino.github.io/C4AI-Atlas/sitemap-index.xml

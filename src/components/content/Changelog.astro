@@ -1,0 +1,129 @@
+---
+import ContentPage from '../ContentPage.astro';
+
+interface Props { lang?: 'en' | 'zh' }
+const { lang = 'en' } = Astro.props;
+
+const copy = {
+  en: {
+    title: 'Changelog',
+    description: 'Data and site releases for C4AI Atlas.',
+    eyebrow: '10 / Changelog',
+    heading: 'What changed, and when.',
+    lede: 'Data releases use semantic versioning. A frozen release gets a DOI. The current snapshot is provisional because the P0 queue is open.',
+    sections: [['v010', 'v0.1.0-provisional'], ['rules', 'Release rules']] as Array<[string, string]>,
+    versionTitle: 'v0.1.0-provisional',
+    versionDate: '2026-10-28',
+    added: 'Added',
+    addedItems: [
+      '580-paper public coding snapshot.',
+      '64 observed 8-bit patterns.',
+      '37 capability rows with 15 P0 evidence tables.',
+      'Fingerprint Ledger, Hamming lattice, UMAP, 3D orbital, PCA, UpSet, parallel coordinates.',
+      'English and Simplified Chinese routes.',
+      'Responsibility, methods, audit, download, newsletter, changelog, and about pages.',
+      'GitHub Pages workflow and static data snapshot.',
+    ],
+    changed: 'Changed',
+    changedItems: [
+      'Day theme moved to Survey Blueprint.',
+      'Night theme uses Signal Room tokens.',
+      'No custom domain in v1.',
+      'No API. Public data is versioned static JSON.',
+      'The original warm-paper palette is retired.',
+    ],
+    known: 'Known',
+    knownItems: [
+      '10 P0 rows are unsigned and excluded from headline aggregates.',
+      'A precision and scale-sweep counts are provisional.',
+      'Newsletter provider is not connected.',
+      'The newsletter provider and Zenodo DOI are not configured yet.',
+      'Full evidence quotations are not in the public snapshot.',
+    ],
+    rulesTitle: 'Release rules',
+    rules: [
+      'Patch: text, link, or layout correction with no change to the data.',
+      'Minor: new records, new capability evidence, or a new view that does not break the schema.',
+      'Major: schema change or a change to the coding rules.',
+      'Every release states its record count, P0 status, and SHA-256.',
+      'A frozen release is tagged and archived. The DOI goes in CITATION.cff.',
+    ],
+  },
+  zh: {
+    title: '版本历史',
+    description: 'C4AI Atlas 的数据与站点发布记录。',
+    eyebrow: '10 / 版本历史',
+    heading: '版本记录',
+    lede: '数据发布使用语义化版本。冻结版本会申请 DOI。当前快照为暂定版本，P0 队列仍在处理中。',
+    sections: [['v010', 'v0.1.0-provisional'], ['rules', '发布规则']] as Array<[string, string]>,
+    versionTitle: 'v0.1.0-provisional',
+    versionDate: '2026-10-28',
+    added: '新增',
+    addedItems: [
+      '580 篇论文的公开编码快照。',
+      '64 种实际 8 位编码组合。',
+      '37 条能力，15 条 P0 证据。',
+      '编码总表、汉明图、UMAP 投影、三维旋转图、PCA、UpSet 和平行坐标。',
+      '英文与简体中文路由。',
+      '责任说明、编码方法、数据核查、下载、订阅、版本历史、关于页面。',
+      'GitHub Pages workflow 与静态数据快照。',
+    ],
+    changed: '变更',
+    changedItems: [
+      '日间主题改为 Survey Blueprint。',
+      '夜间主题使用 Signal Room tokens。',
+      'v1 不配置自定义域名。',
+      '公开数据是带版本的静态 JSON 文件。',
+      '原有暖纸配色停用。',
+    ],
+    known: '已知问题',
+    knownItems: [
+      '10 条 P0 记录待核定，不计入首页汇总。',
+      'A 档准确率和规模扫描计数为暂定值。',
+      '订阅服务商尚未接入。',
+      '联系邮箱、仓库 URL、DOI 仍是占位符。',
+      '完整证据引文不在公开快照中。',
+    ],
+    rulesTitle: '发布规则',
+    rules: [
+      'Patch：文字、链接或布局修正，不改数据。',
+      'Minor：新增记录、新增能力证据、新增不破坏数据结构的视图。',
+      'Major：数据结构变更或编码规则变更。',
+      '每个版本都写记录数、P0 核定状态和 SHA-256。',
+      '冻结版本打 tag 并归档。DOI 写入 CITATION.cff。',
+    ],
+  },
+} as const;
+
+const c = copy[lang];
+---
+<ContentPage
+  lang={lang}
+  slug="/changelog/"
+  title={c.title}
+  description={c.description}
+  eyebrow={c.eyebrow}
+  heading={c.heading}
+  lede={c.lede}
+  sections={c.sections}
+>
+  <section id="v010">
+    <div class="sec-head">
+      <div>
+        <h2>{c.versionTitle}</h2>
+        <p class="mono-note">{c.versionDate}</p>
+      </div>
+    </div>
+    <div class="change-grid">
+      <div><h3>{c.added}</h3><ul>{c.addedItems.map((x) => <li>{x}</li>)}</ul></div>
+      <div><h3>{c.changed}</h3><ul>{c.changedItems.map((x) => <li>{x}</li>)}</ul></div>
+      <div><h3>{c.known}</h3><ul>{c.knownItems.map((x) => <li>{x}</li>)}</ul></div>
+    </div>
+  </section>
+  <section id="rules">
+    <div class="sec-head">
+      <div><h2>{c.rulesTitle}</h2></div>
+    </div>
+    <ul>{c.rules.map((x) => <li>{x}</li>)}</ul>
+  </section>
+</ContentPage>

@@ -1,0 +1,16 @@
+---
+import Base from '../../layouts/Base.astro';
+import DeepViews from '../../components/DeepViews';
+import '../../styles/deep.css';
+---
+<Base
+  lang="zh"
+  title="图形视图：64 种编码组合的四种画法"
+  description="汉明图、UMAP 投影、三维旋转图和 PCA。精确数据在编码总表，每张图都配数据表。"
+  alternateHref="/deep/"
+  switchHref="/deep/"
+>
+  <div class="wrap">
+    <DeepViews client:visible lang="zh" />
+  </div>
+</Base>

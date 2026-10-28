@@ -1,0 +1,426 @@
+---
+import ContentPage from '../ContentPage.astro';
+import { atlas } from '../../lib/atlas';
+import manifestRaw from '../../../public/atlas/v1/manifest.json?raw';
+import { dataVersion, protocolVersion, builtDate, sha256, shaShort, atlasBytes, atlasKiB } from '../../lib/content';
+import { withBase } from '../../lib/urls';
+
+interface Props {
+  lang?: 'en' | 'zh';
+}
+const { lang = 'en' } = Astro.props;
+const manifestText = manifestRaw;
+const manifestBytes = new TextEncoder().encode(manifestText).length;
+
+const topLevel = [
+  { key: 'meta', type: 'object', note: 'Name, version, protocol, build time, data status, P0 flag.' },
+  { key: 'stats', type: 'object', note: 'Counts and reliability values used by the audit page.' },
+  { key: 'papers', type: `array[${atlas.papers.length}]`, note: 'One record per coded paper.' },
+  { key: 'patterns', type: `array[${atlas.patterns.length}]`, note: 'Observed 8-bit patterns, counts, derived labels.' },
+  { key: 'capabilities', type: `array[${atlas.capabilities.length}]`, note: 'Canon capabilities, P0 evidence where present.' },
+];
+
+const paperFields = [
+  ['id', 'string', 'arXiv-style ID or internal ID. Used in every cross-reference.'],
+  ['title', 'string', 'Paper title as recorded.'],
+  ['family', 'enum', 'CausalRL, OOD, CausalRepLearn, TimeSeries, WorldModel, CI_for_LLM, CausalDiscovery, Agent.'],
+  ['year', 'string', 'Publication year of the version coded.'],
+  ['direction', 'enum', 'cd_for_ai, ai_for_cd, both, unclear.'],
+  ['tier', 'enum', 'A, B, C, D, NA. Comparable non-causal arm, not quality.'],
+  ['level', 'enum', 'L0–L4. Derived from the bits, not independently rated.'],
+  ['pipeline', 'enum', 'before, inner, after, mixed, na. Derived from the position bits.'],
+  ['confidence', 'enum', 'high, medium, low. Coder confidence, not effect confidence.'],
+  ['pair_type', 'enum', 'none, ablation, matched-separate, scale-sweep.'],
+  ['secondary', 'string[]', 'Secondary families or labels where recorded.'],
+  ['bits', 'string[8]', 'E C T A X B I F, one character per field.'],
+  ['p0', 'boolean', 'Under adjudication. Excluded from headline aggregates.'],
+  ['p0_reason', 'string', 'Why the row is P0. Empty when p0 is false.'],
+  ['needs_adjudication', 'boolean', 'Coder flagged a boundary case.'],
+];
+
+const patternFields = [
+  ['bits', 'string[8]', 'Fixed order, same as the paper record.'],
+  ['count', 'integer', 'Papers with this pattern. The 64 counts sum to 580.'],
+  ['level', 'enum', 'Derived L for the pattern.'],
+  ['pipeline', 'enum', 'Derived pipeline position for the pattern.'],
+  ['family_counts', 'object', 'Family name to paper count.'],
+  ['paper_ids', 'string[]', 'Every paper in the pattern.'],
+];
+
+const capabilityFields = [
+  ['id', 'string', 'Stable canon ID: F1–F5, I1–I18, E1–E8, D1–D6.'],
+  ['name', 'string', 'Capability name.'],
+  ['layer', 'enum', 'framework, identify, estimate, discover.'],
+  ['problem', 'string', 'The C4AI problem the capability addresses.'],
+  ['cell', 'string', 'Lifecycle cell. Author judgment, not extracted.'],
+  ['assumptions', 'string', 'What must hold for the capability to apply.'],
+  ['interface', 'string', 'Inputs and outputs a system would expose.'],
+  ['readiness', 'enum', 'R1 theory, R2 toy, R3 benchmark. R4/R5 are empty in v0.1.'],
+  ['priority', 'enum', 'P0, P1, P2. P0 means ready to test, not most important.'],
+  ['acl_relevance', 'enum', 'High, Medium, Low. Author judgment.'],
+  ['citation_status', 'enum', 'verified, textbook, partial.'],
+  ['citation_id', 'string', 'DOI, OpenAlex ID, or URL for the lead reference.'],
+  ['exemplars', 'string', 'Short citation string for representative works.'],
+  ['failure_mode', 'string', 'How the capability fails in practice.'],
+  ['evidence', 'object?', 'Present on the 15 P0 rows. Exemplars, ACL/LLM case, negative case, when-not-to-use.'],
+];
+
+const evidenceFields = [
+  ['exemplars', 'array', 'Each item: paper_id, title, family, year, tier, coupling_level, role, why, quote, locator.'],
+  ['acl_llm_case', 'object', 'One ACL/LLM-relevant case with the same fields.'],
+  ['negative_case', 'object', 'One negative or cautionary case.'],
+  ['when_not_to_use', 'string', 'Conditions under which the capability is not identified or not useful.'],
+  ['notes', 'string?', 'Coder caveat about the evidence.'],
+];
+
+const copy = {
+  en: {
+    title: 'Download the C4AI Atlas data',
+    description:
+      'Versioned atlas.json and manifest.json, schema tables, license, citation, and checksum verification. Static files, no API.',
+    eyebrow: '08 / Download',
+    heading: 'One JSON file, one manifest, no API.',
+    lede:
+      'The public snapshot is a static file at a versioned path. Read it directly or download it. There is no endpoint, no key, and no service-level promise.',
+    factsTitle: 'Files',
+    facts: [
+      ['Data version', dataVersion],
+      ['Protocol', protocolVersion],
+      ['Built', builtDate],
+      ['atlas.json', `${atlasKiB} KiB`],
+      ['SHA-256', shaShort],
+    ] as Array<[string, string]>,
+    sections: [
+      ['files', 'Files'],
+      ['schema', 'Schema'],
+      ['versioning', 'Versioning'],
+      ['license', 'License'],
+      ['citation', 'Citation'],
+    ] as Array<[string, string]>,
+    filesTitle: 'Two data files.',
+    filesBody:
+      'atlas.json carries the snapshot. manifest.json carries the version, counts, and hash. Download both if you need to verify the file.',
+    fileMeta: [
+      ['JSON · UTF-8 · immutable for this version', `${atlasBytes.toLocaleString('en-US')} bytes`],
+      ['JSON · mutable pointer', `${manifestBytes.toLocaleString('en-US')} bytes`],
+    ] as Array<[string, string]>,
+    filesNote:
+      'A copy served through a CDN may be cached. If the hash does not match, refetch from the versioned path instead of editing the file.',
+    schemaTitle: 'The schema is the data dictionary.',
+    schemaBody:
+      'Five top-level keys. Arrays are flat; joins are by paper ID. The file is generated from the coded tables, not hand-edited.',
+    colKey: 'Key',
+    colType: 'Type',
+    colNote: 'Notes',
+    paperTitle: 'Paper record',
+    patternTitle: 'Pattern record',
+    capabilityTitle: 'Capability record',
+    evidenceTitle: 'Capability evidence (P0 only)',
+    notIncludedTitle: 'What is not in the file',
+    notIncluded: [
+      'PDFs, full text, and abstracts.',
+      'Publisher figures and tables as images.',
+      'Reviewer names and internal review notes.',
+      'No live API endpoint or service-level promise. The schema may change at the next major version.',
+    ],
+    versioningTitle: 'Versioning and checksum.',
+    versioningBody:
+      'The path /atlas/v1/ is frozen for the v1 schema. A breaking schema change moves to /atlas/v2/. manifest.json is the only mutable file in the directory; it points at the current atlas.json and hash.',
+    hashTitle: 'Verify the download',
+    hashBody:
+      'Compute SHA-256 over the bytes of atlas.json and compare with manifest.sha256. The current value is printed below. Do not compare a hash of the pretty-printed page source; compare the file itself.',
+    currentHash: sha256,
+    noApiTitle: 'No API.',
+    noApiBody:
+      'Do not build against a live endpoint. There is none. There are no CORS settings, rate limits, or OpenAPI documents to read. If you need a query surface, load the JSON into your own store and cite the version.',
+    licenseTitle: 'License, by layer.',
+    licenseRows: [
+      ['Code', 'MIT'],
+      ['Annotations, codebook, site prose', 'CC BY 4.0'],
+      ['Metadata from OpenAlex, Crossref, or arXiv', 'CC0'],
+      ['Quoted third-party text in evidence fields', 'Excluded from the site license'],
+    ] as Array<[string, string]>,
+    licenseNote:
+      'The quotations embedded in capability evidence remain with their authors and publishers. Reusing a quotation requires the rights holder’s permission; CC BY 4.0 does not cover it.',
+    citationTitle: 'How to cite this version.',
+    citationBody:
+      'Cite the data version and the build date. A DOI is not assigned in v0.1. A Zenodo DOI will be registered with the first frozen release.',
+    citationPlain:
+      'C4AI Atlas (2026). C4AI Atlas: causality for AI, coded (Version 0.1.0-provisional) [Data set]. Data snapshot 2026-10-27. SHA-256 1c73bb7d96b3b719bd10fd8a8e845f148abcab1c0627c97c9fe1c4070fcb9215.',
+    citationNote:
+      'For a paper citation, include the protocol version and the access date. For a derived figure, include the filter and the denominator.',
+    bibtex: `@misc{c4aiatlas2026,
+  title        = {C4AI Atlas: causality for AI, coded},
+  author       = {{C4AI Atlas project}},
+  year         = {2026},
+  version      = {0.1.0-provisional},
+  note         = {Data snapshot 2026-10-27; protocol v1.2-final;
+                  SHA-256 1c73bb7d96b3b719bd10fd8a8e845f148abcab1c0627c97c9fe1c4070fcb9215;
+                  public URL and DOI to be assigned},
+  howpublished = {Static JSON data set}
+}`,
+    linkNote:
+      'The manifest is the authority for the file list and hash. If this page and the manifest disagree, the manifest wins and the page is wrong.',
+  },
+  zh: {
+    title: '数据下载',
+    description:
+      '带版本的 atlas.json 与 manifest.json、数据结构、许可、引用和校验方法。',
+    eyebrow: '08 / 下载',
+    heading: 'JSON 数据与清单文件',
+    lede:
+      '公开快照是带版本的静态文件，可以直接读取或下载。本站提供文件、版本、哈希和引用信息。',
+    factsTitle: '文件',
+    facts: [
+      ['数据版本', dataVersion],
+      ['协议', protocolVersion],
+      ['生成', builtDate],
+      ['atlas.json', `${atlasKiB} KiB`],
+      ['SHA-256', shaShort],
+    ] as Array<[string, string]>,
+    sections: [
+      ['files', '文件'],
+      ['schema', '数据结构'],
+      ['versioning', '版本'],
+      ['license', '许可'],
+      ['citation', '引用'],
+    ] as Array<[string, string]>,
+    filesTitle: '两个数据文件。',
+    filesBody:
+      'atlas.json 保存数据快照；manifest.json 保存版本、计数和哈希。需要校验时两个文件一起下载。',
+    fileMeta: [
+      ['JSON · UTF-8 · 该版本内不变', `${atlasBytes.toLocaleString('en-US')} bytes`],
+      ['JSON · 可变指针', `${manifestBytes.toLocaleString('en-US')} bytes`],
+    ] as Array<[string, string]>,
+    filesNote:
+      'CDN 副本可能被缓存。哈希不匹配时，从版本化路径重新获取文件。',
+    schemaTitle: '数据结构说明',
+    schemaBody:
+      '五个顶层键。数组平铺，通过论文 ID 关联。文件由编码表生成。',
+    colKey: '键',
+    colType: '类型',
+    colNote: '说明',
+    paperTitle: '论文记录',
+    patternTitle: '组合记录',
+    capabilityTitle: '能力记录',
+    evidenceTitle: '能力证据（仅 P0）',
+    notIncludedTitle: '文件不包含的内容',
+    notIncluded: [
+      'PDF、全文和摘要。',
+      '出版社图表原图。',
+      '评审人姓名和内部评审记录。',
+      '在线 API 接口和服务级承诺。下一个大版本可能调整数据结构。',
+    ],
+    versioningTitle: '版本与校验',
+    versioningBody:
+      '/atlas/v1/ 路径固定使用 v1 数据结构。数据结构发生破坏性变化时移到 /atlas/v2/。manifest.json 是该目录唯一可变文件，指向当前 atlas.json 和哈希。',
+    hashTitle: '校验文件',
+    hashBody:
+      '对 atlas.json 的字节计算 SHA-256，与 manifest.sha256 比较。当前值如下。哈希针对文件本身计算。',
+    currentHash: sha256,
+    noApiTitle: '静态文件',
+    noApiBody:
+      '本站提供静态文件。需要查询时，把 JSON 载入自己的工具，并引用数据版本。',
+    licenseTitle: '许可分层',
+    licenseRows: [
+      ['代码', 'MIT'],
+      ['标注、编码手册、站点文字', 'CC BY 4.0'],
+      ['来自 OpenAlex、Crossref 或 arXiv 的元数据', 'CC0'],
+      ['证据字段中的第三方引用文字', '不包含在站点许可中'],
+    ] as Array<[string, string]>,
+    licenseNote:
+      '能力证据中的引用文字权利归原作者与出版社。复用引用需取得权利持有人许可；CC BY 4.0 不覆盖引用。',
+    citationTitle: '引用这个版本',
+    citationBody:
+      '引用数据版本与生成日期。v0.1 尚未分配 DOI；公开 URL 和 Zenodo DOI 将在上线前补齐。',
+    citationPlain:
+      `C4AI Atlas（2026）。C4AI Atlas: causality for AI, coded（版本 ${dataVersion}）[数据集]。数据快照 ${builtDate}。SHA-256 ${sha256}。`,
+    citationNote:
+      '论文引用请附协议版本与访问日期。引用派生图表请附筛选条件与分母。',
+    bibtex: `@misc{c4aiatlas2026,
+  title        = {C4AI Atlas: causality for AI, coded},
+  author       = {{C4AI Atlas project}},
+  year         = {2026},
+  version      = {0.1.0-provisional},
+  note         = {Data snapshot 2026-10-27; protocol v1.2-final;
+                  SHA-256 1c73bb7d96b3b719bd10fd8a8e845f148abcab1c0627c97c9fe1c4070fcb9215;
+                  public URL and DOI to be assigned},
+  howpublished = {Static JSON data set}
+}`,
+    linkNote:
+      'manifest 是文件列表与哈希的权威。如果本页与 manifest 不一致，以 manifest 为准，本页有误。',
+  },
+};
+
+const c = copy[lang];
+---
+
+<ContentPage
+  lang={lang}
+  slug="/download/"
+  title={c.title}
+  description={c.description}
+  eyebrow={c.eyebrow}
+  heading={c.heading}
+  lede={c.lede}
+  factsTitle={c.factsTitle}
+  facts={c.facts}
+  sections={c.sections}
+>
+  <section id="files">
+    <div class="sec-head">
+      <div><h2>{c.filesTitle}</h2></div>
+      <p>{c.filesBody}</p>
+    </div>
+    <div class="file-list">
+      <div class="file">
+        <a href={withBase('/atlas/v1/atlas.json')}>/atlas/v1/atlas.json</a>
+        <span>{c.fileMeta[0][0]}<br />{c.fileMeta[0][1]}</span>
+      </div>
+      <div class="file">
+        <a href={withBase('/atlas/v1/manifest.json')}>/atlas/v1/manifest.json</a>
+        <span>{c.fileMeta[1][0]}<br />{c.fileMeta[1][1]}</span>
+      </div>
+    </div>
+    <p class="note"><a href={withBase('/atlas/v1/README.md')}>{lang === 'en' ? 'Data dictionary' : '数据字典'}</a></p>
+    <p class="note">{c.filesNote}</p>
+    <p class="mono-note" style="margin-top:0.7rem">
+      {lang === 'en' ? 'counts' : '计数'}: papers {atlas.stats.papers} · patterns {atlas.stats.patterns} ·
+      capabilities {atlas.capabilities.length} · P0 {atlas.stats.p0}
+    </p>
+  </section>
+
+  <section id="schema">
+    <div class="sec-head">
+      <div><h2>{c.schemaTitle}</h2></div>
+      <p>{c.schemaBody}</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table data-table--stack">
+        <thead>
+          <tr><th scope="col">{c.colKey}</th><th scope="col">{c.colType}</th><th scope="col">{c.colNote}</th></tr>
+        </thead>
+        <tbody>
+          {topLevel.map((row) => (
+            <tr>
+              <td><code>{row.key}</code></td>
+              <td class="mono">{row.type}</td>
+              <td>{row.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>{c.paperTitle}</h3>
+    <div class="table-wrap">
+      <table class="data-table data-table--stack">
+        <thead>
+          <tr><th scope="col">{c.colKey}</th><th scope="col">{c.colType}</th><th scope="col">{c.colNote}</th></tr>
+        </thead>
+        <tbody>
+          {paperFields.map(([key, type, note]) => (
+            <tr><td><code>{key}</code></td><td class="mono">{type}</td><td>{note}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>{c.patternTitle}</h3>
+    <div class="table-wrap">
+      <table class="data-table data-table--stack">
+        <thead>
+          <tr><th scope="col">{c.colKey}</th><th scope="col">{c.colType}</th><th scope="col">{c.colNote}</th></tr>
+        </thead>
+        <tbody>
+          {patternFields.map(([key, type, note]) => (
+            <tr><td><code>{key}</code></td><td class="mono">{type}</td><td>{note}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>{c.capabilityTitle}</h3>
+    <div class="table-wrap">
+      <table class="data-table data-table--stack">
+        <thead>
+          <tr><th scope="col">{c.colKey}</th><th scope="col">{c.colType}</th><th scope="col">{c.colNote}</th></tr>
+        </thead>
+        <tbody>
+          {capabilityFields.map(([key, type, note]) => (
+            <tr><td><code>{key}</code></td><td class="mono">{type}</td><td>{note}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>{c.evidenceTitle}</h3>
+    <div class="table-wrap">
+      <table class="data-table data-table--stack">
+        <thead>
+          <tr><th scope="col">{c.colKey}</th><th scope="col">{c.colType}</th><th scope="col">{c.colNote}</th></tr>
+        </thead>
+        <tbody>
+          {evidenceFields.map(([key, type, note]) => (
+            <tr><td><code>{key}</code></td><td class="mono">{type}</td><td>{note}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>{c.notIncludedTitle}</h3>
+    <ul class="prose">
+      {c.notIncluded.map((item) => <li>{item}</li>)}
+    </ul>
+  </section>
+
+  <section id="versioning">
+    <div class="sec-head">
+      <div><h2>{c.versioningTitle}</h2></div>
+      <p>{c.versioningBody}</p>
+    </div>
+    <h3>{c.hashTitle}</h3>
+    <p class="small">{c.hashBody}</p>
+    <pre class="code">{`shasum -a 256 atlas.json
+# ${c.currentHash}`}</pre>
+    <h3>{c.noApiTitle}</h3>
+    <p class="prose">{c.noApiBody}</p>
+    <p class="note">{c.linkNote}</p>
+  </section>
+
+  <section id="license">
+    <div class="sec-head">
+      <div><h2>{c.licenseTitle}</h2></div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table data-table--stack">
+        <tbody>
+          {c.licenseRows.map(([layer, license]) => (
+            <tr><td>{layer}</td><td class="mono">{license}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{c.licenseNote}</p>
+    <p class="small" style="margin-top:1rem">
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/responsibility/' : '/responsibility/')}>
+        {lang === 'en' ? 'Full responsibility notice' : '完整责任说明'}
+      </a>
+      {' · '}
+      <a href={withBase(lang === 'zh' ? '/zh-Hans/methods/' : '/methods/')}>
+        {lang === 'en' ? 'Methods' : '方法'}
+      </a>
+    </p>
+  </section>
+
+  <section id="citation">
+    <div class="sec-head">
+      <div><h2>{c.citationTitle}</h2></div>
+      <p>{c.citationBody}</p>
+    </div>
+    <blockquote class="quote" style="font-size:0.86rem">{c.citationPlain}</blockquote>
+    <pre class="code" style="margin-top:1rem">{c.bibtex}</pre>
+    <p class="note">{c.citationNote}</p>
+  </section>
+</ContentPage>

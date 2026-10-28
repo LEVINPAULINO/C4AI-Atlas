@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Data and methods
+    url: https://levinpaulino.github.io/C4AI-Atlas/methods/
+    about: Read the codebook, derivation rules, and reliability notes before filing a data issue.
+  - name: Responsibility and takedown
+    url: https://levinpaulino.github.io/C4AI-Atlas/responsibility/
+    about: Copyright, attribution, correction, and takedown policy.
+  - name: Newsletter
+    url: https://levinpaulino.github.io/C4AI-Atlas/newsletter/
+    about: Release notes and P0 sign-off updates. Provider not connected yet.
