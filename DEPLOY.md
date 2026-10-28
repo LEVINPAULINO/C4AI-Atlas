@@ -5,7 +5,7 @@ This directory is the repository root. Do not upload the parent `Roadmap/` folde
 ## Before the first push
 
 - GitHub repository: <https://github.com/LEVINPAULINO/C4AI-Atlas>
-- Node.js 22 or newer for local checks
+- Node.js 24 or newer for local checks
 - Git installed
 - The repository may be empty or contain only a README
 
