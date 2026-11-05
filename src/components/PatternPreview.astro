@@ -4,6 +4,9 @@ import { bitLegend, describeBits } from '../lib/bits';
 interface Props { href?: string; label?: string; lang?: 'en' | 'zh' }
 const { href = '/explore/', label = 'Open the full 64-pattern ledger', lang = 'en' } = Astro.props;
 const headers = lang === 'zh' ? ['编码组合', '论文数', '耦合程度', '介入阶段'] : ['Pattern', 'Papers', 'Level', 'Pipeline'];
+const pipeLabel: Record<string, string> = lang === 'zh'
+  ? { before: '数据', inner: '训练', after: '推理', mixed: '混合', na: '无' }
+  : { before: 'data', inner: 'training', after: 'inference', mixed: 'mixed', na: 'n/a' };
 const top = [...atlas.patterns].sort((a, b) => b.count - a.count).slice(0, 8);
 const max = Math.max(...top.map((p) => p.count), 1);
 ---
@@ -19,7 +22,7 @@ const max = Math.max(...top.map((p) => p.count), 1);
       </span>
       <span class="mono" data-count={p.count}>{p.count}</span>
       <span class="mono">{p.level}</span>
-      <span class="mono">{p.pipeline}</span>
+      <span class="mono">{pipeLabel[p.pipeline] ?? p.pipeline}</span>
       <span class="pattern-preview__bar" aria-hidden="true"><i style={`width:${(p.count / max) * 100}%`}></i></span>
     </div>
   ))}

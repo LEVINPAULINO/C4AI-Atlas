@@ -30,7 +30,7 @@ const DEFAULT_TURN = 28;
 const deepCopy = {
   en: {
     eyebrow: 'Deep view / experimental',
-    title: 'Four views of the same 64 patterns.',
+    title: 'Four views of the same 64 patterns',
     body: 'The ledger is the exact table. These charts show the same 64 patterns in four views. The Hamming lattice draws one-bit adjacency; the projections place the patterns in two or three coordinates.',
     hero: {
       patterns: 'Observed patterns',

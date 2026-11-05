@@ -102,10 +102,10 @@ Step-by-step commands and troubleshooting: [`DEPLOY.md`](DEPLOY.md).
 
 ## Design
 
-- Day theme: Survey Blueprint.
-- Night theme: Signal Room.
-- Type: Newsreader, IBM Plex Mono, Public Sans, Noto Serif SC subset.
-- The visual contract is in `SKILL.md`. Decisions are in `DECISIONS.md`. Team roles are in `TEAM.md`.
+- Day theme: 間 / Ma. Washi ground, ink, one vermilion accent.
+- Night theme: Sumi. Warm dark ground with the same accent family.
+- Type: Shippori Mincho, Zen Kaku Gothic New, IBM Plex Mono, Noto Serif SC.
+- The visual implementation is in `src/styles/theme-a.css`. Decisions are in `DECISIONS.md`. Team roles are in `TEAM.md`.
 
 ## Copyright
 

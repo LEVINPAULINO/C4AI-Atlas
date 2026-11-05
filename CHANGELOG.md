@@ -2,6 +2,16 @@
 
 All data releases use semantic versioning. The first frozen release gets a Zenodo DOI.
 
+## v0.3.0, 2026-11-05
+
+### Changed
+
+- 580 papers, 64 patterns, 37 capabilities, 15 priority capabilities.
+- 18 multi-genre records. Data status `v7-canonical`.
+- Warm-paper site redesign (間 / Ma), new open-ring mark, and square coding wall.
+- Chinese home title kept as 泛化有因. Subtitle is 因果科学与 AI 交叉领域数据库.
+- Timeline note now states the update month only.
+
 ## v0.1.0-provisional, 2026-10-28
 
 ### Added

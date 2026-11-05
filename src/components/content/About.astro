@@ -1,7 +1,7 @@
 ---
 import ContentPage from '../ContentPage.astro';
 import { atlas } from '../../lib/atlas';
-import { dataVersion, protocolVersion, builtDate, shaShort } from '../../lib/content';
+import { dataVersion, protocolVersion, builtDate, sha256, shaShort } from '../../lib/content';
 import { withBase } from '../../lib/urls';
 import { contactEmail, githubIssuesUrl, githubUrl } from '../../lib/site';
 
@@ -47,9 +47,9 @@ const copy = {
     description:
       'What the project is, the data version, the seven team roles, citation, license, contact, and the bilingual policy.',
     eyebrow: '09 / About',
-    heading: 'A coded field guide to causality in AI.',
+    heading: 'A coded field guide to causality in AI',
     lede:
-      'C4AI Atlas indexes 580 papers that connect causal methods to AI systems. It publishes the coding, the rules that derive the labels, and the audit trail. It does not publish the papers.',
+      'C4AI Atlas indexes 580 papers that connect causal methods to AI systems. It publishes the coding and the rules that derive the labels. It does not publish the papers.',
     factsTitle: 'Project',
     facts: [
       ['Data version', dataVersion],
@@ -67,58 +67,57 @@ const copy = {
       ['contact', 'Contact'],
       ['language', 'Language'],
     ] as Array<[string, string]>,
-    whatTitle: 'The unit is a paper. The product is the coding.',
+    whatTitle: 'The unit is a paper; the product is the coding',
     whatBody:
       'Each paper gets eight bits: five components that describe what causality does in the system, and three positions that describe where it enters. Two labels are derived by rule: a coupling level (L0–L4) and a pipeline position (before, inner, after, or mixed). The rules are public, so a disagreement can point at a bit instead of a vibe.',
     whatList: [
-      `${atlas.stats.papers} coded full texts from a 2017–2026 corpus window, across eight families: CausalRL, OOD, CausalRepLearn, TimeSeries, WorldModel, CI_for_LLM, CausalDiscovery, and Agent.`,
+      `${atlas.stats.papers} coded full texts from a 2019–2026 corpus window, across eight families: CausalRL, OOD, CausalRepLearn, TimeSeries, WorldModel, CI_for_LLM, CausalDiscovery, and Agent.`,
       `${atlas.stats.patterns} observed 8-bit patterns out of 256 possible. The modal pattern 11100010 has 72 papers.`,
-      '37 canon capabilities, mapped to lifecycle cells with assumptions, interfaces, failure modes, and P0 evidence.',
-      'An audit page that states direction, tier, coupling, pipeline, κ, A precision, scale-sweep, and the screening funnel.',
+      '37 canon capabilities, mapped to lifecycle cells with assumptions, interfaces, failure modes, and priority evidence.',
+      'A searchable table and 580 static record pages with coding, source links, and a cite block.',
     ],
     whatNote:
-      'The central claim is traceability, not causal uplift. The site does not claim that causal methods improve AI by a pooled percentage, and it does not treat a 2D projection as a measurement.',
-    statusTitle: 'Provisional, and explicit about it.',
+      'The product is traceability: every label can be traced to eight bits and a source.',
+    statusTitle: 'Data status',
     statusBody:
-      'The current snapshot is v0.1.0-provisional, built from the coding before the final adjudicated merge. Ten paper rows are P0 and marked. They are excluded from headline aggregates. A precision (12/20) and the scale-sweep rate (8/353) are provisional for the same reason.',
+      `The current snapshot is v${dataVersion}, built from the v7 canonical coding. It contains 580 papers, 64 observed patterns, and 37 capabilities. The data version and SHA-256 are shown so a citation can pin the exact file.`,
     statusList: [
       ['Data', dataVersion],
       ['Protocol', protocolVersion],
       ['Built', builtDate],
-      ['Data status', 'provisional'],
-      ['P0 signed', 'no'],
+      ['Data status', atlas.meta.data_status],
       ['SHA-256', shaShort],
     ] as Array<[string, string]>,
-    teamTitle: 'Seven roles, one gate each.',
+    teamTitle: 'Seven roles, one gate each',
     teamBody:
-      'The project is organized by decision ownership, not by seniority. Each role owns one class of artifact and one review gate. v0.1 publishes the roles, not a named roster; names and affiliations are a TODO before a formal release.',
+      'The project is organized by decision ownership, not by seniority. Each role owns one class of artifact and one review gate. This release publishes the roles, not a named roster; names and affiliations are a TODO before a formal release.',
     colRole: 'Role',
     colOwns: 'Owns',
     colArtifacts: 'Main artifacts',
     teamNote:
       'The review gates are design, visualization, accessibility, data, copyright, bilingual, performance, and content. A page that fails a gate does not ship.',
-    citationTitle: 'Citation.',
+    citationTitle: 'Citation',
     citationBody:
-      'Cite the data version, not the site in general. The download page carries a plain citation and a BibTeX block. A DOI is not assigned in v0.1.',
+      'Cite the data version, not the site in general. The download page carries a plain citation and a BibTeX block. A DOI is not assigned yet.',
     citationPlain:
-      'C4AI Atlas (2026). C4AI Atlas: causality for AI, coded (Version 0.1.0-provisional) [Data set]. Data snapshot 2026-10-27.',
-    licenseTitle: 'License.',
+      `C4AI Atlas (2026). C4AI Atlas: causality for AI, coded (Version ${dataVersion}) [Data set]. Data snapshot ${builtDate}. SHA-256 ${sha256}.`,
+    licenseTitle: 'License',
     licenseBody:
       'Code is MIT. Annotations, the codebook, and site prose are CC BY 4.0. Metadata sourced from OpenAlex, Crossref, or arXiv is CC0. Quoted third-party text is excluded from the site license.',
     licenseNote:
       'If you reuse a chart, cite the data version and the filter that produced it. If you reuse a quotation, clear it with the rights holder.',
-    contactTitle: 'Contact.',
+    contactTitle: 'Contact',
     contactRows: [
       ['Data errors, label disputes', 'GitHub issue form.'],
       ['Copyright, private concerns', contactEmail],
       ['Release notes', 'Newsletter is not connected yet. Email the project for release notes.'],
       ['Repository', 'GitHub'],
     ] as Array<[string, string]>,
-    languageTitle: 'Two languages, one data set.',
+    languageTitle: 'Two languages, one data set',
     languageBody:
       'English is the default. Simplified Chinese is a full mirror under /zh-Hans/, not a machine-translated overlay. The language switch is visible, and there is no JavaScript auto-redirect.',
     languageList: [
-      'Translated: UI, methods, codebook bit definitions, capability names, page summaries, and audit captions.',
+      'Translated: UI, methods, codebook bit definitions, capability names, and page summaries.',
       'Not translated: paper abstracts. Translating an abstract creates a derivative work, so the site never publishes one.',
       'Paper titles stay in their original language. A translated title, where added, never replaces the original.',
       'Chinese blocks carry lang="zh-Hans". The layout is tested at 320px with the longest labels.',
@@ -126,7 +125,7 @@ const copy = {
     languageNote:
       'The English and Chinese pages share one data file and one set of IDs. A number should never differ between them; if it does, the English page states the current version and the difference is a bug.',
     closeNote:
-      'The project is not peer review, not legal advice, and not an endorsement of any paper, author, venue, or method.',
+      'The site is a research index, not peer review or an endorsement.',
   },
   zh: {
     title: '关于本项目',
@@ -135,7 +134,7 @@ const copy = {
     eyebrow: '09 / 关于',
     heading: '项目说明',
     lede:
-      'C4AI Atlas 收录 580 篇连接因果方法与 AI 系统的论文，发布编码、派生规则和数据核查结果。',
+      'C4AI Atlas 收录 580 篇连接因果方法与 AI 系统的论文，发布编码和派生规则。',
     factsTitle: '项目',
     facts: [
       ['数据版本', dataVersion],
@@ -155,29 +154,28 @@ const copy = {
     ] as Array<[string, string]>,
     whatTitle: '论文记录与编码',
     whatBody:
-      '每篇论文有 8 个编码位：5 位描述因果结构，3 位描述介入阶段。两个标签由编码位推出：耦合程度（L0–L4）和介入阶段（数据、训练、推理、混合）。规则公开，有分歧时可以指出具体哪一位编码。',
+      '每篇论文有 8 个编码位：5 位描述因果结构，3 位描述介入阶段。两个标签由编码位推出：耦合程度（L0–L4）和介入阶段（数据、训练、推理、混合）。规则公开；有分歧时，可以指出具体哪一位编码。',
     whatList: [
-      `${atlas.stats.papers} 篇已编码全文，来自 2017–2026 年，覆盖 8 个论文分组：CausalRL、OOD、CausalRepLearn、TimeSeries、WorldModel、CI_for_LLM、CausalDiscovery 与 Agent。`,
+      `${atlas.stats.papers} 篇已编码全文，来自 2019–2026 年，覆盖 8 个论文分组：CausalRL、OOD、CausalRepLearn、TimeSeries、WorldModel、CI_for_LLM、CausalDiscovery 与 Agent。`,
       `256 种可能组合中观察到 ${atlas.stats.patterns} 种。出现最多的组合 11100010 有 72 篇。`,
-      '37 条能力，按应用阶段分组，附假设、接口、失效模式和 P0 证据。',
-      '数据核查页给出方向、对照强度、耦合程度、介入阶段、一致性、A 档准确率、规模扫描和筛选流程。',
-    ],
+      '37 条能力，按应用阶段分组，附假设、接口、失效模式和优先能力证据。',
+      '可检索的论文表和 580 个静态记录页，含编码、来源链接和引用块。',
+    ] as Array<string>,
     whatNote:
-      '项目的核心目标是可追溯。本站记录论文报告的性能差值，二维投影用于展示。',
+      '本站记录编码与来源；每条标签都能追溯到 8 个编码位和一条来源链接。',
     statusTitle: '数据状态',
     statusBody:
-      '当前快照为 v0.1.0 暂定版，来自最终合并前的编码。10 条 P0 记录已标注，不计入首页汇总。A 档准确率（12/20）和规模扫描比例（8/353）同为暂定值。',
+      `当前快照为 v${dataVersion}，数据状态 v7-canonical；包含 580 篇论文、64 种实际组合和 37 条能力。数据版本与 SHA-256 一并公布，引用可固定到具体文件。`,
     statusList: [
       ['数据', dataVersion],
       ['协议', protocolVersion],
       ['生成', builtDate],
-      ['数据状态', '暂定版本'],
-      ['P0 已核定', '否'],
+      ['数据状态', atlas.meta.data_status],
       ['SHA-256', shaShort],
     ] as Array<[string, string]>,
     teamTitle: '团队分工',
     teamBody:
-      '项目按决策所有权组织。每个角色负责一类产物和一道评审关口。v0.1 公布角色分工；姓名与机构将在正式发布前补齐。',
+      '项目按决策所有权组织。每个角色负责一类产物和一道评审关口。本次发布公布角色分工；姓名与机构将在正式发布前补齐。',
     colRole: '角色',
     colOwns: '负责',
     colArtifacts: '主要产物',
@@ -185,9 +183,9 @@ const copy = {
       '八道评审关口是：设计、可视化、无障碍、数据、版权、双语、性能、内容。页面通过全部关口后才发布。',
     citationTitle: '引用方式',
     citationBody:
-      '引用数据版本，不要只引用站点。下载页提供纯文本引用与 BibTeX。v0.1 尚未分配 DOI。',
+      '引用数据版本，不只引用站点；下载页提供纯文本引用与 BibTeX。当前快照尚未分配 DOI。',
     citationPlain:
-      'C4AI Atlas（2026）。C4AI Atlas: causality for AI, coded（版本 0.1.0 暂定版）[数据集]。数据快照 2026-10-28。',
+      `C4AI Atlas（2026）。C4AI Atlas: causality for AI, coded（版本 ${dataVersion}）[数据集]。数据快照 ${builtDate}。SHA-256 ${sha256}。`,
     licenseTitle: '许可',
     licenseBody:
       '代码为 MIT。标注、编码手册与站点文字为 CC BY 4.0。来自 OpenAlex、Crossref 或 arXiv 的元数据为 CC0。第三方引用文字不包含在站点许可中。',
@@ -202,17 +200,17 @@ const copy = {
     ] as Array<[string, string]>,
     languageTitle: '语言版本',
     languageBody:
-      '英文是默认语言。简体中文是 /zh-Hans/ 下的完整页面。语言切换始终可见，页面不自动跳转。',
+      '英文是默认语言。简体中文是 /zh-Hans/ 下的完整镜像，不是机器翻译层。语言切换始终可见，页面不自动跳转。',
     languageList: [
-      '已翻译：界面、编码方法、编码位定义、能力名称、页面摘要、数据核查图注。',
-      '不翻译：论文摘要。翻译摘要会产生演绎作品，本站不发布摘要。',
+      '已翻译：界面、编码方法、编码位定义、能力名称和页面摘要。',
+      '不翻译：论文摘要。翻译摘要会产生演绎作品；本站不发布摘要。',
       '论文标题保留原文。如加译名，译名不替代原文。',
       '中文块标注 lang="zh-Hans"。版式用最长标签在 320px 下测试。',
-    ],
+    ] as Array<string>,
     languageNote:
-      '中英文页面共享一个数据文件与一套 ID。同一个数字不应在两种语言中不同；如果不同，以英文页的当前版本为准，并且这是一个 bug。',
+      '中英文页面共享一个数据文件与一套 ID。同一个数字应在两种语言中一致；如果不同，以英文页的当前版本为准，并视为 bug。',
     closeNote:
-      '本站提供研究资料。项目内容不构成同行评审、法律意见或对任何论文、作者、期刊、方法的背书。',
+      '本站是研究索引，不构成同行评审或背书。',
   },
 };
 

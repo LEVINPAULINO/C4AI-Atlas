@@ -52,7 +52,6 @@ export default function PaperTable({ lang }: { lang: Lang }) {
   const [pipeline, setPipeline] = useState('all');
   const [tier, setTier] = useState('all');
   const [capability, setCapability] = useState('all');
-  const [p0Only, setP0Only] = useState(false);
   const [page, setPage] = useState(0);
 
   const families = useMemo(() => Object.keys(atlas.stats.family).sort(), []);
@@ -69,7 +68,6 @@ export default function PaperTable({ lang }: { lang: Lang }) {
       if (pipeline !== 'all' && p.pipeline !== pipeline) return false;
       if (tier !== 'all' && p.tier !== tier) return false;
       if (capability !== 'all' && !p.capabilities.includes(capability)) return false;
-      if (p0Only && !p.p0) return false;
       if (!q) return true;
       return p.id.toLowerCase().includes(q)
         || p.title.toLowerCase().includes(q)
@@ -78,7 +76,7 @@ export default function PaperTable({ lang }: { lang: Lang }) {
         || p.capabilities.some((x) => x.toLowerCase() === q);
     });
     return rows.sort((a, b) => (b.year || '').localeCompare(a.year || '') || a.title.localeCompare(b.title));
-  }, [query, family, year, level, pipeline, tier, capability, p0Only]);
+  }, [query, family, year, level, pipeline, tier, capability]);
 
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE));
   const current = Math.min(page, pages - 1);
@@ -86,7 +84,7 @@ export default function PaperTable({ lang }: { lang: Lang }) {
 
   const reset = () => {
     setQuery(''); setFamily('all'); setYear('all'); setLevel('all'); setPipeline('all');
-    setTier('all'); setCapability('all'); setP0Only(false); setPage(0);
+    setTier('all'); setCapability('all'); setPage(0);
   };
 
   return (
@@ -121,12 +119,11 @@ export default function PaperTable({ lang }: { lang: Lang }) {
             <option value="all">{ui.all}</option>{['A','B','C','D','NA'].map((x) => <option key={x} value={x}>{x}</option>)}
           </select>
         </label>
-        <label className="field"><span className="eyebrow">{lang === 'en' ? 'P0 capability' : 'P0 能力'}</span>
+        <label className="field"><span className="eyebrow">{lang === 'en' ? 'Priority capability' : '优先能力'}</span>
           <select value={capability} onChange={(e) => { setCapability(e.target.value); setPage(0); }}>
             <option value="all">{ui.all}</option>{capIds.map((x) => <option key={x} value={x}>{x} · {capNames.get(x)}</option>)}
           </select>
         </label>
-        <label className="check"><input type="checkbox" checked={p0Only} onChange={(e) => { setP0Only(e.target.checked); setPage(0); }} /><span>{ui.p0}</span></label>
         <button className="reset" type="button" onClick={reset}>{ui.reset}</button>
       </div>
 
@@ -150,7 +147,7 @@ export default function PaperTable({ lang }: { lang: Lang }) {
               <span className="paper-table__authors">{authors(p)}</span>
             </span>
             <span className="paper-table__venue"><span>{venueLabel(p.venue, lang)}</span><span className="mono">{p.year}</span></span>
-            <span className="mono">{p.level}{p.p0 ? <span className="p0"> · P0</span> : null}</span>
+            <span className="mono">{p.level}</span>
             <span className="mono">{pipeLabel(p.pipeline, lang)}</span>
             <span className="paper-table__caps">
               {p.capabilities.length ? p.capabilities.slice(0, 3).map((x) => <span className="cap-chip" key={x}>{x}</span>) : <span className="muted">—</span>}

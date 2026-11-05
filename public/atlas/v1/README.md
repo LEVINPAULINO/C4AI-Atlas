@@ -1,8 +1,8 @@
-# C4AI Atlas public data v0.1
+# C4AI Atlas public data v0.3
 
 Files:
 
-- `atlas.json`: snapshot of 580 papers, 64 patterns, 37 capabilities.
+- `atlas.json`: snapshot of 580 papers, 64 patterns, 37 capabilities; v7 canonical; genre merged.
 - `manifest.json`: version, counts, build time, SHA-256.
 - `layouts.json`: precomputed PCA and UMAP coordinates for the 64 patterns.
 - `navigator.json`: pilot rules and capability-level exemplars for `/navigator/`. Derived from `atlas.json`; not included in the manifest hash.
@@ -18,10 +18,10 @@ Pilot file for the static problem navigator. It carries author mappings, not pro
 | `meta` | object | version, status, and evidence note |
 | `problems` | array | seven problem families with English and Chinese names |
 | `attributes` | object | data type, intervention, and confounding options |
-| `capabilities` | object | 15 P0 capabilities with assumptions, failure modes, and up to three capability-level papers |
+| `capabilities` | object | 15 priority capabilities with assumptions, failure modes, and up to three capability-level papers |
 | `rules` | array | 14 author rules; each has a `when` object and candidate capabilities |
 
-A `when` key lists only the values that match. A missing key means no restriction. P0 records under adjudication are excluded from `capabilities[].papers`.
+A `when` key lists only the values that match. A missing key means no restriction.
 
 ## `atlas.json`
 
@@ -33,12 +33,11 @@ A `when` key lists only the values that match. A missing key means no restrictio
 | `version` | string | data version |
 | `protocol_version` | string | coding protocol |
 | `built_at` | ISO string | build time |
-| `data_status` | string | `provisional` until P0 closes |
-| `p0_signed` | boolean | whether the 10 P0 rows are signed |
+| `data_status` | string | `v7-canonical` after the 2026-11-05 v7 promotion |
 
 ### `stats`
 
-Counts and audit values. `p0` is the number of unsigned P0 rows. `authors`, `venue`, `doi`, and `capability_tagged` are metadata coverage counts. `a_audit` is 12 justified out of 20 audited. `scale_sweep` is 8 out of 353 A+B papers. `kappa` is the reliability estimate per field.
+Counts used by the site. `authors`, `venue`, `doi`, and `capability_tagged` are metadata coverage counts. `scale_sweep` is 7 out of 319 A+B papers (2.19%, Wilson 95% CI 1.07–4.46%). `genre` is the primary-genre count; `genre_multi` counts records with more than one genre.
 
 ### `papers[]`
 
@@ -59,11 +58,10 @@ Counts and audit values. `p0` is the number of unsigned P0 rows. `authors`, `ven
 | `pipeline` | string | before/inner/after/mixed/na, derived from bits |
 | `confidence` | string | coder confidence |
 | `pair_type` | string | ablation/matched-separate/scale-sweep/none |
+| `genre` | string | method/benchmark/dataset/position/survey/theory |
 | `secondary` | array | secondary levels |
 | `bits` | string | 8 bits, order `E C T A X B I F` |
-| `capabilities` | array | P0 capability tags, from the evidence table |
-| `p0` | boolean | unsigned P0 row |
-| `p0_reason` | string | why it is P0 |
+| `capabilities` | array | priority capability tags, from the evidence table |
 | `needs_adjudication` | boolean | old adjudication flag |
 
 ### `patterns[]`
@@ -90,14 +88,14 @@ Counts and audit values. `p0` is the number of unsigned P0 rows. `authors`, `ven
 | `assumptions` | string | identification assumptions |
 | `interface` | string | data/model/inference interface |
 | `readiness` | string | R1-R5 |
-| `priority` | string | P0/P1/P2 |
+| `priority` | string | priority label (P0/P1/P2); P0 means ready to test |
 | `citation_status` | string | verified/textbook/partial/author-year |
 | `citation_id` | string | DOI or OpenAlex ID |
 | `exemplars` | string | short citation list |
 | `failure_mode` | string | main failure mode |
-| `evidence` | object | P0 evidence, when available |
+| `evidence` | object | priority evidence, when available |
 
-The P0 evidence object has `exemplars`, `acl_llm_case`, `negative_case`, `when_not_to_use`, and optional `notes`. It is present for the 15 P0 capabilities.
+The priority evidence object has `exemplars`, `acl_llm_case`, `negative_case`, `when_not_to_use`, and optional `notes`. It is present for the 15 priority capabilities.
 
 ## Bit order
 

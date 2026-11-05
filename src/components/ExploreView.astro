@@ -5,8 +5,8 @@ interface Props { lang?: Lang }
 const { lang = 'en' } = Astro.props;
 const c = t(lang);
 const note = lang === 'zh'
-  ? 'v0.1 暂定版 · P0 记录照常显示，不计入首页汇总 · 编码组合按 8 位编码精确统计'
-  : 'v0.1 provisional · P0 rows are visible and excluded from headline totals · patterns are exact 8-bit combinations';
+  ? 'v0.3.0 数据快照 · 编码组合按 8 位编码精确统计'
+  : 'v0.3.0 snapshot · patterns are exact 8-bit combinations';
 ---
 <div class="wrap">
   <section style="padding:3rem 0 1.5rem">

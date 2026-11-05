@@ -50,14 +50,12 @@ const c = lang === 'en'
       confidence: 'Coder confidence',
       pattern: 'Pattern',
       patternLink: 'Open this pattern in the ledger',
-      capabilities: 'P0 capabilities',
-      noCaps: 'No P0 capability tag. The paper can still be in a capability row as a non-exemplar.',
+      capabilities: 'Capabilities',
+      noCaps: 'No capability tag.',
       cited: 'Cite this record',
       copy: 'Copy BibTeX',
       copied: 'Copied',
       related: 'Same pattern',
-      p0: 'P0 under adjudication',
-      p0note: 'This row is visible but excluded from headline aggregates until the P0 worksheet is signed.',
       report: 'Report a data error',
       sourceNote: 'Links go to arXiv or the publisher. The record does not host the paper.',
     }
@@ -80,14 +78,12 @@ const c = lang === 'en'
       confidence: '编码把握',
       pattern: '编码组合',
       patternLink: '在编码总表中查看这个组合',
-      capabilities: 'P0 能力（优先验证）',
-      noCaps: '这条论文没有 P0 能力标签。它可以在能力清单中作为背景案例出现。',
+      capabilities: '能力',
+      noCaps: '这条论文没有能力标签。',
       cited: '引用这条记录',
       copy: '复制 BibTeX',
       copied: '已复制',
       related: '同组合论文',
-      p0: 'P0 待核定',
-      p0note: '人工核定完成前，这条记录不进入首页汇总。',
       report: '报告数据错误',
       sourceNote: '链接指向 arXiv 或出版社。本站不保存论文原文。',
     };
@@ -107,7 +103,6 @@ const c = lang === 'en'
         <h1>{paper.title}</h1>
         <p class="paper-page__authors">{paper.authors.join(', ') || '—'}</p>
         <p class="paper-page__venue">{venueLabel} · {paper.year}</p>
-        {paper.p0 && <p class="p0">{c.p0}</p>}
       </div>
       <aside class="paper-page__aside">
         <dl>
@@ -119,7 +114,6 @@ const c = lang === 'en'
         </dl>
       </aside>
     </header>
-    {paper.p0 && <p class="callout">{c.p0note}</p>}
 
     <section class="paper-page__grid">
       <div>

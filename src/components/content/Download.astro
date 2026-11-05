@@ -13,11 +13,11 @@ const manifestText = manifestRaw;
 const manifestBytes = new TextEncoder().encode(manifestText).length;
 
 const topLevel = [
-  { key: 'meta', type: 'object', note: 'Name, version, protocol, build time, data status, P0 flag.' },
-  { key: 'stats', type: 'object', note: 'Counts and reliability values used by the audit page.' },
+  { key: 'meta', type: 'object', note: 'Name, version, protocol, build time, data status.' },
+  { key: 'stats', type: 'object', note: 'Counts and version fields used by the project pages.' },
   { key: 'papers', type: `array[${atlas.papers.length}]`, note: 'One record per coded paper.' },
   { key: 'patterns', type: `array[${atlas.patterns.length}]`, note: 'Observed 8-bit patterns, counts, derived labels.' },
-  { key: 'capabilities', type: `array[${atlas.capabilities.length}]`, note: 'Canon capabilities, P0 evidence where present.' },
+  { key: 'capabilities', type: `array[${atlas.capabilities.length}]`, note: 'Canon capabilities, priority evidence where present.' },
 ];
 
 const paperFields = [
@@ -33,9 +33,6 @@ const paperFields = [
   ['pair_type', 'enum', 'none, ablation, matched-separate, scale-sweep.'],
   ['secondary', 'string[]', 'Secondary families or labels where recorded.'],
   ['bits', 'string[8]', 'E C T A X B I F, one character per field.'],
-  ['p0', 'boolean', 'Under adjudication. Excluded from headline aggregates.'],
-  ['p0_reason', 'string', 'Why the row is P0. Empty when p0 is false.'],
-  ['needs_adjudication', 'boolean', 'Coder flagged a boundary case.'],
 ];
 
 const patternFields = [
@@ -55,14 +52,14 @@ const capabilityFields = [
   ['cell', 'string', 'Lifecycle cell. Author judgment, not extracted.'],
   ['assumptions', 'string', 'What must hold for the capability to apply.'],
   ['interface', 'string', 'Inputs and outputs a system would expose.'],
-  ['readiness', 'enum', 'R1 theory, R2 toy, R3 benchmark. R4/R5 are empty in v0.1.'],
-  ['priority', 'enum', 'P0, P1, P2. P0 means ready to test, not most important.'],
+  ['readiness', 'enum', 'R1 theory, R2 toy, R3 benchmark. R4/R5 are empty in this snapshot.'],
+  ['priority', 'enum', 'Priority 0, 1, 2. Priority 0 means ready to test, not most important.'],
   ['acl_relevance', 'enum', 'High, Medium, Low. Author judgment.'],
   ['citation_status', 'enum', 'verified, textbook, partial.'],
   ['citation_id', 'string', 'DOI, OpenAlex ID, or URL for the lead reference.'],
   ['exemplars', 'string', 'Short citation string for representative works.'],
   ['failure_mode', 'string', 'How the capability fails in practice.'],
-  ['evidence', 'object?', 'Present on the 15 P0 rows. Exemplars, ACL/LLM case, negative case, when-not-to-use.'],
+  ['evidence', 'object?', 'Present on the 15 priority rows. Exemplars, ACL/LLM case, negative case, when-not-to-use.'],
 ];
 
 const evidenceFields = [
@@ -79,7 +76,7 @@ const copy = {
     description:
       'Versioned atlas.json and manifest.json, schema tables, license, citation, and checksum verification. Static files, no API.',
     eyebrow: '08 / Download',
-    heading: 'One JSON file, one manifest, no API.',
+    heading: 'One JSON file, one manifest, no API',
     lede:
       'The public snapshot is a static file at a versioned path. Read it directly or download it. There is no endpoint, no key, and no service-level promise.',
     factsTitle: 'Files',
@@ -97,7 +94,7 @@ const copy = {
       ['license', 'License'],
       ['citation', 'Citation'],
     ] as Array<[string, string]>,
-    filesTitle: 'Two data files.',
+    filesTitle: 'Two data files',
     filesBody:
       'atlas.json carries the snapshot. manifest.json carries the version, counts, and hash. Download both if you need to verify the file.',
     fileMeta: [
@@ -106,7 +103,7 @@ const copy = {
     ] as Array<[string, string]>,
     filesNote:
       'A copy served through a CDN may be cached. If the hash does not match, refetch from the versioned path instead of editing the file.',
-    schemaTitle: 'The schema is the data dictionary.',
+    schemaTitle: 'The schema is the data dictionary',
     schemaBody:
       'Five top-level keys. Arrays are flat; joins are by paper ID. The file is generated from the coded tables, not hand-edited.',
     colKey: 'Key',
@@ -115,7 +112,7 @@ const copy = {
     paperTitle: 'Paper record',
     patternTitle: 'Pattern record',
     capabilityTitle: 'Capability record',
-    evidenceTitle: 'Capability evidence (P0 only)',
+    evidenceTitle: 'Capability evidence (priority rows)',
     notIncludedTitle: 'What is not in the file',
     notIncluded: [
       'PDFs, full text, and abstracts.',
@@ -123,17 +120,17 @@ const copy = {
       'Reviewer names and internal review notes.',
       'No live API endpoint or service-level promise. The schema may change at the next major version.',
     ],
-    versioningTitle: 'Versioning and checksum.',
+    versioningTitle: 'Versioning and checksum',
     versioningBody:
       'The path /atlas/v1/ is frozen for the v1 schema. A breaking schema change moves to /atlas/v2/. manifest.json is the only mutable file in the directory; it points at the current atlas.json and hash.',
     hashTitle: 'Verify the download',
     hashBody:
       'Compute SHA-256 over the bytes of atlas.json and compare with manifest.sha256. The current value is printed below. Do not compare a hash of the pretty-printed page source; compare the file itself.',
     currentHash: sha256,
-    noApiTitle: 'No API.',
+    noApiTitle: 'No API',
     noApiBody:
       'Do not build against a live endpoint. There is none. There are no CORS settings, rate limits, or OpenAPI documents to read. If you need a query surface, load the JSON into your own store and cite the version.',
-    licenseTitle: 'License, by layer.',
+    licenseTitle: 'License, by layer',
     licenseRows: [
       ['Code', 'MIT'],
       ['Annotations, codebook, site prose', 'CC BY 4.0'],
@@ -142,21 +139,21 @@ const copy = {
     ] as Array<[string, string]>,
     licenseNote:
       'The quotations embedded in capability evidence remain with their authors and publishers. Reusing a quotation requires the rights holder’s permission; CC BY 4.0 does not cover it.',
-    citationTitle: 'How to cite this version.',
+    citationTitle: 'How to cite this version',
     citationBody:
-      'Cite the data version and the build date. A DOI is not assigned in v0.1. A Zenodo DOI will be registered with the first frozen release.',
+      'Cite the data version and the build date. A DOI is not assigned yet. A Zenodo DOI will be registered with the first frozen release.',
     citationPlain:
-      'C4AI Atlas (2026). C4AI Atlas: causality for AI, coded (Version 0.1.0-provisional) [Data set]. Data snapshot 2026-10-27. SHA-256 1c73bb7d96b3b719bd10fd8a8e845f148abcab1c0627c97c9fe1c4070fcb9215.',
+      `C4AI Atlas (2026). C4AI Atlas: causality for AI, coded (Version ${dataVersion}) [Data set]. Data snapshot ${builtDate}. SHA-256 ${sha256}.`,
     citationNote:
       'For a paper citation, include the protocol version and the access date. For a derived figure, include the filter and the denominator.',
     bibtex: `@misc{c4aiatlas2026,
   title        = {C4AI Atlas: causality for AI, coded},
   author       = {{C4AI Atlas project}},
   year         = {2026},
-  version      = {0.1.0-provisional},
-  note         = {Data snapshot 2026-10-27; protocol v1.2-final;
-                  SHA-256 1c73bb7d96b3b719bd10fd8a8e845f148abcab1c0627c97c9fe1c4070fcb9215;
-                  public URL and DOI to be assigned},
+  version      = {${dataVersion}},
+  note         = {Data snapshot ${builtDate}; protocol ${protocolVersion};
+                  SHA-256 ${sha256};
+                  DOI to be assigned},
   howpublished = {Static JSON data set}
 }`,
     linkNote:
@@ -185,7 +182,7 @@ const copy = {
       ['license', '许可'],
       ['citation', '引用'],
     ] as Array<[string, string]>,
-    filesTitle: '两个数据文件。',
+    filesTitle: '两个数据文件',
     filesBody:
       'atlas.json 保存数据快照；manifest.json 保存版本、计数和哈希。需要校验时两个文件一起下载。',
     fileMeta: [
@@ -203,7 +200,7 @@ const copy = {
     paperTitle: '论文记录',
     patternTitle: '组合记录',
     capabilityTitle: '能力记录',
-    evidenceTitle: '能力证据（仅 P0）',
+    evidenceTitle: '能力证据（优先能力）',
     notIncludedTitle: '文件不包含的内容',
     notIncluded: [
       'PDF、全文和摘要。',
@@ -232,7 +229,7 @@ const copy = {
       '能力证据中的引用文字权利归原作者与出版社。复用引用需取得权利持有人许可；CC BY 4.0 不覆盖引用。',
     citationTitle: '引用这个版本',
     citationBody:
-      '引用数据版本与生成日期。v0.1 尚未分配 DOI；公开 URL 和 Zenodo DOI 将在上线前补齐。',
+      '引用数据版本与生成日期。当前快照尚未分配 DOI；Zenodo DOI 将在首次冻结版本时申请。',
     citationPlain:
       `C4AI Atlas（2026）。C4AI Atlas: causality for AI, coded（版本 ${dataVersion}）[数据集]。数据快照 ${builtDate}。SHA-256 ${sha256}。`,
     citationNote:
@@ -241,10 +238,10 @@ const copy = {
   title        = {C4AI Atlas: causality for AI, coded},
   author       = {{C4AI Atlas project}},
   year         = {2026},
-  version      = {0.1.0-provisional},
-  note         = {Data snapshot 2026-10-27; protocol v1.2-final;
-                  SHA-256 1c73bb7d96b3b719bd10fd8a8e845f148abcab1c0627c97c9fe1c4070fcb9215;
-                  public URL and DOI to be assigned},
+  version      = {${dataVersion}},
+  note         = {Data snapshot ${builtDate}; protocol ${protocolVersion};
+                  SHA-256 ${sha256};
+                  DOI to be assigned},
   howpublished = {Static JSON data set}
 }`,
     linkNote:
@@ -286,7 +283,7 @@ const c = copy[lang];
     <p class="note">{c.filesNote}</p>
     <p class="mono-note" style="margin-top:0.7rem">
       {lang === 'en' ? 'counts' : '计数'}: papers {atlas.stats.papers} · patterns {atlas.stats.patterns} ·
-      capabilities {atlas.capabilities.length} · P0 {atlas.stats.p0}
+      capabilities {atlas.capabilities.length}
     </p>
   </section>
 

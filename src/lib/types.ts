@@ -14,12 +14,11 @@ export type Paper = {
   pipeline: string;
   confidence: string;
   pair_type: string;
+  genre: string;
+  genres?: string[];
   secondary: string[];
   bits: string;
   capabilities: string[];
-  p0: boolean;
-  p0_reason: string;
-  needs_adjudication: boolean;
 };
 
 export type Pattern = {
@@ -80,18 +79,22 @@ export type Atlas = {
     protocol_version: string;
     built_at: string;
     data_status: string;
-    p0_signed: boolean;
+    p0_signed?: boolean;
+    p0_signed_rows?: number;
     note: string;
   };
   stats: {
     papers: number;
     patterns: number;
-    double_coded: number;
     authors: number;
     venue: number;
     doi: number;
     capability_tagged: number;
-    p0: number;
+    double_coded?: number;
+    p0?: number;
+    p0_signed_rows?: number;
+    a_audit?: { audited: number; justified: number; precision: number; ci95?: number[] };
+    kappa?: Record<string, number>;
     direction: Record<string, number>;
     tier: Record<string, number>;
     level: Record<string, number>;
@@ -99,9 +102,9 @@ export type Atlas = {
     family: Record<string, number>;
     pair_type: Record<string, number>;
     confidence: Record<string, number>;
-    a_audit: { audited: number; justified: number; precision: number };
-    scale_sweep: { justified: number; denominator: number; rate: number };
-    kappa: Record<string, number>;
+    genre?: Record<string, number>;
+    genre_multi?: number;
+    scale_sweep: { justified: number; denominator: number; rate: number; ci95?: number[] };
   };
   papers: Paper[];
   patterns: Pattern[];

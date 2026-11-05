@@ -15,9 +15,9 @@ const copy = {
     description:
       'A low-frequency release note for C4AI Atlas. The signup form is a placeholder; no provider is connected and no address is stored.',
     eyebrow: '07 / Newsletter',
-    heading: 'One email when the data version changes.',
+    heading: 'One email when the data version changes',
     lede:
-      'Release notes, corrections, and P0 sign-offs. No launch hype, no weekly digest. The signup form is not connected yet: no email can be sent and no address is stored by this page.',
+      'Release notes and corrections. No launch hype, no weekly digest. The signup form is not connected yet: no email can be sent and no address is stored by this page.',
     factsTitle: 'Status',
     facts: [
       ['Provider', 'not connected'],
@@ -32,21 +32,21 @@ const copy = {
       ['privacy', 'Privacy'],
       ['maintainers', 'For maintainers'],
     ] as Array<[string, string]>,
-    statusTitle: 'The form is a placeholder.',
+    statusTitle: 'The form is a placeholder',
     statusBody:
-      'Buttondown or Substack is the planned provider. Neither is configured in v0.1. The email field and the submit button are disabled on purpose. Submitting is not possible, and this page has no script that would capture an address.',
+      'Buttondown or Substack is the planned provider. Neither is configured in this snapshot. The email field and the submit button are disabled on purpose. Submitting is not possible, and this page has no script that would capture an address.',
     signupLabel: 'Email address',
     signupPlaceholder: 'name@example.org',
     signupButton: 'Subscribe',
     signupStatus: 'Not connected: no provider is configured. No address is sent or stored.',
     providerNote:
       'When a provider is connected, this paragraph will name it, link to its privacy policy, and state whether double opt-in is on.',
-    archiveTitle: 'No issues have been sent.',
+    archiveTitle: 'No issues have been sent',
     archiveBody:
       'The archive starts when the first release note ships. It will list the data version, the changes, and any correction that changed a public number. We will not backfill issues to make the archive look established.',
     archiveCols: ['Issue', 'Date', 'Contents', 'Status'],
-    archiveRow: ['v0.2', 'not scheduled', 'release notes, corrections, P0 outcomes', 'pending'],
-    privacyTitle: 'What would be collected, and what would not.',
+    archiveRow: ['next', 'not scheduled', 'release notes and corrections', 'pending'],
+    privacyTitle: 'What would be collected, and what would not',
     privacyList: [
       'Collected if a provider is connected: an email address, the signup date, and the subscription state held by the provider.',
       'Not collected: reading history, page-level analytics tied to an address, or advertising identifiers.',
@@ -56,7 +56,7 @@ const copy = {
     ],
     privacyNote:
       'This is a privacy notice for a form that is not yet active. It describes the intended minimum, not a current data flow. The provider’s own policy will govern once a provider is named.',
-    maintainersTitle: 'Before enabling the form.',
+    maintainersTitle: 'Before enabling the form',
     maintainersList: [
       'Pick one provider. Do not load two scripts for one list.',
       'Set the form action to the provider’s embed endpoint and remove the disabled attributes.',
@@ -75,7 +75,7 @@ const copy = {
     eyebrow: '07 / 订阅',
     heading: '发布说明订阅',
     lede:
-      '数据版本更新时寄一封说明邮件，内容包括更正和 P0 核定结果。订阅表单尚未接入服务商。',
+      '数据版本更新时寄一封说明邮件，内容包括更正。订阅表单尚未接入服务商。',
     factsTitle: '状态',
     facts: [
       ['服务商', '未接入'],
@@ -92,7 +92,7 @@ const copy = {
     ] as Array<[string, string]>,
     statusTitle: '订阅状态',
     statusBody:
-      '计划使用 Buttondown 或 Substack，v0.1 尚未配置。邮箱输入框和提交按钮当前处于禁用状态。本页没有采集地址的脚本。',
+      '计划使用 Buttondown 或 Substack，当前快照尚未配置。邮箱输入框和提交按钮当前处于禁用状态。本页没有采集地址的脚本。',
     signupLabel: '邮箱地址',
     signupPlaceholder: 'name@example.org',
     signupButton: '订阅',
@@ -103,7 +103,7 @@ const copy = {
     archiveBody:
       '第一期发布说明发出后，存档开始记录。存档列出数据版本、变更和影响公开数字的更正。',
     archiveCols: ['期号', '日期', '内容', '状态'],
-    archiveRow: ['v0.2', '未排期', '发布说明、更正、P0 结果', '待定'],
+    archiveRow: ['下一期', '未排期', '发布说明与更正', '待定'],
     privacyTitle: '收集范围',
     privacyList: [
       '接入服务商后，收集邮箱地址、订阅日期和服务商持有的订阅状态。',

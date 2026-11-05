@@ -2,7 +2,7 @@
 import { atlas } from '../lib/atlas';
 import { describeBits } from '../lib/bits';
 interface Props { note?: string; lang?: 'en' | 'zh' }
-const { note = '580 glyphs · 8 bits each · outlined = P0 pending · color = coupling level', lang = 'en' } = Astro.props;
+const { note = '580 glyphs · 8 bits each · color = coupling level', lang = 'en' } = Astro.props;
 const papers = atlas.papers;
 ---
 <div class="glyph-wall" aria-label="580 paper fingerprints, one per paper" role="img">
@@ -10,8 +10,7 @@ const papers = atlas.papers;
     <span
       class="glyph"
       data-level={p.level}
-      data-p0={p.p0 ? '1' : '0'}
-      title={`${p.id} · ${p.level} · ${describeBits(p.bits, lang)}${p.p0 ? ' · P0 pending' : ''}`}
+      title={`${p.id} · ${p.level} · ${describeBits(p.bits, lang)}`}
     >
       {p.bits.split('').map((b) => <i data-on={b}></i>)}
     </span>

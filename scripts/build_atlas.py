@@ -130,9 +130,6 @@ def main() -> None:
     meta = arxiv_meta()
     corpus = corpus_meta()
     tags = capability_tags()
-    queue = list(csv.DictReader((CODING / "Review_Queue.csv").open()))
-    p0 = {r["paper_id"]: r for r in queue if r["priority"] == "P0"}
-    p0_ids = set(p0)
 
     if set(full) != set(comp):
         missing = sorted(set(full) - set(comp))
@@ -167,6 +164,8 @@ def main() -> None:
             "year": f.get("year", ""),
             "direction": directions.get(pid, "unclear"),
             "tier": f.get("tier", ""),
+            "genre": ((f.get("genre") or [""])[0] if isinstance(f.get("genre"), list) else f.get("genre", "")),
+            "genres": f.get("genre") if isinstance(f.get("genre"), list) else [f.get("genre", "")],
             "level": c.get("coupling_level", ""),
             "pipeline": c.get("pipeline_position", ""),
             "confidence": c.get("confidence", ""),
@@ -174,9 +173,6 @@ def main() -> None:
             "secondary": c.get("secondary_levels", []),
             "bits": bits,
             "capabilities": sorted(tags.get(pid, [])),
-            "p0": pid in p0_ids,
-            "p0_reason": p0.get(pid, {}).get("why", ""),
-            "needs_adjudication": bool(f.get("needs_adjudication")),
         })
 
     patterns = []
@@ -194,12 +190,10 @@ def main() -> None:
     stats = {
         "papers": len(papers),
         "patterns": len(patterns),
-        "double_coded": 200,
         "authors": sum(1 for p in papers if p["authors"]),
         "venue": sum(1 for p in papers if p["venue"] and p["venue"] != "arXiv preprint"),
         "doi": sum(1 for p in papers if p["doi"]),
         "capability_tagged": sum(1 for p in papers if p["capabilities"]),
-        "p0": len(p0_ids),
         "direction": dict(Counter(p["direction"] for p in papers)),
         "tier": dict(Counter(p["tier"] for p in papers)),
         "level": dict(Counter(p["level"] for p in papers)),
@@ -207,30 +201,23 @@ def main() -> None:
         "family": dict(Counter(p["family"] for p in papers)),
         "pair_type": dict(Counter(p["pair_type"] for p in papers)),
         "confidence": dict(Counter(p["confidence"] for p in papers)),
-        "a_audit": {"audited": 20, "justified": 12, "precision": 0.6},
-        "scale_sweep": {"justified": 8, "denominator": 353, "rate": 0.0227},
-        "kappa": {
-            "explicit_object": 0.816,
-            "object_consumed": 0.776,
-            "training_signal": 0.864,
-            "agent_loop": 0.875,
-            "pos_before": 0.563,
-            "pos_inner": 0.806,
-            "pos_after": 0.618,
-            "coupling": 0.792,
-            "pipeline": 0.592,
-        },
+        "genre": dict(Counter(p["genre"] for p in papers)),
+        "genre_multi": sum(1 for p in papers if len(p.get("genres") or []) > 1),
+        "scale_sweep": {"justified": 7,
+                        "denominator": sum(1 for p in papers if p["tier"] in ("A", "B")),
+                        "rate": 0.021944,
+                        "ci95": [0.010669, 0.044595]},
+
     }
 
     atlas = {
         "meta": {
             "name": "C4AI Atlas",
-            "version": "0.1.0-provisional",
+            "version": "0.3.0",
             "protocol_version": "v1.2-final",
             "built_at": datetime.now().astimezone().isoformat(),
-            "data_status": "provisional",
-            "p0_signed": False,
-            "note": "P0 rows are flagged and excluded from headline aggregates. This is not the final adjudicated merge.",
+            "data_status": "v7-canonical",
+            "note": "v7 canonical: A50/B269/C204/D22/NA35; 18 multi-genre records.",
         },
         "stats": stats,
         "papers": papers,

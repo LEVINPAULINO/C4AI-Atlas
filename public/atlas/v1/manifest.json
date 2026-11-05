@@ -1,10 +1,10 @@
 {
  "name": "C4AI Atlas",
- "version": "0.1.0-provisional",
- "data_status": "provisional",
- "built_at": "2026-10-28T12:33:51.177814+08:00",
+ "version": "0.3.0",
+ "data_status": "v7-canonical",
+ "built_at": "2026-11-05T22:38:31.598757+08:00",
  "protocol_version": "v1.2-final",
- "sha256": "b1072a6775a71631364413e0325cb884e62ccffcc16fbca36a6a9dff7a4168c4",
+ "sha256": "ef91b249f0d70e12b09650e55144c205737f13b4d79b01375e282440db8e1694",
  "files": [
   "atlas.json",
   "layouts.json",

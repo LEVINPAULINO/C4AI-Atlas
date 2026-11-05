@@ -14,14 +14,14 @@ const FAMILY_ORDER = [
 ];
 
 const FAMILY_COLORS: Record<string, string> = {
-  Agent: '#244a63',
-  CI_for_LLM: '#b02a6b',
-  CausalDiscovery: '#5e6b4a',
-  CausalRL: '#b07a1e',
-  CausalRepLearn: '#6f5f8f',
-  OOD: '#7d5a44',
-  TimeSeries: '#3f7c78',
-  WorldModel: '#8a4f4f',
+  CausalRL: '#2F4858',
+  OOD: '#83694A',
+  CausalRepLearn: '#5D6F60',
+  TimeSeries: '#9C8459',
+  WorldModel: '#35332E',
+  CI_for_LLM: '#7B7264',
+  CausalDiscovery: '#4A5D6B',
+  Agent: '#6B4F45',
 };
 
 const W = 1000;
@@ -75,7 +75,7 @@ export default function TimelineChart({ lang }: { lang: Lang }) {
     ? `${hover.year} · ${hover.family} · ${hover.count} ${timeline.count}`
     : active
       ? `${active} · ${families.reduce((n, f) => n + years.reduce((m, y) => m + counts[y][f], 0), 0)} ${timeline.count}`
-      : timeline.hover;
+      : '';
 
   const setFamily = (family: string | null) => {
     setActive(family);
@@ -91,12 +91,7 @@ export default function TimelineChart({ lang }: { lang: Lang }) {
 
   return (
     <div className="timeline">
-      <div className="timeline__head">
-        <div>
-          <h2>{timeline.title}</h2>
-        </div>
-        <p className="timeline__status mono">{status}</p>
-      </div>
+      <p className="timeline__status mono" aria-live="polite">{status}</p>
 
       <div className="timeline__legend" aria-label={timeline.legend}>
         {families.map((family) => (
@@ -183,8 +178,6 @@ export default function TimelineChart({ lang }: { lang: Lang }) {
           ))}
         </svg>
       </div>
-
-      <p className="timeline__note mono">{timeline.partial}</p>
 
     </div>
   );

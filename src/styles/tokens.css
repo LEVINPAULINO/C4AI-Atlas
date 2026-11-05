@@ -1,43 +1,44 @@
 :root,
 :root[data-theme='day'] {
-  --ground: #f4f5f1;
-  --surface: #eaede6;
-  --ink: #1a1d1b;
-  --muted: #44514b;
-  --rule: #cdd2c9;
-  --accent: #b02a6b;
-  --blue: #244a63;
-  --moss: #5e6b4a;
-  --ochre: #b07a1e;
-  --l0: #b9beb5;
-  --l1: #8e9a8b;
-  --l2: #647c78;
-  --l3: #3f625f;
-  --l4: #244a63;
-  --shadow: 0 1px 0 rgb(26 29 27 / 8%);
+  --ground: #f6f2e9;
+  --surface: #efe9dc;
+  --ink: #1c1b18;
+  --muted: #6b655b;
+  --rule: #d8d1c2;
+  --accent: #b33a2b;
+  --blue: #2f4858;
+  --moss: #5d6f60;
+  --ochre: #9c8459;
+  --l0: #b7ac98;
+  --l1: #978b74;
+  --l2: #776f61;
+  --l3: #4c554e;
+  --l4: #232a27;
+  --shadow: 0 1px 0 rgb(28 27 24 / 7%);
 }
 
 :root[data-theme='night'] {
-  --ground: #14171a;
-  --surface: #1e2422;
-  --ink: #e7e9e4;
-  --muted: #9aa39c;
-  --rule: #35403c;
-  --accent: #ffb454;
-  --blue: #6fd3e8;
-  --moss: #7ce3b1;
-  --ochre: #ffb454;
-  --l0: #4a5551;
-  --l1: #6a7b74;
-  --l2: #8fb9a8;
-  --l3: #7ce3b1;
-  --l4: #6fd3e8;
-  --shadow: 0 1px 0 rgb(255 255 255 / 6%);
+  --ground: #161310;
+  --surface: #1d1a15;
+  --ink: #f0ebe0;
+  --muted: #a39b8b;
+  --rule: #34302a;
+  --accent: #d9694f;
+  --blue: #8fa7b8;
+  --moss: #94a896;
+  --ochre: #d8c6a0;
+  --l0: #4b453b;
+  --l1: #6a6152;
+  --l2: #8b8171;
+  --l3: #b2a791;
+  --l4: #d9cfbc;
+  --shadow: 0 1px 0 rgb(240 235 224 / 6%);
 }
 
 :root {
-  --font-display: 'Newsreader', 'Noto Serif SC', Georgia, serif;
-  --font-ui: 'Public Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Shippori Mincho', 'Noto Serif SC', Georgia, serif;
+  --font-ui: 'Zen Kaku Gothic New', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif-zh: 'Noto Serif SC', 'Songti SC', 'Shippori Mincho', serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --step-0: 0.95rem;
   --step-1: 1.15rem;
@@ -50,6 +51,6 @@
   --space-3: 1.5rem;
   --space-4: 3rem;
   --space-5: 6rem;
-  --max: 1280px;
-  --radius: 2px;
+  --max: 1240px;
+  --radius: 1px;
 }
