@@ -1,0 +1,156 @@
+---
+import { withBase } from '../../lib/urls';
+import type { BPaper, BOrigin } from '../../lib/b';
+import { bCopy } from '../../lib/b-copy';
+interface Props {
+  papers: BPaper[];
+  methodCount: number;
+  labelledCount: number;
+  origins: BOrigin[];
+  problemKey: string;
+  lang?: 'en' | 'zh';
+}
+const { papers, methodCount, labelledCount, origins, problemKey, lang = 'en' } = Astro.props;
+const c = bCopy[lang].detail;
+const labels = bCopy[lang];
+const originById = new Map(origins.map((o) => [o.id, o]));
+const statusLabel = (s?: string) => s === 'earliest_cited' ? c.originEarliest : s === 'early_candidate' ? c.originEarly : '—';
+const hubLabel = (h: string) => (labels.hubClass as Record<string, string>)[h] ?? h;
+const tierLabel = (t: string) => (labels.tier as Record<string, string>)[t] ?? t;
+const rows = [...papers].sort((a, z) => a.year - z.year || a.title.localeCompare(z.title));
+const hrefBase = lang === 'zh' ? '/zh-Hans' : '';
+---
+<div class="b-paper-module" data-b-paper-table data-lang={lang} data-method={methodCount} data-all={labelledCount}>
+  <div class="b-controls">
+    <span class="b-controls__group">
+      {lang === 'zh' ? '范围' : 'Scope'}:
+      <a href={`?scope=method&sort=year`} data-b-scope="method">{c.paperScopeMethod} ({methodCount})</a>
+      <a href={`?scope=all&sort=year`} data-b-scope="all">{c.paperScopeAll} ({labelledCount})</a>
+    </span>
+    <span class="b-controls__group">
+      {lang === 'zh' ? '排序' : 'Order'}:
+      <a href={`?scope=method&sort=year`} data-b-sort="year">{c.paperSortYear}</a>
+      <a href={`?scope=method&sort=indegree`} data-b-sort="indegree">{c.paperSortIndegree}</a>
+    </span>
+    <span class="b-paper-status mono" aria-live="polite" data-b-paper-status></span>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table b-paper-table">
+      <caption data-b-paper-caption>{c.paperCaptionAll(Math.min(12, labelledCount), labelledCount)}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{c.paperColTitle}</th>
+          <th scope="col">{c.paperColYear}</th>
+          <th scope="col">{c.paperColTier}</th>
+          <th scope="col">{c.paperColHub}</th>
+          <th scope="col" class="num">{c.paperColInternal}</th>
+          <th scope="col">{c.paperColOrigin}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((p) => {
+          const origin = originById.get(p.id);
+          return (
+            <tr data-method={p.method ? '1' : '0'} data-primary={p.primary_problem === problemKey ? '1' : '0'} data-year={p.year} data-indegree={p.internal_indegree}>
+              <th scope="row" class="b-paper-cell">
+                <a href={withBase(`${hrefBase}/paper/${p.id}/`)}>{p.title}</a>
+                <span class="b-paper-id mono">{p.id}</span>
+                {!p.method && <span class="b-tag b-tag--quiet">{c.paperNotMethod}</span>}
+              </th>
+              <td data-label={c.paperColYear}>{p.year}</td>
+              <td data-label={c.paperColTier}>{tierLabel(p.tier)}</td>
+              <td data-label={c.paperColHub}>{hubLabel(p.hub_class)}</td>
+              <td data-label={c.paperColInternal} class="num">{p.internal_indegree}</td>
+              <td data-label={c.paperColOrigin}>{origin ? statusLabel(origin.status) : '—'}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+  <noscript><p class="b-inline-note">{lang === 'zh' ? 'JavaScript 未启用。下面列出全部带标签论文。' : 'JavaScript is off. All labelled papers are listed.'}</p></noscript>
+  <button class="b-more" type="button" data-b-more hidden>{c.showMore(24)}</button>
+</div>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-b-paper-table]');
+    if (!root) return;
+    const tbody = root.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const lang = root.dataset.lang === 'zh' ? 'zh' : 'en';
+    const totalMethod = Number(root.dataset.method || 0);
+    const totalAll = Number(root.dataset.all || 0);
+    const params = new URLSearchParams(location.search);
+    let scope = params.get('scope') === 'method' ? 'method' : 'all';
+    let sort = params.get('sort') === 'indegree' ? 'indegree' : 'year';
+    let visible = 12;
+    const step = 24;
+    const dict = lang === 'zh'
+      ? {
+          showing: (a, b) => `显示 ${a} / ${b}`,
+          caption: (a, b, order) => `本族 primary 方法论文，显示 ${a} / ${b}，${order}。内部引用是整体计数，不是族内计数。`,
+          captionAll: (a, b, order) => `本族全部带标签论文，显示 ${a} / ${b}，${order}。内部引用是整体计数，不是族内计数。`,
+          orderYear: '按年份升序',
+          orderIndegree: '按内部引用降序',
+          more: (n) => `再显示 ${n} 条`,
+          allShown: (n) => `已显示全部 ${n} 条。`,
+          scopeMethod: '范围：primary 方法论文',
+          scopeAll: '范围：全部带标签',
+        }
+      : {
+          showing: (a, b) => `Showing ${a} of ${b}`,
+          caption: (a, b, order) => `Primary method papers in this family, ${a} of ${b} shown, ${order}. Internal citations are overall, not in-family.`,
+          captionAll: (a, b, order) => `All labelled papers in this family, ${a} of ${b} shown, ${order}. Internal citations are overall, not in-family.`,
+          orderYear: 'oldest first',
+          orderIndegree: 'ordered by internal citations',
+          more: (n) => `Show ${n} more`,
+          allShown: (n) => `All ${n} shown.`,
+          scopeMethod: 'Scope: primary method',
+          scopeAll: 'Scope: all labelled',
+        };
+    const status = root.querySelector('[data-b-paper-status]');
+    const caption = root.querySelector('[data-b-paper-caption]');
+    const more = root.querySelector('[data-b-more]');
+    const scopeLinks = root.querySelectorAll('[data-b-scope]');
+    const sortLinks = root.querySelectorAll('[data-b-sort]');
+    const apply = () => {
+      const filtered = rows.filter((r) => scope === 'all' || (r.dataset.method === '1' && r.dataset.primary === '1'));
+      filtered.sort((a, b) => {
+        if (sort === 'indegree') {
+          const d = Number(b.dataset.indegree) - Number(a.dataset.indegree);
+          if (d) return d;
+        }
+        return Number(a.dataset.year) - Number(b.dataset.year) || a.textContent.localeCompare(b.textContent);
+      });
+      filtered.forEach((r) => tbody.appendChild(r));
+      rows.forEach((r) => { r.hidden = true; });
+      filtered.slice(0, visible).forEach((r) => { r.hidden = false; });
+      const total = scope === 'all' ? totalAll : totalMethod;
+      const shown = Math.min(visible, filtered.length);
+      status.textContent = dict.showing(shown, total);
+      const order = sort === 'indegree' ? dict.orderIndegree : dict.orderYear;
+      caption.textContent = scope === 'all' ? dict.captionAll(shown, total, order) : dict.caption(shown, total, order);
+      if (shown >= filtered.length) {
+        more.hidden = true;
+        status.textContent = dict.allShown(filtered.length);
+      } else {
+        more.hidden = false;
+        more.textContent = dict.more(Math.min(step, filtered.length - shown));
+      }
+      scopeLinks.forEach((a) => {
+        a.href = `?scope=${a.dataset.bScope}&sort=${sort}`;
+        if (a.dataset.bScope === scope) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      sortLinks.forEach((a) => {
+        a.href = `?scope=${scope}&sort=${a.dataset.bSort}`;
+        if (a.dataset.bSort === sort) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+    };
+    more.addEventListener('click', () => { visible += step; apply(); });
+    apply();
+  })();
+</script>

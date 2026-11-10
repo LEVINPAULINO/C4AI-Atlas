@@ -1,0 +1,16 @@
+---
+import type { LineageCase } from '../../lib/b';
+import { bCopy } from '../../lib/b-copy';
+interface Props { caseKey: string; data: LineageCase; lang?: 'en' | 'zh' }
+const { data, lang = 'en' } = Astro.props;
+const c = bCopy[lang].detail;
+const name = lang === 'zh' ? data.label_zh : data.label_en;
+const noPath = data.paths === 0;
+---
+<div class="b-lineage">
+  <p class="mono b-lineage__label">{lang === 'zh' ? '脉络案例' : 'Lineage case'} · {name}</p>
+  <h3>{noPath ? (lang === 'zh' ? '没有前向路径' : 'No forward path') : (lang === 'zh' ? '引用路径' : 'Citation path')}</h3>
+  <p class="b-lineage__stats mono">{c.lineagePath(data.paths, data.case_edges, data.method_nodes)}</p>
+  <p>{noPath ? c.lineageNoPath : c.lineageNote}</p>
+  <p class="b-inline-note">{c.lineageOpen}</p>
+</div>

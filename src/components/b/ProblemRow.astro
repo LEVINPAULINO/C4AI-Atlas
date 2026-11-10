@@ -1,0 +1,30 @@
+---
+import { withBase } from '../../lib/urls';
+import type { Problem } from '../../lib/b';
+import StateMark from './StateMark.astro';
+interface Props { problem: Problem; ordinal: number; lang?: 'en' | 'zh' }
+const { problem: p, ordinal, lang = 'en' } = Astro.props;
+const name = lang === 'zh' ? p.name_zh : p.name_en;
+const href = withBase(`${lang === 'zh' ? '/zh-Hans' : ''}/problems/${p.key}/`);
+const hub = p.top_hub;
+const noHub = lang === 'zh' ? '没有族内枢纽' : 'No in-family hub';
+const meta = hub
+  ? (lang === 'zh' ? `${hub.year} · 族内 ${hub.family_indegree} 次` : `${hub.year} · ${hub.family_indegree} in-family`)
+  : (lang === 'zh' ? '0 条族内边' : '0 in-family edges');
+---
+<li class="b-problem-row">
+  <span class="b-problem-row__index">{String(ordinal).padStart(2, '0')}</span>
+  <div class="b-problem-row__name">
+    <h3><a href={href}>{name}</a></h3>
+    <span class="b-key">{p.key}</span>
+  </div>
+  <div class="b-problem-row__hub">
+    {hub ? <span class="b-problem-row__hub-title">{hub.title}</span> : <span class="b-problem-row__hub-title b-muted">{noHub}</span>}
+    <span class="b-problem-row__hub-meta">{meta}</span>
+  </div>
+  <div class="b-problem-row__counts">
+    <span class="b-problem-row__method" data-label={lang === 'zh' ? '方法' : 'method'}>{p.n_method}</span>
+    <span class="b-problem-row__origins" data-label={lang === 'zh' ? '起源' : 'origins'}>{p.n_origins}</span>
+  </div>
+  <div class="b-problem-row__state"><StateMark status={p.status} edges={p.n_edges} lang={lang} /></div>
+</li>

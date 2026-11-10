@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import '../styles/content.css';
 import { withBase } from '../lib/urls';
-import { dataVersion, protocolVersion, builtDate, shaShort } from '../lib/content';
+import { builtDate, shaShort } from '../lib/content';
 
 interface Props {
   lang?: 'en' | 'zh';
@@ -36,22 +36,18 @@ const ui =
     ? {
         snapshot: 'Snapshot',
         toc: 'On this page',
-        dataLabel: 'data',
-        protocolLabel: 'protocol',
         builtLabel: 'built',
         footNote:
-          'Versioned data snapshot.',
+          'This page uses the current data snapshot.',
         download: 'Download the data',
         responsibility: 'Responsibility',
       }
     : {
         snapshot: '快照',
         toc: '本页',
-        dataLabel: '数据',
-        protocolLabel: '协议',
         builtLabel: '生成',
         footNote:
-          '带版本的数据快照。',
+          '本页使用当前数据快照。',
         download: '下载数据',
         responsibility: '责任说明',
       };
@@ -64,8 +60,7 @@ const ui =
         <h1>{heading}</h1>
         <p class="page-lede">{lede}</p>
         <p class="page-status mono">
-          {ui.dataLabel} {dataVersion} · {ui.protocolLabel} {protocolVersion} · {ui.builtLabel}{' '}
-          <span class="nowrap">{builtDate}</span>
+          {ui.builtLabel} <span class="nowrap">{builtDate}</span>
         </p>
       </div>
       {
@@ -100,7 +95,7 @@ const ui =
     <footer class="page-foot">
       <p>{ui.footNote}</p>
       <p class="mono">
-        {ui.dataLabel} {dataVersion} · {ui.protocolLabel} {protocolVersion} · SHA-256 {shaShort}
+        {ui.builtLabel} {builtDate} · SHA-256 {shaShort}
       </p>
       <p>
         <a href={withBase(lang === 'zh' ? '/zh-Hans/download/' : '/download/')}>{ui.download}</a>

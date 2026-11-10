@@ -1,0 +1,22 @@
+{
+ "version": "b1.0.0",
+ "schema_version": "b1.0",
+ "file": "b.json",
+ "sha256": "51747c9d5d45db88bfbf506417448488c1b2d27138ffe6153c5baea23053bd45",
+ "bytes": 828297,
+ "papers": 580,
+ "hubs": 580,
+ "origins": 31,
+ "problems": 8,
+ "generated_at": "2026-11-05T17:15:59.620735+00:00",
+ "derived_files": {
+  "b_problems.json": {
+   "sha256": "d46ae8f7e9afb2f2296190914e00e6664b003e9fbb2c8c0d1cc11355ade32e7d",
+   "bytes": 57485,
+   "source": "analysis/b/data/b_hubs_by_problem.csv",
+   "problems": 7,
+   "rows": 222,
+   "note": "Per-problem family hubs. Counterfactual evaluation has no key because it has no in-family edges."
+  }
+ }
+}

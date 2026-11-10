@@ -1,0 +1,50 @@
+---
+import ContentPage from '../components/ContentPage.astro';
+import '../styles/available.css';
+
+const lang = 'en';
+const c = {
+  title: 'Available content · C4AI Atlas',
+  description: 'The complete coded text corpus and the coding skill used in the C4AI Atlas. Links are not open yet.',
+  eyebrow: 'Resources',
+  heading: 'Available content',
+  lede: 'Two resources are being prepared. Links will be added when they are ready.',
+  items: [
+    {
+      n: '01',
+      title: 'Complete coded text corpus',
+      body: 'The full-text corpus used for coding, including the passages behind each label.',
+    },
+    {
+      n: '02',
+      title: 'Coding skill',
+      body: 'The c4ai-corpus-coding skill in .opencode/skills/c4ai-corpus-coding, used to screen papers and produce coding records.',
+    },
+  ],
+  pending: 'Link pending',
+};
+---
+<ContentPage
+  lang={lang}
+  slug="/available/"
+  title={c.title}
+  description={c.description}
+  eyebrow={c.eyebrow}
+  heading={c.heading}
+  lede={c.lede}
+>
+  <section id="resources">
+    <ol class="resource-list">
+      {c.items.map((item) => (
+        <li class="resource-row">
+          <span class="resource-row__n mono">{item.n}</span>
+          <div class="resource-row__body">
+            <h2>{item.title}</h2>
+            <p>{item.body}</p>
+          </div>
+          <span class="resource-row__status mono">{c.pending}</span>
+        </li>
+      ))}
+    </ol>
+  </section>
+</ContentPage>

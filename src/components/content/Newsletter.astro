@@ -1,6 +1,6 @@
 ---
 import ContentPage from '../ContentPage.astro';
-import { dataVersion, builtDate } from '../../lib/content';
+import { builtDate } from '../../lib/content';
 import { withBase } from '../../lib/urls';
 import { contactEmail } from '../../lib/site';
 
@@ -15,7 +15,7 @@ const copy = {
     description:
       'A low-frequency release note for C4AI Atlas. The signup form is a placeholder; no provider is connected and no address is stored.',
     eyebrow: '07 / Newsletter',
-    heading: 'One email when the data version changes',
+    heading: 'One email when the data changes',
     lede:
       'Release notes and corrections. No launch hype, no weekly digest. The signup form is not connected yet: no email can be sent and no address is stored by this page.',
     factsTitle: 'Status',
@@ -23,8 +23,7 @@ const copy = {
       ['Provider', 'not connected'],
       ['Issues sent', '0'],
       ['Archive', 'empty'],
-      ['Cadence', 'on version change'],
-      ['Data version', dataVersion],
+      ['Cadence', 'on data change'],
     ] as Array<[string, string]>,
     sections: [
       ['signup', 'Signup'],
@@ -75,14 +74,13 @@ const copy = {
     eyebrow: '07 / 订阅',
     heading: '发布说明订阅',
     lede:
-      '数据版本更新时寄一封说明邮件，内容包括更正。订阅表单尚未接入服务商。',
+      '数据变化时寄一封说明邮件，内容包括更正。订阅表单尚未接入服务商。',
     factsTitle: '状态',
     facts: [
       ['服务商', '未接入'],
       ['已发期数', '0'],
       ['存档', '空'],
-      ['频率', '版本变化时'],
-      ['数据版本', dataVersion],
+      ['频率', '数据变化时'],
     ] as Array<[string, string]>,
     sections: [
       ['signup', '订阅'],
@@ -168,7 +166,7 @@ const c = copy[lang];
     </p>
     <p class="note">{c.providerNote}</p>
     <p class="mono-note" style="margin-top:0.8rem">
-      {dataVersion} · built {builtDate}
+      {lang === 'en' ? `Built ${builtDate}` : `生成于 ${builtDate}`}
     </p>
   </section>
 
@@ -218,7 +216,7 @@ const c = copy[lang];
       </a>
       {' · '}
       <a href={withBase(lang === 'zh' ? '/zh-Hans/download/' : '/download/')}>
-        {lang === 'en' ? 'Data versions' : '数据版本'}
+        {lang === 'en' ? 'Data files' : '数据文件'}
       </a>
     </p>
   </section>

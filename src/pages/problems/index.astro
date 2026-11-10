@@ -1,0 +1,65 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/content.css';
+import '../../styles/b.css';
+import { bCopy } from '../../lib/b-copy';
+import { problemsBySize } from '../../lib/b';
+import ProblemRow from '../../components/b/ProblemRow.astro';
+import { withBase } from '../../lib/urls';
+
+const lang = 'en';
+const c = bCopy[lang].index;
+const title = 'Problems: eight families in the corpus · C4AI Atlas';
+const description = 'Eight problem families over 426 method papers in the C4AI Atlas B layer. Labels, in-family citation counts, hubs and origin candidates.';
+---
+<Base
+  lang={lang}
+  title={title}
+  description={description}
+  alternateHref="/zh-Hans/problems/"
+  switchHref="/zh-Hans/problems/"
+>
+  <div class="wrap content b-page">
+    <header class="page-head b-index-head">
+      <div class="b-eyebrow">
+        <span class="b-mark"><span class="b-mark__rule" aria-hidden="true"></span>{bCopy[lang].layer} / {c.eyebrow.split(' / ').pop()}</span>
+      </div>
+      <h1>{c.title}</h1>
+    </header>
+
+    <section class="b-key" aria-labelledby="b-key-title">
+      <p class="eyebrow" id="b-key-title">{c.keyTitle}</p>
+      <div class="b-key__list">
+        <span class="b-key__item"><span class="b-state b-state--connected"><span class="b-state__glyph" aria-hidden="true"><i></i><i></i><i></i></span><span class="b-state__word">{c.keyConnected}</span></span></span>
+        <span class="b-key__item"><span class="b-state b-state--thin"><span class="b-state__glyph" aria-hidden="true"><i></i><i></i><i></i></span><span class="b-state__word">{c.keyThin}</span></span></span>
+        <span class="b-key__item"><span class="b-state b-state--no_in_family_edges"><span class="b-state__glyph" aria-hidden="true"><i></i><i></i><i></i></span><span class="b-state__word">{c.keyNone}</span></span></span>
+      </div>
+      <div class="b-key__notes">
+        {c.howToRead.map((line) => <p>{line}</p>)}
+      </div>
+    </section>
+
+    <section id="families" aria-labelledby="families-title">
+      <div class="sec-head b-list-head">
+        <div>
+          <p class="eyebrow">{c.sectionEyebrow}</p>
+          <h2 id="families-title">{c.sectionTitle}</h2>
+        </div>
+        <p>{c.sectionNote}</p>
+      </div>
+      <div class="b-problem-head mono" aria-hidden="true">
+        <span>Index</span><span>{c.colFamily}</span><span>{c.colHub}</span><span>{c.colMethod}</span><span>{c.colOrigins}</span><span>{c.colState}</span>
+      </div>
+      <ol class="b-problem-list" aria-labelledby="families-title">
+        {problemsBySize.map((p, i) => <ProblemRow problem={p} ordinal={i + 1} lang={lang} />)}
+      </ol>
+    </section>
+
+    <footer class="b-page-foot">
+      <p class="mono">{bCopy[lang].labels.schema}</p>
+      <p>
+        <a href={withBase('/download/')}>{c.coverageLinks[1]}</a>
+      </p>
+    </footer>
+  </div>
+</Base>

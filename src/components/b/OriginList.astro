@@ -1,0 +1,24 @@
+---
+import { withBase } from '../../lib/urls';
+import type { BOrigin } from '../../lib/b';
+import { bCopy } from '../../lib/b-copy';
+interface Props { origins: BOrigin[]; lang?: 'en' | 'zh' }
+const { origins, lang = 'en' } = Astro.props;
+const c = bCopy[lang].detail;
+const statusLabel = (s: string) => (s === 'earliest_cited' ? c.originEarliest : s === 'early_candidate' ? c.originEarly : s);
+---
+<ol class="b-origin-list">
+  {origins.map((o) => (
+    <li class="b-origin-row">
+      <div class="b-origin-row__year mono">{o.year}</div>
+      <div class="b-origin-row__body">
+        <a href={withBase(`${lang === 'zh' ? '/zh-Hans' : ''}/paper/${o.id}/`)}>{o.title}</a>
+        <div class="b-origin-row__meta">
+          <span class="b-tag">{statusLabel(o.status)}</span>
+          <span class="mono">{c.originMeta(o.first_cited_year_in_corpus, o.downstream_count, o.internal_indegree)}</span>
+          <span class="mono">{o.tier} · {o.family}</span>
+        </div>
+      </div>
+    </li>
+  ))}
+</ol>

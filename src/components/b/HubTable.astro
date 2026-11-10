@@ -1,0 +1,47 @@
+---
+import { withBase } from '../../lib/urls';
+import type { FamilyHub } from '../../lib/b';
+import { bCopy } from '../../lib/b-copy';
+interface Props {
+  hubs: FamilyHub[];
+  total: number;
+  key: string;
+  lang?: 'en' | 'zh';
+}
+const { hubs, total, lang = 'en' } = Astro.props;
+const c = bCopy[lang].detail;
+const top = hubs.slice(0, 5);
+---
+<div class="table-wrap">
+  <table class="data-table b-hub-table">
+    <caption>{c.hubsCaption(Math.min(5, total), total)}</caption>
+    <thead>
+      <tr>
+        <th scope="col">{c.hubColPaper}</th>
+        <th scope="col">{c.hubColYear}</th>
+        <th scope="col">{c.hubColTier}</th>
+        <th scope="col" class="num">{c.hubColInFamily}</th>
+        <th scope="col" class="num">{c.hubColInternal}</th>
+        <th scope="col" class="num">{c.hubColGlobal}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {top.map((h) => (
+        <tr>
+          <th scope="row" class="b-paper-cell">
+            <a href={withBase(`${lang === 'zh' ? '/zh-Hans' : ''}/paper/${h.id}/`)}>{h.title}</a>
+            <span class="b-paper-id mono">{h.id}</span>
+          </th>
+          <td data-label={c.hubColYear}>{h.year}</td>
+          <td data-label={c.hubColTier}>{h.tier}</td>
+          <td data-label={c.hubColInFamily} class="num">{h.family_indegree}</td>
+          <td data-label={c.hubColInternal} class="num">{h.overall_indegree}</td>
+          <td data-label={c.hubColGlobal} class="num b-context">{h.global_cited_by}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<div class="b-table-foot mono">
+  {total > 5 && <span>{lang === 'zh' ? '完整枢纽表将在下一批页面开放' : 'Full hub table: next B-layer page'}</span>}
+</div>

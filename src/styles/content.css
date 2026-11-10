@@ -1,6 +1,6 @@
 /* Content pages: ledger, plate, and table primitives.
-   Shared by /capabilities/, /audit/, /methods/, /responsibility/,
-   /newsletter/, /download/, and /about/. Reads tokens from tokens.css. */
+   Shared by /capabilities/, /responsibility/, /newsletter/, /download/,
+   /about/, /problems/, and /available/. Reads tokens from tokens.css. */
 
 .content {
   padding-bottom: var(--space-5);

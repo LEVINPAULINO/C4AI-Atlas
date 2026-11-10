@@ -1,0 +1,20 @@
+---
+interface Props {
+  status: 'connected' | 'thin' | 'no_in_family_edges';
+  edges: number;
+  lang?: 'en' | 'zh';
+  showCount?: boolean;
+  word?: boolean;
+}
+const { status, edges, lang = 'en', showCount = true, word = true } = Astro.props;
+const labels = {
+  en: { connected: 'Dense', thin: 'Thin', no_in_family_edges: 'No in-family edges' },
+  zh: { connected: '较密', thin: '薄族', no_in_family_edges: '无族内边' },
+} as const;
+const count = lang === 'zh' ? `${edges} 条族内边` : `${edges} in-family edges`;
+---
+<span class={`b-state b-state--${status}`}>
+  <span class="b-state__glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+  {word && <span class="b-state__word">{labels[lang][status]}</span>}
+  {showCount && <span class="b-state__count">{count}</span>}
+</span>

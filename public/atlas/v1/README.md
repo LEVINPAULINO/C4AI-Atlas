@@ -6,6 +6,7 @@ Files:
 - `manifest.json`: version, counts, build time, SHA-256.
 - `layouts.json`: precomputed PCA and UMAP coordinates for the 64 patterns.
 - `navigator.json`: pilot rules and capability-level exemplars for `/navigator/`. Derived from `atlas.json`; not included in the manifest hash.
+- `b/b.json`: B layer (problem labels, internal citations, hubs, origins, lineage). Separate version `b1.0.0`, pinned by `b/manifest.json`.
 
 There is no API. Read the files directly.
 

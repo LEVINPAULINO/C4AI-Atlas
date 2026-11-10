@@ -2,7 +2,7 @@
 import ContentPage from '../ContentPage.astro';
 import { atlas } from '../../lib/atlas';
 import manifestRaw from '../../../public/atlas/v1/manifest.json?raw';
-import { dataVersion, protocolVersion, builtDate, sha256, shaShort, atlasBytes, atlasKiB } from '../../lib/content';
+import { builtDate, sha256, shaShort, atlasBytes, atlasKiB } from '../../lib/content';
 import { withBase } from '../../lib/urls';
 
 interface Props {
@@ -81,8 +81,6 @@ const copy = {
       'The public snapshot is a static file at a versioned path. Read it directly or download it. There is no endpoint, no key, and no service-level promise.',
     factsTitle: 'Files',
     facts: [
-      ['Data version', dataVersion],
-      ['Protocol', protocolVersion],
       ['Built', builtDate],
       ['atlas.json', `${atlasKiB} KiB`],
       ['SHA-256', shaShort],
@@ -139,19 +137,18 @@ const copy = {
     ] as Array<[string, string]>,
     licenseNote:
       'The quotations embedded in capability evidence remain with their authors and publishers. Reusing a quotation requires the rights holder’s permission; CC BY 4.0 does not cover it.',
-    citationTitle: 'How to cite this version',
+    citationTitle: 'How to cite this snapshot',
     citationBody:
-      'Cite the data version and the build date. A DOI is not assigned yet. A Zenodo DOI will be registered with the first frozen release.',
+      'Cite the build date and checksum. A DOI is not assigned yet. A Zenodo DOI will be registered with the first frozen release.',
     citationPlain:
-      `C4AI Atlas (2026). C4AI Atlas: causality for AI, coded (Version ${dataVersion}) [Data set]. Data snapshot ${builtDate}. SHA-256 ${sha256}.`,
+      `C4AI Atlas (2026). C4AI Atlas: causality for AI, coded [Data set]. Data snapshot ${builtDate}. SHA-256 ${sha256}.`,
     citationNote:
-      'For a paper citation, include the protocol version and the access date. For a derived figure, include the filter and the denominator.',
+      'For a paper citation, include the build date and the access date. For a derived figure, include the filter and the denominator.',
     bibtex: `@misc{c4aiatlas2026,
   title        = {C4AI Atlas: causality for AI, coded},
   author       = {{C4AI Atlas project}},
   year         = {2026},
-  version      = {${dataVersion}},
-  note         = {Data snapshot ${builtDate}; protocol ${protocolVersion};
+  note         = {Data snapshot ${builtDate};
                   SHA-256 ${sha256};
                   DOI to be assigned},
   howpublished = {Static JSON data set}
@@ -169,8 +166,6 @@ const copy = {
       '公开快照是带版本的静态文件，可以直接读取或下载。本站提供文件、版本、哈希和引用信息。',
     factsTitle: '文件',
     facts: [
-      ['数据版本', dataVersion],
-      ['协议', protocolVersion],
       ['生成', builtDate],
       ['atlas.json', `${atlasKiB} KiB`],
       ['SHA-256', shaShort],
@@ -227,19 +222,18 @@ const copy = {
     ] as Array<[string, string]>,
     licenseNote:
       '能力证据中的引用文字权利归原作者与出版社。复用引用需取得权利持有人许可；CC BY 4.0 不覆盖引用。',
-    citationTitle: '引用这个版本',
+    citationTitle: '引用这份快照',
     citationBody:
-      '引用数据版本与生成日期。当前快照尚未分配 DOI；Zenodo DOI 将在首次冻结版本时申请。',
+      '引用生成日期与校验值。当前快照尚未分配 DOI；Zenodo DOI 将在首次冻结版本时申请。',
     citationPlain:
-      `C4AI Atlas（2026）。C4AI Atlas: causality for AI, coded（版本 ${dataVersion}）[数据集]。数据快照 ${builtDate}。SHA-256 ${sha256}。`,
+      `C4AI Atlas（2026）。C4AI Atlas: causality for AI, coded [数据集]。数据快照 ${builtDate}。SHA-256 ${sha256}。`,
     citationNote:
-      '论文引用请附协议版本与访问日期。引用派生图表请附筛选条件与分母。',
+      '论文引用请附生成日期与访问日期。引用派生图表请附筛选条件与分母。',
     bibtex: `@misc{c4aiatlas2026,
   title        = {C4AI Atlas: causality for AI, coded},
   author       = {{C4AI Atlas project}},
   year         = {2026},
-  version      = {${dataVersion}},
-  note         = {Data snapshot ${builtDate}; protocol ${protocolVersion};
+  note         = {Data snapshot ${builtDate};
                   SHA-256 ${sha256};
                   DOI to be assigned},
   howpublished = {Static JSON data set}
@@ -403,10 +397,6 @@ const c = copy[lang];
     <p class="small" style="margin-top:1rem">
       <a href={withBase(lang === 'zh' ? '/zh-Hans/responsibility/' : '/responsibility/')}>
         {lang === 'en' ? 'Full responsibility notice' : '完整责任说明'}
-      </a>
-      {' · '}
-      <a href={withBase(lang === 'zh' ? '/zh-Hans/methods/' : '/methods/')}>
-        {lang === 'en' ? 'Methods' : '方法'}
       </a>
     </p>
   </section>

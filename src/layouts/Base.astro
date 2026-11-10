@@ -23,8 +23,8 @@ const nav = [
   ['papers', `${prefix}/papers/`],
   ['navigator', `${prefix}/navigator/`],
   ['capabilities', `${prefix}/capabilities/`],
-  ['methods', `${prefix}/methods/`],
-  ['deep', `${prefix}/deep/`],
+  ['problems', `${prefix}/problems/`],
+  ['available', `${prefix}/available/`],
 ] as const;
 const canonical = new URL(path, Astro.site ?? 'https://levinpaulino.github.io').toString();
 const alternate = new URL(withBase(alternateHref), Astro.site ?? 'https://levinpaulino.github.io').toString();
@@ -109,7 +109,7 @@ const ogImage = new URL(withBase('/og.png'), Astro.site ?? 'https://levinpaulino
           <div>
             <div class="brand__word" style="font-size:1rem">C4AI Atlas</div>
             <p style="max-width:42ch;margin:0.8rem 0 0">{c.footer.note}</p>
-            <p class="mono" style="margin-top:1rem;font-size:0.68rem">v{atlas.meta.version} · {atlas.meta.data_status} · {atlas.meta.protocol_version} · {atlas.meta.built_at.slice(0, 10)}</p>
+            <p class="mono" style="margin-top:1rem;font-size:0.68rem">{lang === 'zh' ? '生成' : 'Built'} {atlas.meta.built_at.slice(0, 10)}</p>
           </div>
           <div>
             <h2 class="eyebrow">{c.footer.linksTitle}</h2>

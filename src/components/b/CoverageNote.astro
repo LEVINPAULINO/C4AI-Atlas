@@ -1,0 +1,18 @@
+---
+interface Props { lang?: 'en' | 'zh'; variant?: 'band' | 'inline' }
+const { lang = 'en', variant = 'band' } = Astro.props;
+const c = {
+  en: {
+    label: 'Coverage',
+    text: 'The corpus has 1,304 internal citation edges. A family’s n_edges counts edges whose two papers both carry that label; one edge can appear in two families, so family counts do not sum to 1,304. 554 of 580 papers have a reference list in at least one source; for the other 26, a zero can be a coverage gap.',
+  },
+  zh: {
+    label: '覆盖',
+    text: '语料共有 1,304 条内部引用边。某族的 n_edges 统计两端都带该标签的边；同一条边可以出现在两个族里，所以各族计数不等于 1,304。554 篇论文至少在一个来源中有引用列表；其余 26 篇没有，0 可能是覆盖缺口。',
+  },
+}[lang];
+---
+<div class:list={['b-coverage', variant === 'inline' && 'b-coverage--inline']}>
+  <span class="b-coverage__label">{c.label}</span>
+  <p>{c.text}</p>
+</div>
