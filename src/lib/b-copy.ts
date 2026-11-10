@@ -9,8 +9,6 @@ export const bCopy = {
       lede: 'The B layer gives each of the 580 papers one to three problem labels and one primary label. This page groups the 426 method papers by primary label into eight families and counts the citations inside each.',
       howToRead: [
         'The method column counts method papers whose primary label is this family. An in-family edge joins two papers that both carry the label.',
-        'Thin families are listed with their edge counts.',
-        'A problem family is a B-layer label, not the A-layer paper group (CausalRL, OOD, TimeSeries).',
       ],
       keyTitle: 'State thresholds',
       keyConnected: '20 or more in-family edges',
@@ -98,7 +96,6 @@ export const bCopy = {
         '554 of 580 papers have a reference list. For the other 26, a missing edge can be a coverage gap.',
         'A citation edge means one paper cites another. It does not establish that the method was adopted.',
         'Labels come from a rule set with one 100-paper review pass. They are not double-coded.',
-        'Problem family is a B-layer label, not the A-layer paper group (CausalRL, OOD, TimeSeries).',
       ],
       limitsLinks: ['Methods', 'Download', 'Report a data error'],
       version: 'B layer',
@@ -146,8 +143,6 @@ export const bCopy = {
       lede: 'B 层为 580 篇论文各分配 1 到 3 个问题标签，其中一个是 primary label。本页把 426 篇方法论文按 primary label 归为 8 个问题族，并统计每族内部的引用边。',
       howToRead: [
         '方法列统计以该族为 primary label 的方法论文。族内边连接两篇都带该标签的论文。',
-        '薄族也列出，并标出族内边数。',
-        '问题族是 B 层标签，不是 A 层的论文分组（CausalRL、OOD、TimeSeries）。',
       ],
       keyTitle: '状态阈值',
       keyConnected: '20 条及以上族内边',
@@ -235,7 +230,6 @@ export const bCopy = {
         '580 篇中有 554 篇有引用列表。其余 26 篇缺少边，可能是覆盖缺口。',
         '引用边只表示一篇论文引用了另一篇，不表示方法被采用。',
         '标签由规则生成，并在 100 篇样本上复核。它们不是双人独立编码。',
-        '问题族是 B 层标签，不是 A 层的论文分组（CausalRL、OOD、TimeSeries）。',
       ],
       limitsLinks: ['编码方法', '数据下载', '报告数据错误'],
       version: 'B 层',
