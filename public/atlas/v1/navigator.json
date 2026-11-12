@@ -1,8 +1,8 @@
 {
  "meta": {
-  "version": "0.1.0-pilot",
-  "status": "author mapping; capability-level evidence",
-  "note": "Problem-level evidence has not been coded yet. Candidate methods are design hypotheses, not measured effects. P0 records under adjudication are excluded from evidence lists."
+  "version": "0.2.0-pilot",
+  "status": "AI problem -> causal question -> capability mapping",
+  "note": "Start from an AI problem. The causal question is the second step; candidate methods are design hypotheses, not measured effects."
  },
  "problems": [
   {
@@ -1043,6 +1043,240 @@
      "why_zh": "基准允许时，让模型选择下一次干预检验。",
      "minimal_test_zh": "相对随机干预策略测量 regret。"
     }
+   ]
+  }
+ ],
+ "ai_problems": [
+  {
+   "id": "distribution_shift",
+   "name_en": "Distribution Shift",
+   "name_zh": "分布偏移",
+   "subtitle_en": "Out-of-Distribution Generalization",
+   "subtitle_zh": "分布外泛化",
+   "desc_en": "Training looks fine, but performance drops on a new hospital, city, device, language, or user group.",
+   "desc_zh": "训练指标正常，但换到新医院、城市、设备、语言或用户群后性能下降。",
+   "symptoms_en": [
+    "OOD drop",
+    "domain shift",
+    "unstable across sites"
+   ],
+   "symptoms_zh": [
+    "分布外掉点",
+    "域偏移",
+    "跨站点不稳定"
+   ],
+   "causal_problems": [
+    "distribution_shift",
+    "observational_confounding"
+   ]
+  },
+  {
+   "id": "spurious_correlation",
+   "name_en": "Spurious Correlation",
+   "name_zh": "虚假相关",
+   "subtitle_en": "Spurious Correlation",
+   "subtitle_zh": "虚假相关",
+   "desc_en": "The model uses background, position, device, or text length instead of the intended mechanism, and fails when the shortcut changes.",
+   "desc_zh": "模型利用背景、位置、设备或文本长度等捷径，而不是目标机制；捷径一变就失效。",
+   "symptoms_en": [
+    "shortcut learning",
+    "spurious feature",
+    "unstable under intervention"
+   ],
+   "symptoms_zh": [
+    "捷径学习",
+    "虚假特征",
+    "干预后失效"
+   ],
+   "causal_problems": [
+    "observational_confounding",
+    "distribution_shift"
+   ]
+  },
+  {
+   "id": "selection_bias",
+   "name_en": "Selection Bias",
+   "name_zh": "选择偏差",
+   "subtitle_en": "Confounding Bias / Selection Bias",
+   "subtitle_zh": "混杂偏差 / 选择偏差",
+   "desc_en": "Decisions in the data affect who gets treated, clicked, or selected; the model learns from a biased action policy.",
+   "desc_zh": "数据里的决策影响了谁被处理、被点击、被选中；模型学到的是有偏的行动策略。",
+   "symptoms_en": [
+    "biased logs",
+    "feedback loop",
+    "policy-dependent logging"
+   ],
+   "symptoms_zh": [
+    "有偏日志",
+    "反馈回路",
+    "日志依赖策略"
+   ],
+   "causal_problems": [
+    "observational_confounding",
+    "counterfactual_evaluation"
+   ]
+  },
+  {
+   "id": "offline_evaluation",
+   "name_en": "Offline Evaluation",
+   "name_zh": "离线评估",
+   "subtitle_en": "Off-Policy Evaluation",
+   "subtitle_zh": "用旧策略日志评估新策略",
+   "desc_en": "Use logs from an old policy to estimate a new model, prompt, treatment, or policy without an online A/B test.",
+   "desc_zh": "用旧策略产生的日志评估新模型、新提示、新处理或新策略，但不真正上线做 A/B。",
+   "symptoms_en": [
+    "no online A/B",
+    "offline evaluation",
+    "policy value"
+   ],
+   "symptoms_zh": [
+    "无法在线 A/B",
+    "离线评估",
+    "策略价值"
+   ],
+   "causal_problems": [
+    "counterfactual_evaluation",
+    "observational_confounding",
+    "agent_intervention"
+   ]
+  },
+  {
+   "id": "credit_assignment",
+   "name_en": "Credit Assignment",
+   "name_zh": "信用分配",
+   "subtitle_en": "Credit Assignment",
+   "subtitle_zh": "信用分配",
+   "desc_en": "In a multi-step task, it is unclear which action, tool call, or intermediate step caused the outcome.",
+   "desc_zh": "多步任务里，说不清是哪个动作、工具调用或中间步骤带来了结果。",
+   "symptoms_en": [
+    "delayed reward",
+    "which step helped",
+    "multi-step agent"
+   ],
+   "symptoms_zh": [
+    "延迟奖励",
+    "哪一步有用",
+    "多步 Agent"
+   ],
+   "causal_problems": [
+    "agent_intervention",
+    "counterfactual_evaluation"
+   ]
+  },
+  {
+   "id": "structure_learning",
+   "name_en": "Structure Learning",
+   "name_zh": "结构学习",
+   "subtitle_en": "Causal Structure Learning / Causal Discovery",
+   "subtitle_zh": "因果结构学习 / 因果发现",
+   "desc_en": "The relationships between variables are unknown; you need to recover a graph or an equivalence class from data.",
+   "desc_zh": "变量之间的关系未知，需要从数据中恢复图或等价类。",
+   "symptoms_en": [
+    "unknown graph",
+    "edge discovery",
+    "structure recovery"
+   ],
+   "symptoms_zh": [
+    "图未知",
+    "边发现",
+    "结构恢复"
+   ],
+   "causal_problems": [
+    "causal_structure",
+    "time_series"
+   ]
+  },
+  {
+   "id": "root_cause_analysis",
+   "name_en": "Root Cause Analysis",
+   "name_zh": "根因分析",
+   "subtitle_en": "Root Cause Analysis",
+   "subtitle_zh": "根因分析",
+   "desc_en": "A failure has occurred and you need to localize the cause among many components, logs, or variables.",
+   "desc_zh": "系统出了故障，需要在很多组件、日志或变量中定位原因。",
+   "symptoms_en": [
+    "failure localization",
+    "root cause",
+    "incident triage"
+   ],
+   "symptoms_zh": [
+    "故障定位",
+    "根因",
+    "事故排查"
+   ],
+   "causal_problems": [
+    "causal_structure",
+    "time_series"
+   ]
+  },
+  {
+   "id": "concept_drift",
+   "name_en": "Concept Drift",
+   "name_zh": "概念漂移",
+   "subtitle_en": "Non-stationary Time Series / Concept Drift",
+   "subtitle_zh": "非平稳时间序列 / 概念漂移",
+   "desc_en": "Performance degrades over time because lagged effects, mechanisms, or the data-generating process change.",
+   "desc_zh": "时间一长性能就下降，因为滞后关系、机制或数据生成过程发生变化。",
+   "symptoms_en": [
+    "non-stationarity",
+    "regime change",
+    "temporal drift"
+   ],
+   "symptoms_zh": [
+    "非平稳",
+    "机制切换",
+    "时间漂移"
+   ],
+   "causal_problems": [
+    "time_series",
+    "causal_structure",
+    "distribution_shift"
+   ]
+  },
+  {
+   "id": "llm_reasoning",
+   "name_en": "LLM Reasoning",
+   "name_zh": "LLM 推理",
+   "subtitle_en": "Causal Reasoning in LLMs",
+   "subtitle_zh": "LLM 因果推理",
+   "desc_en": "The model answers causal questions, supplies graph priors, or makes causal judgments; you need to know whether it reasons or memorizes.",
+   "desc_zh": "模型回答因果问题、给因果图先验或做因果判断；需要判断它是在推理还是在背诵。",
+   "symptoms_en": [
+    "causal QA",
+    "graph priors",
+    "memorized causality"
+   ],
+   "symptoms_zh": [
+    "因果问答",
+    "图先验",
+    "背诵因果"
+   ],
+   "causal_problems": [
+    "llm_causal_reasoning",
+    "causal_structure"
+   ]
+  },
+  {
+   "id": "what_if_prediction",
+   "name_en": "What-if Prediction",
+   "name_zh": "What-if 预测",
+   "subtitle_en": "Counterfactual Prediction",
+   "subtitle_zh": "反事实预测",
+   "desc_en": "For a specific patient, user, or case, you need to estimate what would have happened under a different action.",
+   "desc_zh": "对某个病人、用户或案例，需要估计换一种处理会怎样。",
+   "symptoms_en": [
+    "individual what-if",
+    "counterfactual outcome",
+    "alternative action"
+   ],
+   "symptoms_zh": [
+    "个体 what-if",
+    "反事实结果",
+    "替代动作"
+   ],
+   "causal_problems": [
+    "counterfactual_evaluation",
+    "observational_confounding"
    ]
   }
  ]

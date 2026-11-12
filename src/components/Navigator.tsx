@@ -7,6 +7,7 @@ type AttrValue = string;
 type Rule = (typeof navigator.rules)[number];
 type Candidate = Rule['candidates'][number];
 type Cap = (typeof navigator.capabilities)[keyof typeof navigator.capabilities];
+type AIProblem = (typeof navigator.ai_problems)[number];
 
 const STATUS_ORDER: Record<string, number> = { adjacent: 0, theoretical: 1 };
 
@@ -20,9 +21,15 @@ function candidateCap(id: string): Cap | undefined {
   return (navigator.capabilities as Record<string, Cap>)[id];
 }
 
+function firstCausalFor(aiId: string): string {
+  const ai = navigator.ai_problems.find((item) => item.id === aiId) ?? navigator.ai_problems[0];
+  return ai.causal_problems[0] ?? navigator.problems[0].id;
+}
+
 export default function Navigator({ lang }: { lang: Lang }) {
   const c = t(lang).navigator;
-  const [problemId, setProblemId] = useState(navigator.problems[0].id);
+  const [aiProblemId, setAiProblemId] = useState(navigator.ai_problems[0].id);
+  const [problemId, setProblemId] = useState(firstCausalFor(navigator.ai_problems[0].id));
   const [data, setData] = useState<AttrValue>('any');
   const [intervention, setIntervention] = useState<AttrValue>('any');
   const [confounding, setConfounding] = useState<AttrValue>('any');
@@ -30,8 +37,16 @@ export default function Navigator({ lang }: { lang: Lang }) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const nextAi = params.get('ai');
+    if (nextAi && navigator.ai_problems.some((item) => item.id === nextAi)) {
+      setAiProblemId(nextAi);
+      setProblemId(firstCausalFor(nextAi));
+    }
     const nextProblem = params.get('problem');
     if (nextProblem && navigator.problems.some((item) => item.id === nextProblem)) {
+      const owner = navigator.ai_problems.find((item) =>
+        item.causal_problems.includes(nextProblem));
+      if (owner) setAiProblemId(owner.id);
       setProblemId(nextProblem);
     }
     const restore = (key: 'data' | 'intervention' | 'confounding', set: (value: string) => void) => {
@@ -47,12 +62,13 @@ export default function Navigator({ lang }: { lang: Lang }) {
   useEffect(() => {
     if (!ready) return;
     const params = new URLSearchParams();
+    params.set('ai', aiProblemId);
     params.set('problem', problemId);
     if (data !== 'any') params.set('data', data);
     if (intervention !== 'any') params.set('intervention', intervention);
     if (confounding !== 'any') params.set('confounding', confounding);
     window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
-  }, [ready, problemId, data, intervention, confounding]);
+  }, [ready, aiProblemId, problemId, data, intervention, confounding]);
 
 
   const results = useMemo(() => {
@@ -72,12 +88,22 @@ export default function Navigator({ lang }: { lang: Lang }) {
     return [...byCap.values()].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
   }, [problemId, data, intervention, confounding]);
 
+  const selectAI = (id: string) => {
+    setAiProblemId(id);
+    setProblemId(firstCausalFor(id));
+  };
+
   const reset = () => {
-    setProblemId(navigator.problems[0].id);
+    setAiProblemId(navigator.ai_problems[0].id);
+    setProblemId(firstCausalFor(navigator.ai_problems[0].id));
     setData('any');
     setIntervention('any');
     setConfounding('any');
   };
+
+  const activeAI: AIProblem = navigator.ai_problems.find((item) => item.id === aiProblemId) ?? navigator.ai_problems[0];
+  const causalProblems = navigator.problems.filter((item) =>
+    activeAI.causal_problems.includes(item.id));
 
   const attrSelect = (key: 'data' | 'intervention' | 'confounding', value: string, set: (v: string) => void) => {
     const attr = navigator.attributes[key];
@@ -96,30 +122,47 @@ export default function Navigator({ lang }: { lang: Lang }) {
   return (
     <div className="navigator">
       <header className="navigator__head">
-        <p className="eyebrow">{c.eyebrow}</p>
         <h1>{c.title}</h1>
         <p>{c.body}</p>
       </header>
 
       <section className="navigator__problems" aria-label={c.problem}>
-        {navigator.problems.map((p) => (
+        {navigator.ai_problems.map((p) => (
           <button
             key={p.id}
             type="button"
-            className={p.id === problemId ? 'is-active' : undefined}
-            aria-pressed={p.id === problemId}
-            onClick={() => setProblemId(p.id)}
+            className={p.id === aiProblemId ? 'is-active' : undefined}
+            aria-pressed={p.id === aiProblemId}
+            onClick={() => selectAI(p.id)}
           >
             <span>{lang === 'zh' ? p.name_zh : p.name_en}</span>
+            <small className="navigator__subtitle">{lang === 'zh' ? p.subtitle_zh : p.subtitle_en}</small>
             <small>{lang === 'zh' ? p.desc_zh : p.desc_en}</small>
           </button>
         ))}
       </section>
 
+      <section className="navigator__causal" aria-label={c.causalQuestion}>
+        <p className="eyebrow">{c.causalQuestion}</p>
+        <div className="navigator__causal-list">
+          {causalProblems.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={p.id === problemId ? 'is-active' : undefined}
+              aria-pressed={p.id === problemId}
+              onClick={() => setProblemId(p.id)}
+            >
+              {lang === 'zh' ? p.name_zh : p.name_en}
+            </button>
+          ))}
+        </div>
+        <p className="navigator__causal-note">{c.causalHint}</p>
+      </section>
+
       <section className="navigator__controls">
         {attrSelect('data', data, setData)}
         {attrSelect('intervention', intervention, setIntervention)}
-        {attrSelect('confounding', confounding, setConfounding)}
         <button className="reset navigator__reset" type="button" onClick={reset}>{c.reset}</button>
       </section>
 

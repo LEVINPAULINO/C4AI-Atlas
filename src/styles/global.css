@@ -1687,6 +1687,54 @@ button {
   color: var(--muted);
 }
 
+.navigator__problems button .navigator__subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+}
+
+.navigator__causal {
+  padding: 1rem 0 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.navigator__causal .eyebrow {
+  margin-bottom: 0.5rem;
+}
+
+.navigator__causal-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.navigator__causal-list button {
+  padding: 0.42rem 0.7rem;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.navigator__causal-list button:hover,
+.navigator__causal-list button.is-active {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.navigator__causal-list button.is-active {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.navigator__causal-note {
+  margin: 0.6rem 0 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
 .navigator__controls {
   display: flex;
   flex-wrap: wrap;
